@@ -1,0 +1,24 @@
+{
+  "name": "oxil/kinikit-persistence",
+  "version": "0.0.1",
+  "description": "Kinikit - PHP Application development framework",
+  "keywords": [
+    "PHP",
+    "application",
+    "mvc",
+    "json webservices",
+    "webservices",
+    "orm",
+    "persistence framework"
+  ],
+  "homepage": "https://kinikit.com",
+  "type": "library",
+  "require": {
+    "oxil/kinikit-core": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Kinikit\\Persistence\\": "src/"
+    }
+  }
+}
