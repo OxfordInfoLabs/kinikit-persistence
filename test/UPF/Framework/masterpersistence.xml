@@ -1,0 +1,54 @@
+<UPF>
+
+	<IncludedMappingFiles>UPF/Framework/includedpersistence.xml</IncludedMappingFiles>
+
+
+	<Engines>
+
+		<ObjectIndexPersistenceEngine identifier="sql">
+			<DatabaseConnection>
+				<MySQLDatabaseConnection host="myhost"
+					database="bongo" username="bigone" password="littleone" port="3306" />
+			</DatabaseConnection>
+		</ObjectIndexPersistenceEngine>
+
+	</Engines>
+
+
+	<Interceptors>
+		<TestObjectInterceptor2 phpNameSpace="Kinikit\Persistence\UPF\Framework" />
+	</Interceptors>
+
+	<FieldFormatters>
+		<DateFieldFormatter identifier="smalltimeformat"
+			sourceFormat="Y-m-d H:i:s" targetFormat="H:i" />
+		<DateFieldFormatter identifier="britishdatelongdatabase"
+			sourceFormat="Y-m-d 00:00:00" targetFormat="d/m/Y" />
+		<NumberFieldFormatter identifier="twodecimalplaces"
+			decimalPlaces="2" />
+		<MoneyFieldFormatter identifier="moneyformat" />
+	</FieldFormatters>
+
+
+
+	<ObjectMappers>
+
+		<Object className="Kinikit\Persistence\UPF\Framework\Contact" location="businessobjects">
+			<Fields>
+				<Field fieldName="name" required="true" />
+				<Field fieldName="telephone" primaryKey="true" required="true" />
+
+			</Fields>
+
+			<Interceptors>
+				<TestObjectInterceptor2 phpNameSpace="Kinikit\Persistence\UPF\Framework" />
+			</Interceptors>
+
+		</Object>
+
+
+	</ObjectMappers>
+
+
+
+</UPF>

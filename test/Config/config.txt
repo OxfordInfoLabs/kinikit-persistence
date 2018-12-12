@@ -1,0 +1,16 @@
+# Configure the database connectivity
+db.provider = sqlite3
+db.filename = DB/application.db
+
+log.file = /tmp/kinikit.log
+
+sqlserver.servername = DAMS2-WINDOWS
+sqlserver.database = ooacoretest
+sqlserver.username = sa
+sqlserver.password = W1equity
+
+
+param1 = ford
+param2 = vauxhall
+param3 = bmw
+param4 = porsche

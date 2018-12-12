@@ -1,0 +1,27 @@
+<UPF>
+
+	<Engines>
+
+		<ObjectIndexPersistenceEngine identifier="sql">
+			<DatabaseConnection>
+				<MySQLDatabaseConnection host="myhost"
+					database="bongo" username="bigone" password="littleone" port="3306" />
+			</DatabaseConnection>
+		</ObjectIndexPersistenceEngine>
+
+	</Engines>
+
+	<ObjectMappers>
+
+		<Object className="Kinikit\Persistence\UPF\Framework\Contact" location="businessobjects">
+			<Fields>
+				<Field fieldName="name" required="true" />
+				<Field fieldName="telephone" primaryKey="true" required="true" />
+			</Fields>
+		</Object>
+
+	</ObjectMappers>
+
+
+
+</UPF>

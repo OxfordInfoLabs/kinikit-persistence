@@ -1,0 +1,48 @@
+<UPF>
+
+	<Engines>
+
+		<ObjectIndexPersistenceEngine identifier="sql">
+			<DatabaseConnection>
+				<MySQLDatabaseConnection host="myhost"
+					database="bongo" username="bigone" password="littleone" port="3306" />
+			</DatabaseConnection>
+		</ObjectIndexPersistenceEngine>
+
+		<ObjectIndexPersistenceEngine identifier="sql-slave">
+			<DatabaseConnection>
+				<MySQLDatabaseConnection host="yourhost"
+					database="ping" username="ooa" password="ooa" port="3306" />
+			</DatabaseConnection>
+		</ObjectIndexPersistenceEngine>
+
+
+
+	</Engines>
+
+	<ObjectMappers>
+
+		<Object className="Kinikit\Persistence\UPF\Framework\Contact" location="businessobjects">
+			<Fields>
+				<Field fieldName="name" required="true" />
+				<Field fieldName="telephone" primaryKey="true" required="true" />
+			</Fields>
+
+			<Interceptors>
+				<TestObjectInterceptor2  phpNameSpace="Kinikit\Persistence\UPF\Framework"/>
+			</Interceptors>
+
+		</Object>
+
+		<Object className="Kinikit\Persistence\UPF\Framework\Address">
+			<Fields>
+				<Field fieldName="streetAddress" required="true" />
+				<Field fieldName="city" primaryKey="true" />
+			</Fields>
+		</Object>
+
+	</ObjectMappers>
+
+
+
+</UPF>
