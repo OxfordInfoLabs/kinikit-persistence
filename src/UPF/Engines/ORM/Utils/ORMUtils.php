@@ -116,6 +116,7 @@ class ORMUtils {
 
         }
 
+
         // If no read meta data resolved, set it to the same as write.
         if (!isset($tableMetaData["READ"]))
             $tableMetaData["READ"] = $tableMetaData["WRITE"];

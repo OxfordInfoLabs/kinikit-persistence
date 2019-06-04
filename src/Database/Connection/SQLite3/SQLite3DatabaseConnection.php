@@ -37,9 +37,9 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
     }
 
     /**
+     * @param string $string
      * @see BaseConnection::escapeString()
      *
-     * @param string $string
      */
     public function escapeString($string) {
         return str_replace("'", "''", $string);
@@ -63,9 +63,9 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
     }
 
     /**
+     * @param unknown_type $tableName
      * @see BaseConnection::getTableMetaData()
      *
-     * @param unknown_type $tableName
      */
     public function getTableMetaData($tableName) {
 
@@ -100,12 +100,13 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
     }
 
     /**
-     * @see BaseConnection::query()
-     *
      * @param string $sql
      * @return boolean
+     * @see BaseConnection::query()
+     *
      */
     public function query($sql) {
+
         $results = $this->connection->exec($sql);
 
         if ($results === false) {
@@ -117,12 +118,14 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
     }
 
     /**
-     * @see BaseConnection::queryWithResults()
-     *
      * @param string $sql
      * @return ResultSet
+     * @see BaseConnection::queryWithResults()
+     *
      */
     public function queryWithResults($sql) {
+
+
         $statement = $this->connection->prepare($sql);
 
         if ($statement) {
@@ -143,6 +146,7 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
      * @param PreparedStatement $preparedStatement
      */
     public function executePreparedStatement($preparedStatement) {
+
 
         $sqlite3Stmt = $this->connection->prepare($preparedStatement->getSQL());
 

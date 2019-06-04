@@ -480,10 +480,12 @@ class ObjectMapper extends DynamicSerialisableObject {
                             if (sizeof($explodedField) == 2) {
                                 $rhs = trim($explodedField[1]);
                                 $lhs = trim($explodedField[0]);
-                                if (trim($rhs, '"\'') == $rhs) {
-                                    $relatedFields[] = new ObjectRelatedField($lhs, $rhs);
-                                } else {
+                                if (trim($rhs, '"\'') != $rhs) {
                                     $relatedFields[] = new ObjectRelatedField(null, $lhs, trim($rhs, '"\''));
+                                } else if (trim($lhs, '"\'') != $lhs) {
+                                    $relatedFields[] = new ObjectRelatedField(null, $lhs, trim($rhs, '"\''));
+                                } else {
+                                    $relatedFields[] = new ObjectRelatedField($lhs, $rhs);
                                 }
                             }
                         }
