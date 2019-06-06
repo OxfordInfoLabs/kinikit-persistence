@@ -33,7 +33,7 @@ class DefaultDB {
 
             switch (Configuration::readParameter("db.provider")) {
                 case "sqlite3":
-                    $connection = new SQLite3DatabaseConnection(Configuration::readParameter("db.filename"));
+                    $connection = new SQLite3DatabaseConnection(Configuration::readParameter("db.filename"), Configuration::readParameter("db.logfile"));
                     break;
                 case "msaccess":
                     $connection = new MSAccessDatabaseConnection(Configuration::readParameter("db.dsn"), Configuration::readParameter("db.username"), Configuration::readParameter("db.password"));

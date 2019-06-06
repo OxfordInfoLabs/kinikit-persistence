@@ -1,6 +1,8 @@
 <?php
 
 namespace Kinikit\Persistence\UPF\Framework;
+
+use Kinikit\Core\DependencyInjection\Proxy;
 use Kinikit\Core\Object\SerialisableObject;
 use Kinikit\Persistence\UPF\Exception\InvalidObjectInterceptorException;
 
@@ -46,7 +48,7 @@ class UPFObjectInterceptorEvaluator extends SerialisableObject {
         }
 
         foreach ($interceptors as $interceptor) {
-            if (!($interceptor instanceof UPFObjectInterceptorBase)) throw new InvalidObjectInterceptorException (get_class($interceptor));
+            if (!(($interceptor instanceof UPFObjectInterceptorBase) || ($interceptor instanceof Proxy && $interceptor->__getObject() instanceof UPFObjectInterceptorBase))) throw new InvalidObjectInterceptorException (get_class($interceptor));
             $interceptor->setObjectType($this->objectType);
         }
 
@@ -66,7 +68,7 @@ class UPFObjectInterceptorEvaluator extends SerialisableObject {
         if (!$this->interceptors) return $proposedObject;
 
         $upfInstance = $persistenceCoordinator ? new UPF($persistenceCoordinator) : UPF::instance();
-        
+
         foreach ($this->interceptors as $interceptor) {
             if ($interceptor->getObjectType() === $this->objectType) {
                 $result = $interceptor->preMap($proposedObject, $arrayOfFieldData, $upfInstance);

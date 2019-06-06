@@ -16,6 +16,9 @@ use Kinikit\Persistence\Database\Exception\SQLException;
  */
 class SQLite3DatabaseConnection extends DatabaseConnection {
 
+
+    private $logFile;
+
     /**
      * Construct the connection object with the absolute filename to the database file.
      *
@@ -23,9 +26,10 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
      *
      * @return SQLite3DatabaseConnection
      */
-    public function __construct($filename) {
+    public function __construct($filename, $logFile = null) {
         $this->connection = new \PDO ("sqlite:" . $filename);
         $this->connection->sqliteCreateFunction("SQRT", "sqrt", 1);
+        $this->logFile = $logFile;
     }
 
     /**
@@ -107,11 +111,17 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
      */
     public function query($sql) {
 
+
         $results = $this->connection->exec($sql);
 
         if ($results === false) {
             throw new SQLException(join(',', $this->connection->errorInfo()));
         } else {
+
+            if ($this->logFile) {
+                file_put_contents($this->logFile, "\n\n" . $sql, FILE_APPEND);
+            }
+
             return null;
         }
 
@@ -131,6 +141,11 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
         if ($statement) {
             $success = $statement->execute();
             if ($success) {
+
+                if ($this->logFile) {
+                    file_put_contents($this->logFile, "\n\n" . $sql, FILE_APPEND);
+                }
+
                 return new SQLite3ResultSet ($statement);
             } else {
                 throw new SQLException(join(',', $this->connection->errorInfo()));
@@ -187,6 +202,10 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
         // Close up any blob handles.
         if ($blobHandle)
             fclose($blobHandle);
+
+        if ($this->logFile) {
+            file_put_contents($this->logFile, "\n\n" . $preparedStatement->getSQL(), FILE_APPEND);
+        }
 
         return $success;
 
