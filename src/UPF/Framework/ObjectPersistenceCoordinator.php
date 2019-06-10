@@ -82,7 +82,9 @@ class ObjectPersistenceCoordinator extends SerialisableObject {
     public static function createFromConfigFile($configFilename) {
 
         // Replace the constants
-        $constants = get_defined_constants(true)["user"];
+        $definedConstants = get_defined_constants(true);
+
+        $constants = isset($definedConstants["user"]) ? $definedConstants["user"] : array();
 
         // Replace all constants
         foreach ($constants as $key => $value) {
@@ -312,7 +314,7 @@ class ObjectPersistenceCoordinator extends SerialisableObject {
      * @param $object SerialisableObject
      */
     public function saveObject($object) {
-        
+
         try {
 
             // Firstly get an appropriate mapper for the supplied object
