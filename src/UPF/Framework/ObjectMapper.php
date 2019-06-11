@@ -5,6 +5,7 @@ namespace Kinikit\Persistence\UPF\Framework;
 use Kinikit\Core\Exception\ClassNotFoundException;
 use Kinikit\Core\Exception\ClassNotSerialisableException;
 use Kinikit\Core\Object\DynamicSerialisableObject;
+use Kinikit\Core\Util\Annotation\Annotation;
 use Kinikit\Core\Util\Annotation\ClassAnnotationParser;
 use Kinikit\Core\Util\ClassUtils;
 use Kinikit\Persistence\UPF\Exception\WrongMappedClassException;
@@ -84,7 +85,7 @@ class ObjectMapper extends DynamicSerialisableObject {
     /**
      * Get the persistable fields defined for this class.
      *
-     * @return the $persistableFields
+     * @return ObjectPersistableField[] $persistableFields
      */
     public function getFields() {
         return $this->fields ? (is_array($this->fields) ? $this->fields : array($this->fields)) : array();
@@ -445,6 +446,22 @@ class ObjectMapper extends DynamicSerialisableObject {
             $fields = array();
             foreach ($fieldAnnotations as $field => $annotations) {
                 $field = new ObjectPersistableField($field);
+
+                // Map the var to the type of object
+                if (isset($annotations["var"])) $annotations["type"] = $annotations["var"];
+
+                // if we encounter a required field, map this as well
+                if (isset($annotations["validation"])) {
+                    if (is_numeric(strpos($annotations["validation"][0]->getValue(), "required"))) {
+                        $annotations["required"] = array(new Annotation("required", true));
+                    } else {
+                        preg_match("/maxlength\((.*?)\)/", $annotations["validation"][0]->getValue(), $matches);
+                        if (sizeof($matches) == 2) {
+                            $annotations["length"] = array(new Annotation("length", $matches[1]));
+                        }
+                    }
+                }
+
                 foreach ($annotations as $key => $value) {
 
                     // Assume annotations are singleton so pick the first one.

@@ -1,6 +1,7 @@
 <?php
 
 namespace Kinikit\Persistence\Database\Connection\MySQL;
+
 use Kinikit\Persistence\Database\Connection\BlobWrapper;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Connection\PreparedStatement;
@@ -585,6 +586,21 @@ class MySQLDatabaseConnection extends DatabaseConnection {
 
         // Execute the prepared statement.
         return $this->executePreparedStatement($stmt);
+    }
+
+
+    /**
+     * Override generate table SQL method to fix AUTO_INCREMENT pks.
+     *
+     * @param TableMetaData $tableMetaData
+     */
+    protected function generateCreateTableSQL($tableMetaData) {
+        $parentSQL = parent::generateCreateTableSQL($tableMetaData);
+
+        // Fix auto increment.
+        $parentSQL = str_replace("AUTOINCREMENT", "AUTO_INCREMENT", $parentSQL);
+
+        return $parentSQL;
     }
 
 

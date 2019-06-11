@@ -150,6 +150,59 @@ abstract class DatabaseConnection extends SerialisableObject {
 
 
     /**
+     * Create a table, using table meta data object as assistant.
+     *
+     * @param TableMetaData $tableMetaData
+     */
+    public function createTable($tableMetaData) {
+
+        // Create the table using the create table SQL
+        $this->query($this->generateCreateTableSQL($tableMetaData));
+    }
+
+
+    /**
+     * Generate create table SQL
+     *
+     * @param $tableMetaData
+     */
+    protected function generateCreateTableSQL($tableMetaData) {
+
+        $sql = "CREATE TABLE {$tableMetaData->getTableName()} (\n";
+
+        $columnLines = array();
+        $pks = array();
+        foreach ($tableMetaData->getColumns() as $column) {
+
+            $line = $column->getName() . " " . $column->getSQLType();
+            if ($column->getLength()) $line .= "(" . $column->getLength() . ")";
+            if ($column->getNotNull()) $line .= " NOT NULL";
+            if ($column->getPrimaryKey()) {
+                if ($column->getAutoIncrement())
+                    $line .= ' PRIMARY KEY';
+                else
+                    $pks[] = $column->getName();
+            }
+            if ($column->getAutoIncrement()) $line .= ' AUTOINCREMENT';
+
+            $columnLines[] = $line;
+        }
+
+
+        $sql .= join(",\n", $columnLines);
+
+        if (sizeof($pks) > 0) {
+            $sql .= ",\nPRIMARY KEY (" . join(",", $pks) . ")";
+        }
+
+        $sql .= "\n)";
+
+        return $sql;
+
+    }
+
+
+    /**
      * Insert a blank row into a table
      *
      * @param $tableName

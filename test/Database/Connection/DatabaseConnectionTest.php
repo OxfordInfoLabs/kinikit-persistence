@@ -5,18 +5,19 @@ namespace Kinikit\Persistence\Database\Connection;
 use Kinikit\Core\Configuration;
 use Kinikit\Persistence\Database\Connection\MySQL\MySQLDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\SQLite3\SQLite3DatabaseConnection;
+use Kinikit\Persistence\UPF\Engines\ORM\ORMPersistenceEngine;
 
 include_once "autoloader.php";
 
 /**
  * Test cases for the base connection.
  */
-class BaseConnectionTest extends \PHPUnit\Framework\TestCase {
+class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     /**
      * Connection
      *
-     * @var BaseConnection
+     * @var DatabaseConnection
      */
     private $connection;
 
@@ -269,6 +270,41 @@ class BaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+
+    public function testCanCreateGenericTableUsingTableMetaData() {
+
+        $this->connection->query("DROP TABLE IF EXISTS test_create_table");
+
+        $columns = array();
+        $columns[] = new TableColumn("id", TableColumn::SQL_INT, null, null, true, true, true);
+        $columns[] = new TableColumn("name", "VARCHAR", 1000);
+        $columns[] = new TableColumn("last_modified", "DATETIME", null);
+        $tableMetaData = new TableMetaData("test_create_table", $columns);
+
+        $this->connection->createTable($tableMetaData);
+
+        $reMetaData = $this->connection->getTableMetaData("test_create_table");
+        $this->assertEquals("test_create_table", $reMetaData->getTableName());
+
+
+        // Now try one with compound primary key
+        $this->connection->query("DROP TABLE IF EXISTS test_create_table");
+
+        $columns = array();
+        $columns[] = new TableColumn("id", TableColumn::SQL_INT, null, null, true, false, true);
+        $columns[] = new TableColumn("name", "VARCHAR", 1000, null, true, false, true);
+        $columns[] = new TableColumn("last_modified", "DATETIME", null);
+        $tableMetaData = new TableMetaData("test_create_table", $columns);
+
+        $this->connection->createTable($tableMetaData);
+
+        $reMetaData = $this->connection->getTableMetaData("test_create_table");
+        $this->assertEquals("test_create_table", $reMetaData->getTableName());
+
+
+    }
+
 
 }
 

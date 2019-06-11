@@ -2,6 +2,11 @@
 db.provider = sqlite3
 db.filename = DB/application.db
 
+mysql.host = localhost
+mysql.database = kinikittest
+mysql.username = kinikittest
+mysql.password = kinikittest
+
 log.file = /tmp/kinikit.log
 
 sqlserver.servername = DAMS2-WINDOWS
