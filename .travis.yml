@@ -5,6 +5,10 @@ php:
 services:
   - mysql
 
+before_install:
+  - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS kinikittest'
+  - sudo mysql -e "GRANT ALL ON kinikittest.* to 'kinikittest'@'127.0.0.1' identified by 'kinikittest'"
+
 before_script: composer install; cd test
 script: phpunit .
 
