@@ -2,7 +2,7 @@
 db.provider = sqlite3
 db.filename = DB/application.db
 
-mysql.host = localhost
+mysql.host = 127.0.0.1
 mysql.database = kinikittest
 mysql.username = root
 mysql.password =
