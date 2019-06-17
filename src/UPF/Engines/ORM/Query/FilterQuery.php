@@ -112,7 +112,7 @@ class FilterQuery extends SQLQuery implements QueryResults {
 
         if (!$filtersOnly) {
 
-            if (sizeof($this->orderings) > 0) {
+            if (is_array($this->orderings) && sizeof($this->orderings) > 0) {
                 $query .= " ORDER BY " . join(", ", $this->orderings);
             }
 

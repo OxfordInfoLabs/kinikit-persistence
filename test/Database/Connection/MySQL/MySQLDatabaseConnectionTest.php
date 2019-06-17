@@ -25,7 +25,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     private $mysqlDatabaseConnection;
 
 
-    public function setUp() {
+    public function setUp():void {
         $this->mysqlDatabaseConnection = new MySQLDatabaseConnection(Configuration::readParameter("mysql.host"),
             Configuration::readParameter("mysql.database"), Configuration::readParameter("mysql.username"), Configuration::readParameter("mysql.password"));
     }

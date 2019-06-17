@@ -26,7 +26,7 @@ include_once "autoloader.php";
  */
 class ObjectPersistenceCoordinatorTest extends \PHPUnit\Framework\TestCase {
 
-    public function setUp() {
+    public function setUp():void {
 
         TestPersistenceEngine::$storedValues = array();
         TestPersistenceEngine::$removedValues = array();

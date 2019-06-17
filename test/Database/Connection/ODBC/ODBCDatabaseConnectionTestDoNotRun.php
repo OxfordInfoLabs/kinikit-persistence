@@ -17,7 +17,7 @@ include_once "autoloader.php";
  */
 class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
-    public function setUp() {
+    public function setUp():void {
         DefaultDB::getConnection()->query("DROP TABLE IF EXISTS test_parent") or die ("Couldn't drop table");
         DefaultDB::getConnection()->query("CREATE TABLE test_parent(id INTEGER AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY (id))") or die ("Couldn't create table");
 

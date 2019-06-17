@@ -15,7 +15,7 @@ class SQLOptimisticLockingProviderTest extends \PHPUnit\Framework\TestCase {
 
     private $provider;
 
-    public function setUp() {
+    public function setUp():void {
         $this->provider = new SQLOptimisticLockingProvider ();
 
         try {

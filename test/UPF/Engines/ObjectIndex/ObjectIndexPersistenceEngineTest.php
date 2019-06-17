@@ -39,7 +39,7 @@ class ObjectIndexPersistenceEngineTest extends \PHPUnit\Framework\TestCase {
     /**
      * Set up method
      */
-    public function setUp() {
+    public function setUp():void {
 
 
         parent::setUp();

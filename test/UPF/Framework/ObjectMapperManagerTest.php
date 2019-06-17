@@ -2,8 +2,6 @@
 
 namespace Kinikit\Persistence\UPF\Framework;
 
-use Kinikit\Core\Object\ProtectedSerialisable;
-use Kinikit\Core\Object\PublicGetterSerialisable;
 
 include_once "autoloader.php";
 
@@ -20,15 +18,15 @@ class ObjectMapperManagerTest extends \PHPUnit\Framework\TestCase {
 
         $manager = new ObjectMapperManager ();
 
-        $mapper1 = new ObjectMapper ("Kinikit\Core\Object\ProtectedSerialisable");
-        $mapper2 = new ObjectMapper ("Kinikit\Core\Object\PublicGetterSerialisable", array("name", "telephone"));
+        $mapper1 = new ObjectMapper ("Kinikit\Persistence\UPF\Framework\ProtectedSerialisable");
+        $mapper2 = new ObjectMapper ("Kinikit\Persistence\UPF\Framework\PublicGetterSerialisable", array("name", "telephone"));
 
         $manager->addMapper($mapper1);
         $manager->addMapper($mapper2);
 
         // Try access by class
-        $this->assertEquals($mapper1, $manager->getMapperForClass("Kinikit\Core\Object\ProtectedSerialisable"));
-        $this->assertEquals($mapper2, $manager->getMapperForClass("Kinikit\Core\Object\PublicGetterSerialisable"));
+        $this->assertEquals($mapper1, $manager->getMapperForClass("Kinikit\Persistence\UPF\Framework\ProtectedSerialisable"));
+        $this->assertEquals($mapper2, $manager->getMapperForClass("Kinikit\Persistence\UPF\Framework\PublicGetterSerialisable"));
 
         // Now make an object of each type and test access by object instance.
         $this->assertEquals($mapper1, $manager->getMapperForObject(new ProtectedSerialisable ()));
@@ -40,13 +38,13 @@ class ObjectMapperManagerTest extends \PHPUnit\Framework\TestCase {
 
         $manager = new ObjectMapperManager ();
 
-        $this->assertEquals(new ObjectMapper ("Kinikit\Core\Object\ProtectedSerialisable"), $manager->getMapperForClass("Kinikit\Core\Object\ProtectedSerialisable"));
-        $this->assertEquals(new ObjectMapper ("Kinikit\Core\Object\PublicGetterSerialisable"), $manager->getMapperForClass("Kinikit\Core\Object\PublicGetterSerialisable"));
+        $this->assertEquals(new ObjectMapper ("Kinikit\Persistence\UPF\Framework\ProtectedSerialisable"), $manager->getMapperForClass("Kinikit\Persistence\UPF\Framework\ProtectedSerialisable"));
+        $this->assertEquals(new ObjectMapper ("Kinikit\Persistence\UPF\Framework\PublicGetterSerialisable"), $manager->getMapperForClass("Kinikit\Persistence\UPF\Framework\PublicGetterSerialisable"));
 
         $manager = new ObjectMapperManager ();
 
-        $this->assertEquals(new ObjectMapper ("Kinikit\Core\Object\ProtectedSerialisable"), $manager->getMapperForObject(new ProtectedSerialisable ()));
-        $this->assertEquals(new ObjectMapper ("Kinikit\Core\Object\PublicGetterSerialisable"), $manager->getMapperForObject(new PublicGetterSerialisable ()));
+        $this->assertEquals(new ObjectMapper ("Kinikit\Persistence\UPF\Framework\ProtectedSerialisable"), $manager->getMapperForObject(new ProtectedSerialisable ()));
+        $this->assertEquals(new ObjectMapper ("Kinikit\Persistence\UPF\Framework\PublicGetterSerialisable"), $manager->getMapperForObject(new PublicGetterSerialisable ()));
 
     }
 

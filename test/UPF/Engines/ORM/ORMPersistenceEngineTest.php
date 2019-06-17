@@ -45,7 +45,7 @@ class ORMPersistenceEngineTest extends \PHPUnit\Framework\TestCase {
      */
     private $coordinator;
 
-    public function setUp() {
+    public function setUp():void {
         $this->connection = DefaultDB::instance();
         $this->connection->query("DROP TABLE IF EXISTS object_with_id");
         $this->connection->query("CREATE TABLE object_with_id (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), age INTEGER, shoe_size INTEGER)");

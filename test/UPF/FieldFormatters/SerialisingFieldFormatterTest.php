@@ -29,7 +29,7 @@ class SerialisingFieldFormatterTest extends \PHPUnit\Framework\TestCase {
         // Format sample JSON, check it returns correctly.
         $formatted = $formatter->format($sampleJSON);
 
-        $this->assertEquals(new ObjectWithId("Bernard", 38, 15, 3), $formatted);
+        $this->assertEquals(array("name" => "Bernard", "age" => 38, "shoeSize" => 15, "id" => 3), $formatted);
 
 
     }

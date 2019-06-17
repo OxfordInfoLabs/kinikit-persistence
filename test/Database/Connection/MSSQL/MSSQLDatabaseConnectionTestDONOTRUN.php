@@ -17,7 +17,7 @@ class MSSQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     private $connection;
 
-    public function setUp() {
+    public function setUp():void {
 
         parent::setUp();
 
