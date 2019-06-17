@@ -28,6 +28,9 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     public function setUp():void {
         $this->mysqlDatabaseConnection = new MySQLDatabaseConnection(Configuration::readParameter("mysql.host"),
             Configuration::readParameter("mysql.database"), Configuration::readParameter("mysql.username"), Configuration::readParameter("mysql.password"));
+
+        $this->mysqlDatabaseConnection->executeScript("CREATE DATABASE IF NOT EXISTS kinikittest");
+
     }
 
 

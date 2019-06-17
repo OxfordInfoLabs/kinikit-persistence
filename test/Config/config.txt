@@ -4,8 +4,8 @@ db.filename = DB/application.db
 
 mysql.host = localhost
 mysql.database = kinikittest
-mysql.username = kinikittest
-mysql.password = kinikittest
+mysql.username = root
+mysql.password =
 
 log.file = /tmp/kinikit.log
 
