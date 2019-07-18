@@ -1,21 +1,10 @@
-# Configure the database connectivity
+# Default connection
 db.provider = sqlite3
 db.filename = DB/application.db
+db.logFile = DB/db-log.txt
 
-mysql.host = 127.0.0.1
-mysql.database = kinikittest
-mysql.username = kinikittest
-mysql.password = kinikittest
-
-log.file = /tmp/kinikit.log
-
-sqlserver.servername = DAMS2-WINDOWS
-sqlserver.database = ooacoretest
-sqlserver.username = sa
-sqlserver.password = W1equity
-
-
-param1 = ford
-param2 = vauxhall
-param3 = bmw
-param4 = porsche
+db.mysql.provider = mysql
+db.mysql.host = 127.0.0.1
+db.mysql.database = kinikittest
+db.mysql.username = kinikittest
+db.mysql.password = kinikittest

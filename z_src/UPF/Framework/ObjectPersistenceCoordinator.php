@@ -6,7 +6,7 @@ use Kinikit\Core\Exception\BadParameterException;
 use Kinikit\Core\Exception\ValidationException;
 use Kinikit\Core\Object\SerialisableObject;
 use Kinikit\Core\Util\ClassUtils;
-use Kinikit\Core\Util\SerialisableArrayUtils;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Util\Serialisation\XML\XMLToObjectConverter;
 use Kinikit\Persistence\UPF\Exception\InvalidFieldRelationshipException;
 use Kinikit\Persistence\UPF\Exception\NoEnabledEngineException;
@@ -514,7 +514,7 @@ class ObjectPersistenceCoordinator extends SerialisableObject {
                     $autoFields = null;
                     if (is_array($orderFields)) {
                         $autoFields =
-                            SerialisableArrayUtils::getMemberValueArrayForObjects("field", SerialisableArrayUtils::filterArrayOfObjectsByMember("autoIndex", $orderFields, true));
+                            ObjectArrayUtils::getMemberValueArrayForObjects("field", ObjectArrayUtils::filterArrayOfObjectsByMember("autoIndex", $orderFields, true));
                     }
 
                     // Save all new values

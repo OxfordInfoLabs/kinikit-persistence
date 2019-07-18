@@ -2,13 +2,10 @@
 
 namespace Kinikit\Persistence\Database\Connection;
 
+class TestDatabaseConnection extends BaseDatabaseConnection {
 
-/**
- * Database connection interface
- *
- * Interface DatabaseConnection
- */
-interface DatabaseConnection {
+    public $configParams;
+    public $lastSQL;
 
 
     /**
@@ -17,8 +14,10 @@ interface DatabaseConnection {
      *
      * @return boolean
      */
-    public function connect($configParams = []);
-
+    public function connect($configParams = []) {
+        $this->configParams = $configParams;
+        return true;
+    }
 
     /**
      * Escape a string value ready for use in a query.
@@ -26,8 +25,9 @@ interface DatabaseConnection {
      * @param $string
      * @return string
      */
-    public function escapeString($string);
-
+    public function escapeString($string) {
+        // TODO: Implement escapeString() method.
+    }
 
     /**
      * Escape a column name ready for use in queries.
@@ -35,18 +35,19 @@ interface DatabaseConnection {
      * @param $columnName
      * @return mixed
      */
-    public function escapeColumn($columnName);
-
+    public function escapeColumn($columnName) {
+        // TODO: Implement escapeColumn() method.
+    }
 
     /**
-     * Issue a SQL query without results, returns database specific result.
+     * Issue a SQL query without results, returns success / failure.
      *
      * @param $sql
-     * @return mixed
-     * @throws SQLException
+     * @return boolean
      */
-    public function query($sql);
-
+    public function query($sql) {
+        $this->lastSQL = $sql;
+    }
 
     /**
      * Issue a SQL query with results.  Returns a ResultSet if successful or
@@ -56,8 +57,9 @@ interface DatabaseConnection {
      * @return ResultSet
      * @throws SQLException
      */
-    public function queryWithResults($sql);
-
+    public function queryWithResults($sql) {
+        // TODO: Implement queryWithResults() method.
+    }
 
     /**
      * Execute a prepared statement (usually an update operation) and return a boolean according to
@@ -65,59 +67,32 @@ interface DatabaseConnection {
      *
      * @param $preparedStatement
      * @return boolean
-     * @throws SQLException
      */
-    public function executePreparedStatement($preparedStatement);
-
+    public function executePreparedStatement($preparedStatement) {
+        // TODO: Implement executePreparedStatement() method.
+    }
 
     /**
      * Get the last auto increment id if an insert into auto increment occurred
      *
-     * @return int
-     * @throws SQLException
      */
-    public function getLastAutoIncrementId();
-
+    public function getLastAutoIncrementId() {
+        // TODO: Implement getLastAutoIncrementId() method.
+    }
 
     /**
      * Get the last error message if a query fails.
      *
      */
-    public function getLastErrorMessage();
-
-
-    /**
-     * Begin a transaction for this connection or start a new savepoint within
-     * the current transaction.
-     *
-     * @throws SQLException
-     */
-    public function beginTransaction();
-
-
-    /**
-     * Commit the current transaction
-     *
-     * @throws SQLException
-     */
-    public function commit();
-
-
-    /**
-     * Rollback the transaction either to last savepoint or whole transaction (default)
-     *
-     * @param boolean $wholeTransaction
-     * @throws SQLException
-     */
-    public function rollback($wholeTransaction = true);
-
+    public function getLastErrorMessage() {
+        // TODO: Implement getLastErrorMessage() method.
+    }
 
     /**
      * Close function if required to close the database connection.
      *
-     * @throws SQLException
      */
-    public function close();
-
-
+    public function close() {
+        // TODO: Implement close() method.
+    }
 }
