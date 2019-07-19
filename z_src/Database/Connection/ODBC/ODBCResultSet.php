@@ -1,7 +1,7 @@
 <?php
 
 namespace Kinikit\Persistence\Database\Connection\ODBC;
-use Kinikit\Persistence\Database\Connection\ResultSet;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 /**
  * ODBC Implementation of the generic result set implementation.

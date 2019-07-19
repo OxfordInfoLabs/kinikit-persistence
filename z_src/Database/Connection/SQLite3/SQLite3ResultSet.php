@@ -2,7 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Connection\SQLite3;
 
-use Kinikit\Persistence\Database\Connection\ResultSet;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 class SQLite3ResultSet implements ResultSet {
 

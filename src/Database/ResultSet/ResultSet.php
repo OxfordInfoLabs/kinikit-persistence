@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinikit\Persistence\Database\Connection;
+namespace Kinikit\Persistence\Database\ResultSet;
 
 /**
  * Abstract Result set class

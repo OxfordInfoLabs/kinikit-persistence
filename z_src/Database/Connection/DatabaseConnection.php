@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Core\Object\SerialisableObject;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 /**
  * Abstract class acting as base connection class for all database connections

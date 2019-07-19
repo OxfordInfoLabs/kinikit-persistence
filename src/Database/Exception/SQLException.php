@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinikit\Persistence\Database\Connection;
+namespace Kinikit\Persistence\Database\Exception;
 
 /**
  * Generic SQL Exception

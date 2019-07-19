@@ -1,7 +1,7 @@
 <?php
 
 namespace Kinikit\Persistence\Database\Connection\MSSQL;
-use Kinikit\Persistence\Database\Connection\ResultSet;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 /**
  * Extension of the Result Set entity

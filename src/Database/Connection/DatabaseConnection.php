@@ -3,8 +3,15 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 
+use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
+
 /**
  * Database connection interface
+ *
+ * @implementationConfigParam db.provider
+ * @implementation sqlite3 \Kinikit\Persistence\Database\Vendor\SQLite3\SQLite3DatabaseConnection
+ * @implementation mysql \Kinikit\Persistence\Database\Vendor\MySQL\MySQLDatabaseConnection
  *
  * Interface DatabaseConnection
  */

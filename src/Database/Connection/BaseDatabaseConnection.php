@@ -4,8 +4,10 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 
+use Kinikit\Core\Configuration\ConfigFile;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Util\ArrayUtils;
+use Kinikit\Persistence\Database\Exception\SQLException;
 
 /**
  * Base database connection which implements common defaults for the database connection.
@@ -36,6 +38,12 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      */
     private $lastErrorMessage;
 
+
+    /**
+     * @var string[]
+     */
+    protected $configParams;
+
     /**
      * Constructor - calls connect automatically to prevent need to call connect explicitly
      *
@@ -45,30 +53,30 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      *
      * @throws DatabaseConnectionException
      */
-    public function __construct($configKey = null) {
-        $connected = $this->connect();
+    public function __construct($configParams = null) {
+
+        $connected = $this->connect($configParams);
+
         if (!$connected)
             throw new DatabaseConnectionException();
 
-        // Calculate the prefix to look for with configuration.
-        $prefix = $configKey ? "db.$configKey." : "db.";
-
-        $allConfigParams = Configuration::instance()->getAllParameters();
-        $dbConfigParams = [];
-        foreach ($allConfigParams as $key => $param) {
-            if (strncmp($key, $prefix, strlen($prefix)) === 0) {
-                $newKey = substr($key, strlen($prefix));
-                if (!strpos($newKey, "."))
-                    $dbConfigParams[$newKey] = $param;
+        // If no config params, assume default database
+        if (!$configParams) {
+            $configParams = Configuration::instance()->getParametersMatchingPrefix("db.", true);
+            if (sizeof($configParams) == 0) {
+                throw new MissingDatabaseConfigurationException();
             }
+
         }
 
+        if (isset($configParams["logFile"]))
+            $this->logFile = $configParams["logFile"];
 
-        if (isset($dbConfigParams["logFile"]))
-            $this->logFile = $dbConfigParams["logFile"];
+        // Store the config params for later.
+        $this->configParams = $configParams;
 
         // Connect using the filtered params.
-        $this->connect($dbConfigParams);
+        $this->connect($configParams);
 
     }
 
@@ -168,6 +176,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      */
     protected function setLastErrorMessage($lastErrorMessage) {
         $this->lastErrorMessage = $lastErrorMessage;
+        $this->log("Error: $lastErrorMessage");
     }
 
     /**

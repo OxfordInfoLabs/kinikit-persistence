@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kinikit\Persistence\Database\Connection;
+namespace Kinikit\Persistence\Database\PreparedStatement;
 
 
 /**

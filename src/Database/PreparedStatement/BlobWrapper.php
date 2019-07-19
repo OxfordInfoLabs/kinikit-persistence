@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinikit\Persistence\Database\Connection;
+namespace Kinikit\Persistence\Database\PreparedStatement;
 
 /**
  * Blob wrapper class which encapsulates blob data.  This may be passed as a parameter argument value to a prepared statement, when we want to insert

@@ -3,8 +3,8 @@ db.provider = sqlite3
 db.filename = DB/application.db
 db.logFile = DB/db-log.txt
 
-db.mysql.provider = mysql
-db.mysql.host = 127.0.0.1
-db.mysql.database = kinikittest
-db.mysql.username = kinikittest
-db.mysql.password = kinikittest
+mysql.db.provider = mysql
+mysql.db.host = 127.0.0.1
+mysql.db.database = kinikittest
+mysql.db.username = kinikittest
+mysql.db.password = kinikittest

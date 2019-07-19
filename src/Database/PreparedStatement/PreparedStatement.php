@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinikit\Persistence\Database\Connection;
+namespace Kinikit\Persistence\Database\PreparedStatement;
 
 /**
  * Database independent wrapper for a prepared statement.

@@ -2,6 +2,8 @@
 
 namespace Kinikit\Persistence\Database\Connection;
 
+use Kinikit\Core\Configuration\Configuration;
+
 include_once 'autoloader.php';
 
 /**
@@ -23,7 +25,7 @@ class BaseDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $dbConnection = new TestDatabaseConnection();
         $this->assertEquals(["provider" => "sqlite3", "filename" => "DB/application.db", "logFile" => "DB/db-log.txt"], $dbConnection->configParams);
 
-        $dbConnection = new TestDatabaseConnection("mysql");
+        $dbConnection = new TestDatabaseConnection(Configuration::instance()->getParametersMatchingPrefix("mysql.db.", true));
         $this->assertEquals(["provider" => "mysql", "host" => "127.0.0.1",
             "database" => "kinikittest", "username" => "kinikittest", "password" => "kinikittest"], $dbConnection->configParams);
 

@@ -2,6 +2,9 @@
 
 namespace Kinikit\Persistence\Database\Connection;
 
+use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
+
 class TestDatabaseConnection extends BaseDatabaseConnection {
 
     public $configParams;
