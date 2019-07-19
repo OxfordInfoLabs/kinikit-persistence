@@ -54,7 +54,7 @@ class TableMapper {
 
 
     /**
-     * Fetch an item by primary key from the configured table
+     * Fetch a row by primary key from the configured table
      *
      * @param mixed $primaryKeyValue
      */
@@ -76,13 +76,65 @@ class TableMapper {
 
         $primaryKeyClause = join(" AND ", $primaryKeyClauses);
 
-        $results = $this->doQuery("SELECT * FROM {$this->tableName} WHERE {$primaryKeyClause}", $primaryKeyValue, true);
+        $results = array_values($this->doQuery("SELECT * FROM {$this->tableName} WHERE {$primaryKeyClause}", $primaryKeyValue, true));
         if (sizeof($results) > 0) {
             return $results[0];
         } else {
             throw new PrimaryKeyRowNotFoundException($this->tableName, $primaryKeyValue);
         }
 
+
+    }
+
+    /**
+     * Fetch multiple rows by primary key from the configured table.  If ignore missing objects
+     * is supplied no exception is raised, otherwise error is raised if row count <> primary keys supplied.
+     *
+     * @param $primaryKeyValues
+     * @param bool $ignoreMissingObjects
+     * @return mixed
+     */
+    public function multiFetch($primaryKeyValues, $ignoreMissingObjects = false) {
+
+        if (!is_array($primaryKeyValues)) {
+            $primaryKeyValues = [$primaryKeyValues];
+        }
+
+        $primaryKeyClauses = [];
+        $placeholderValues = [];
+        $serialisedPks = [];
+        foreach ($primaryKeyValues as $index => $primaryKey) {
+
+            // If primary key is not an array, make it so.
+            if (!is_array($primaryKey)) {
+                $primaryKey = [$primaryKey];
+            }
+
+            $serialisedPks[] = join("||", $primaryKey);
+
+            $primaryKeyClause = [];
+            foreach ($primaryKey as $pkIndex => $value) {
+                $placeholderValues[] = $value;
+                $primaryKeyClause[] = $this->primaryKeyColumns[$pkIndex] . "=?";
+            }
+            $primaryKeyClauses[] = "(" . join(" AND ", $primaryKeyClause) . ")";
+
+
+        }
+
+        $whereClause = join(" OR ", $primaryKeyClauses);
+
+        $results = $this->doQuery("SELECT * FROM {$this->tableName} WHERE $whereClause", $placeholderValues, true);
+
+        $orderedResults = [];
+        foreach ($serialisedPks as $serialisedPk) {
+            if (isset($results[$serialisedPk]))
+                $orderedResults[] = $results[$serialisedPk];
+            else if (!$ignoreMissingObjects)
+                throw new PrimaryKeyRowNotFoundException($this->tableName, $primaryKeyValues, true);
+        }
+
+        return $orderedResults;
 
     }
 
@@ -95,17 +147,36 @@ class TableMapper {
      */
     public function query($query, ...$placeholderValues) {
 
+        // If just a where clause, handle this otherwise assume full query.
+        if (substr(strtoupper(trim($query)), 0, 5) == "WHERE") {
+            $results = $this->doQuery("SELECT * FROM {$this->tableName} " . $query, $placeholderValues, true);
+        } else {
+            $results = $this->doQuery($query, $placeholderValues, true);
+        }
+
+        return array_values($results);
+
     }
+
 
     // Actually do a query with or without results.
     private function doQuery($query, $placeholderValues, $withResults) {
+
 
         if ($withResults) {
             $result = $this->databaseConnection->queryWithResults($query, $placeholderValues);
             $rows = [];
             while ($row = $result->nextRow()) {
-                $rows[] = $row;
+
+                // Index by PK for internal processing
+                $pkValue = [];
+                foreach ($this->primaryKeyColumns as $primaryKeyColumn) {
+                    $pkValue[] = $row[$primaryKeyColumn];
+                }
+
+                $rows[join("||", $pkValue)] = $row;
             }
+
             return $rows;
         } else {
             return $this->databaseConnection->query($query, $placeholderValues);

@@ -1,40 +1,76 @@
 DROP TABLE IF EXISTS example
-Completed in 0.0013 seconds
+Completed in 0.0011 seconds
 CREATE TABLE example (id integer PRIMARY KEY, name VARCHAR(20), last_modified DATE)
-Completed in 0.0008 seconds
+Completed in 0.0012 seconds
 INSERT INTO example(name, last_modified) VALUES ('Mark', '2010-01-01')
-Completed in 0.0007 seconds
+Completed in 0.0008 seconds
 INSERT INTO example(name, last_modified) VALUES ('John', '2012-01-01')
-Completed in 0.0009 seconds
+Completed in 0.0015 seconds
 INSERT INTO example(name, last_modified) VALUES ('Dave', '2014-01-01')
-Completed in 0.0007 seconds
+Completed in 0.0013 seconds
 SELECT * FROM example WHERE id=4
 Completed in 0 seconds
 DROP TABLE IF EXISTS example
-Completed in 0.0007 seconds
+Completed in 0.0006 seconds
 CREATE TABLE example (id integer PRIMARY KEY, name VARCHAR(20), last_modified DATE)
-Completed in 0.0007 seconds
+Completed in 0.0006 seconds
 INSERT INTO example(name, last_modified) VALUES ('Mark', '2010-01-01')
-Completed in 0.0007 seconds
+Completed in 0.0011 seconds
 INSERT INTO example(name, last_modified) VALUES ('John', '2012-01-01')
-Completed in 0.0007 seconds
+Completed in 0.001 seconds
 INSERT INTO example(name, last_modified) VALUES ('Dave', '2014-01-01')
-Completed in 0.0015 seconds
-DROP TABLE IF EXISTS example
-Completed in 0.0033 seconds
-CREATE TABLE example (id integer PRIMARY KEY, name VARCHAR(20), last_modified DATE)
 Completed in 0.0008 seconds
+DROP TABLE IF EXISTS example
+Completed in 0.0012 seconds
+CREATE TABLE example (id integer PRIMARY KEY, name VARCHAR(20), last_modified DATE)
+Completed in 0.001 seconds
 INSERT INTO example(name, last_modified) VALUES ('Mark', '2010-01-01')
-Completed in 0.0014 seconds
+Completed in 0.0006 seconds
 INSERT INTO example(name, last_modified) VALUES ('John', '2012-01-01')
-Completed in 0.001 seconds
+Completed in 0.0014 seconds
 INSERT INTO example(name, last_modified) VALUES ('Dave', '2014-01-01')
-Completed in 0.001 seconds
+Completed in 0.0016 seconds
 SELECT * FROM example WHERE id=1
-Completed in 0 seconds
+Completed in 0.0001 seconds
 SELECT * FROM example WHERE id=2
 Completed in 0 seconds
 SELECT * FROM example WHERE id=3
 Completed in 0 seconds
 SELECT * FROM example WHERE id=3
+Completed in 0 seconds
+DROP TABLE IF EXISTS example
+Completed in 0.0011 seconds
+CREATE TABLE example (id integer PRIMARY KEY, name VARCHAR(20), last_modified DATE)
+Completed in 0.0012 seconds
+INSERT INTO example(name, last_modified) VALUES ('Mark', '2010-01-01')
+Completed in 0.0008 seconds
+INSERT INTO example(name, last_modified) VALUES ('John', '2012-01-01')
+Completed in 0.0007 seconds
+INSERT INTO example(name, last_modified) VALUES ('Dave', '2014-01-01')
+Completed in 0.0008 seconds
+SELECT * FROM example WHERE (id=1) OR (id=3)
+Completed in 0.0002 seconds
+SELECT * FROM example WHERE (id=3) OR (id=1)
+Completed in 0.0001 seconds
+SELECT * FROM example WHERE (id=1) OR (id=3)
+Completed in 0 seconds
+SELECT * FROM example WHERE (id=5) OR (id=3) OR (id=1) OR (id=4)
+Completed in 0 seconds
+SELECT * FROM example WHERE (id=5) OR (id=3) OR (id=1) OR (id=4)
+Completed in 0 seconds
+DROP TABLE IF EXISTS example
+Completed in 0.001 seconds
+CREATE TABLE example (id integer PRIMARY KEY, name VARCHAR(20), last_modified DATE)
+Completed in 0.0012 seconds
+INSERT INTO example(name, last_modified) VALUES ('Mark', '2010-01-01')
+Completed in 0.0008 seconds
+INSERT INTO example(name, last_modified) VALUES ('John', '2012-01-01')
+Completed in 0.0011 seconds
+INSERT INTO example(name, last_modified) VALUES ('Dave', '2014-01-01')
+Completed in 0.0011 seconds
+SELECT * FROM example WHERE name = 'Mark'
+Completed in 0 seconds
+SELECT * FROM example WHERE name = 'Mark' or name = 'Dave' ORDER by id
+Completed in 0 seconds
+SELECT * from example where last_modified > '2013-01-01'
 Completed in 0 seconds

@@ -58,9 +58,6 @@ class TableMapperTest extends TestCase {
             $this->assertTrue(true);
         }
 
-
-
-
     }
 
 
@@ -76,5 +73,74 @@ class TableMapperTest extends TestCase {
         // Check arrays as well
         $this->assertEquals(["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"], $tableMapper->fetch([3]));
     }
+
+
+    public function testCanMultiFetchRowsByPrimaryKeyUsingDefaultConnection() {
+
+        // Create a basic mapper
+        $tableMapper = new TableMapper("example", "id");
+
+        // Single id syntax
+        $this->assertEquals([
+            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
+        ], $tableMapper->multiFetch([1, 3]));
+
+
+        // Order preservation
+        $this->assertEquals([
+            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"],
+            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+        ], $tableMapper->multiFetch([3, 1]));
+
+
+        // Array syntax.
+        $this->assertEquals([
+            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
+        ], $tableMapper->multiFetch([[1], [3]]));
+
+
+        // Tolerate missing values
+        $this->assertEquals([
+            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"],
+            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+        ], $tableMapper->multiFetch([5, 3, 1, 4], true));
+
+
+        // Throw if not ignoring missing values
+        try {
+            $tableMapper->multiFetch([5, 3, 1, 4]);
+            $this->fail("Should have thrown here");
+        } catch (PrimaryKeyRowNotFoundException $e) {
+            // Success
+        }
+
+    }
+
+
+    public function testCanQueryForRowsUsingDefaultConnection() {
+
+        // Create a basic mapper
+        $tableMapper = new TableMapper("example", "id");
+        $this->assertEquals([
+            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"]
+        ], $tableMapper->query("WHERE name = ?", "Mark"));
+
+
+        $this->assertEquals([
+            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
+        ], $tableMapper->query("WHERE name = ? or name = ? ORDER by id", "Mark", "Dave"));
+
+
+        // Test full query
+        $this->assertEquals([
+            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
+        ], $tableMapper->query("SELECT * from example where last_modified > '2013-01-01'"));
+
+
+    }
+
 
 }
