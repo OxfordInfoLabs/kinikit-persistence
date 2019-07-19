@@ -49,16 +49,12 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      *
      * BaseDatabaseConnection constructor.
      *
-     * @param string $configKey
+     * @param string $configParams
      *
      * @throws DatabaseConnectionException
      */
     public function __construct($configParams = null) {
 
-        $connected = $this->connect($configParams);
-
-        if (!$connected)
-            throw new DatabaseConnectionException();
 
         // If no config params, assume default database
         if (!$configParams) {
@@ -68,6 +64,12 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
             }
 
         }
+
+        $connected = $this->connect($configParams);
+
+        if (!$connected)
+            throw new DatabaseConnectionException();
+
 
         if (isset($configParams["logFile"]))
             $this->logFile = $configParams["logFile"];
@@ -88,7 +90,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      */
     public function log($string) {
         if ($this->logFile) {
-            file_put_contents($this->logFile, $string, FILE_APPEND);
+            file_put_contents($this->logFile, $string . "\n", FILE_APPEND);
         }
     }
 
@@ -186,6 +188,27 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      */
     public function getLastErrorMessage() {
         return $this->lastErrorMessage;
+    }
+
+    /**
+     * Process placeholders in query
+     */
+    protected function processPlaceholders($query, $placeholderValues) {
+
+        // Handle the case that the first item has been passed as an array.
+        if (sizeof($placeholderValues) > 0 && is_array($placeholderValues[0])) {
+            $placeholderValues = $placeholderValues[0];
+        }
+
+        // Substitute placeholders
+        foreach ($placeholderValues as $placeholderValue) {
+            $placeholderValue = $this->escapeString($placeholderValue);
+            $placeholderValue = is_numeric($placeholderValue) ? $placeholderValue : "'" . $placeholderValue . "'";
+            $query = preg_replace("/\\?/", $placeholderValue, $query, 1);
+        }
+
+        return $query;
+
     }
 
 

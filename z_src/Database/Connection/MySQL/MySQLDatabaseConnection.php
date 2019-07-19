@@ -219,7 +219,7 @@ class MySQLDatabaseConnection extends DatabaseConnection {
     public function getTableMetaData($tableName) {
 
         try {
-            $results = $this->queryWithResults("SHOW COLUMNS FROM " . $tableName);
+            $results = $this->queryWithResults("SHOW COLUMNS FROM " . $tableName,);
 
             // Add each field as a table column to the array
             $tableColumns = array();
@@ -246,9 +246,10 @@ class MySQLDatabaseConnection extends DatabaseConnection {
      * Straightforward query method, used for inserts/updates/deletes, expects no returned results.
      *
      * @param string $sql
+     * @param array $placeholders
      * @return boolean - Success or failure
      */
-    public function query($sql) {
+    public function query($sql, ...$placeholders) {
 
         $startTime = microtime(true);
         $result = $this->getUnderlyingConnection()->query($sql);
@@ -260,7 +261,7 @@ class MySQLDatabaseConnection extends DatabaseConnection {
 
             if ($this->connection->errno == 2006) {
                 $this->connection = null;
-                return $this->query($sql);
+                return $this->query($sql, $placeholders);
             }
 
 
@@ -287,11 +288,13 @@ class MySQLDatabaseConnection extends DatabaseConnection {
     /**
      * Query method which expects result rows.  This will return a MySQLResultSet if successful
      *
-     * @return ResultSet
+     * @param $sql
+     * @param array $placeholders
+     * @return MySQLResultSet|null
      */
-    public function queryWithResults($sql) {
+    public function queryWithResults($sql, ...$placeholders) {
 
-        $results = $this->query($sql);
+        $results = $this->query($sql,);
         if ($results) {
             return new MySQLResultSet ($results);
         } else {

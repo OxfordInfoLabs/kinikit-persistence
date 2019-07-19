@@ -48,7 +48,7 @@ class ObjectIndexPersistenceEngineTest extends \PHPUnit\Framework\TestCase {
 
         $this->connection->executeScript(file_get_contents("../sql/objectindexengine.sql"));
         $this->connection->executeScript(file_get_contents("../sql/sqllockingprovider.sql"));
-        $this->connection->query("DROP TABLE IF EXISTS kinikit_sequence");
+        $this->connection->query("DROP TABLE IF EXISTS kinikit_sequence",);
 
 
         $this->coordinator = new ObjectPersistenceCoordinator (array(new ObjectIndexPersistenceEngine ($this->connection, "index")));

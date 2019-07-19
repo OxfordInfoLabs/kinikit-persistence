@@ -124,24 +124,26 @@ class ODBCDatabaseConnection extends DatabaseConnection {
     }
 
     /**
+     * @param string $sql
+     * @param array $placeholders
+     * @return boolean
      * @see DatabaseConnection::query()
      *
-     * @param string $sql
-     * @return boolean
      */
-    public function query($sql) {
+    public function query($sql, ...$placeholders) {
         return odbc_exec($this->getUnderlyingConnection(), $sql);
 
     }
 
     /**
+     * @param unknown_type $sql
+     * @param array $placeholders
+     * @return ODBCResultSet|null
      * @see DatabaseConnection::queryWithResults()
      *
-     * @param unknown_type $sql
-     * @return ResultSet
      */
-    public function queryWithResults($sql) {
-        $results = $this->query($sql);
+    public function queryWithResults($sql, ...$placeholders) {
+        $results = $this->query($sql,);
         if ($results) {
             return new ODBCResultSet ($results);
         } else {

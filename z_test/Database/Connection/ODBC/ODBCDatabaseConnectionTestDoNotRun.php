@@ -34,7 +34,7 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         // Make an odbc call and check data got in
         $odbc = new ODBCDatabaseConnection ("ooatest", "ooatest", "ooatest");
-        $odbc->query("INSERT INTO test_parent (name) VALUES ('sugar dumpling')");
+        $odbc->query("INSERT INTO test_parent (name) VALUES ('sugar dumpling')",);
 
         $results = DefaultDatabaseConnection::instance()->queryWithResults("SELECT * from test_parent WHERE name = 'sugar dumpling'");
         $row = $results->nextRow();
@@ -45,7 +45,7 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     public function testCanGetQueryResultsIfQueryWithResultsExecuted() {
 
         $odbc = new ODBCDatabaseConnection ("ooatest", "ooatest", "ooatest");
-        $result = $odbc->queryWithResults("SELECT * from group_role_based_user");
+        $result = $odbc->queryWithResults("SELECT * from group_role_based_user",);
 
         $this->assertIsA($result, "ODBCResultSet");
 
@@ -75,7 +75,7 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         // Make an odbc call and check data got in
         $odbc = new ODBCDatabaseConnection ("ooatest", "ooatest", "ooatest");
-        $odbc->query("INSERT INTO test_parent (name) VALUES ('sugar dumpling')");
+        $odbc->query("INSERT INTO test_parent (name) VALUES ('sugar dumpling')",);
 
         $this->assertNotNull($odbc->getLastAutoIncrementId());
 
@@ -123,7 +123,7 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $database->executePreparedStatement($statement);
 
-        $results = $database->queryWithResults("SELECT * FROM test_parent WHERE id = " . $database->getLastAutoIncrementId());
+        $results = $database->queryWithResults("SELECT * FROM test_parent WHERE id = " . $database->getLastAutoIncrementId(),);
         $row = $results->nextRow();
         $this->assertEquals("Testing Testing 1,2", $row ["name"]);
         $results->close();
@@ -134,8 +134,8 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         // Get the mysql connection object
         $database = new ODBCDatabaseConnection ("ooatest", "ooatest", "ooatest");
 
-        $database->query("DROP TABLE IF EXISTS test_with_blob") or die ("Couldn't drop table");
-        $database->query("CREATE TABLE test_with_blob (id INTEGER AUTO_INCREMENT, blob_data LONGBLOB, PRIMARY KEY(id))") or die ("Couldn't create table");
+        $database->query("DROP TABLE IF EXISTS test_with_blob",) or die ("Couldn't drop table");
+        $database->query("CREATE TABLE test_with_blob (id INTEGER AUTO_INCREMENT, blob_data LONGBLOB, PRIMARY KEY(id))",) or die ("Couldn't create table");
 
         $preparedStatement = new PreparedStatement ("INSERT INTO test_with_blob (blob_data) VALUES (?)");
         $preparedStatement->addBindParameter(TableColumn::SQL_BLOB, new BlobWrapper ("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE"));
@@ -144,7 +144,7 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $database->executePreparedStatement($preparedStatement);
 
         // Check it made it in
-        $results = $database->queryWithResults("SELECT * from test_with_blob WHERE id = " . $database->getLastAutoIncrementId());
+        $results = $database->queryWithResults("SELECT * from test_with_blob WHERE id = " . $database->getLastAutoIncrementId(),);
         $row = $results->nextRow();
         $this->assertEquals("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE", $row ["blob_data"]);
         $results->close();
@@ -157,7 +157,7 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $database->executePreparedStatement($preparedStatement);
 
         // Now check it made it in.
-        $results = $database->queryWithResults("SELECT * from test_with_blob WHERE id = " . $database->getLastAutoIncrementId());
+        $results = $database->queryWithResults("SELECT * from test_with_blob WHERE id = " . $database->getLastAutoIncrementId(),);
         $row = $results->nextRow();
         $this->assertEquals(file_get_contents("persistence/database/connection/testlargeobject.pdf"), $row ["blob_data"]);
 

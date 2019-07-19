@@ -19,7 +19,7 @@ class SequenceGeneratorTest extends \PHPUnit\Framework\TestCase {
 	
 	public function setUp():void {
 		$this->connection = DefaultDB::instance ();
-		$this->connection->query ( "DROP TABLE IF EXISTS kinikit_sequence" );
+		$this->connection->query ("DROP TABLE IF EXISTS kinikit_sequence", );
 	}
 	
 	public function testSequenceTableIsCreatedIfRequiredAndNewSequenceAddedUponFirstRequestForCurrentSequenceValue() {

@@ -149,7 +149,7 @@ class ObjectIndexPersistenceEngine extends ObjectPersistenceEngine {
         }
 
         // Grab all relevant rows of interest
-        $multiObjectResultSet = $this->databaseConnection->queryWithResults("SELECT * FROM kinikit_object_index WHERE object_class = '" . $this->databaseConnection->escapeString($objectClass) . "' AND object_pk IN ('" . join("','", $pkArray) . "')");
+        $multiObjectResultSet = $this->databaseConnection->queryWithResults("SELECT * FROM kinikit_object_index WHERE object_class = '" . $this->databaseConnection->escapeString($objectClass) . "' AND object_pk IN ('" . join("','", $pkArray) . "')",);
         return $this->mapResultDataToRows($multiObjectResultSet);
 
     }
@@ -166,7 +166,7 @@ class ObjectIndexPersistenceEngine extends ObjectPersistenceEngine {
         foreach ($fieldValues as $key => $value) {
             $whereClauses [] = "(field_name = '" . $key . "' AND field_value = '" . $value . "')";
         }
-        $relevantRows = $this->databaseConnection->queryWithResults("SELECT * FROM kinikit_object_index WHERE object_class = '" . $this->databaseConnection->escapeString($objectMapper->getClassName()) . "' AND " . join(" OR ", $whereClauses) . " ORDER BY object_pk");
+        $relevantRows = $this->databaseConnection->queryWithResults("SELECT * FROM kinikit_object_index WHERE object_class = '" . $this->databaseConnection->escapeString($objectMapper->getClassName()) . "' AND " . join(" OR ", $whereClauses) . " ORDER BY object_pk",);
 
         $objectsArray = array();
         while ($row = $relevantRows->nextRow()) {
@@ -222,7 +222,7 @@ class ObjectIndexPersistenceEngine extends ObjectPersistenceEngine {
 
 
         $logicClause = $queryObject->getLogicClause($objectClass);
-        $results = $this->databaseConnection->queryWithResults("SELECT DISTINCT(object_pk) FROM kinikit_object_index WHERE object_class='" . $this->databaseConnection->escapeString($objectClass) . "' " . $logicClause);
+        $results = $this->databaseConnection->queryWithResults("SELECT DISTINCT(object_pk) FROM kinikit_object_index WHERE object_class='" . $this->databaseConnection->escapeString($objectClass) . "' " . $logicClause,);
 
         $pks = array();
         while ($row = $results->nextRow()) {
@@ -271,7 +271,7 @@ class ObjectIndexPersistenceEngine extends ObjectPersistenceEngine {
 
 
         // Get array of previous values for reference
-        $previousResults = $this->databaseConnection->queryWithResults("SELECT * FROM kinikit_object_index WHERE object_class='" . $this->databaseConnection->escapeString($objectMapper->getClassName()) . "' AND object_pk='" . $primaryKeyValues . "'");
+        $previousResults = $this->databaseConnection->queryWithResults("SELECT * FROM kinikit_object_index WHERE object_class='" . $this->databaseConnection->escapeString($objectMapper->getClassName()) . "' AND object_pk='" . $primaryKeyValues . "'",);
         $previousValues = array();
         while ($row = $previousResults->nextRow()) {
             $previousValues[$row["field_name"]] = $row["field_value"];
@@ -350,7 +350,7 @@ class ObjectIndexPersistenceEngine extends ObjectPersistenceEngine {
      */
     public function getAllIndexedObjectClasses() {
         $distinctClassesQuery = "SELECT DISTINCT(object_class) FROM kinikit_object_index ORDER BY object_class";
-        $results = $this->databaseConnection->queryWithResults($distinctClassesQuery);
+        $results = $this->databaseConnection->queryWithResults($distinctClassesQuery,);
         $indexedObjectClasses = array();
         while ($row = $results->nextRow()) {
             $indexedObjectClasses[] = $row["object_class"];
@@ -368,7 +368,7 @@ class ObjectIndexPersistenceEngine extends ObjectPersistenceEngine {
      */
     public function getAllFieldsForIndexedObjectClass($objectClass) {
         $distinctFieldNameQuery = "SELECT DISTINCT(field_name) FROM kinikit_object_index WHERE object_class = '" . $this->databaseConnection->escapeString($objectClass) . "'";
-        $results = $this->databaseConnection->queryWithResults($distinctFieldNameQuery);
+        $results = $this->databaseConnection->queryWithResults($distinctFieldNameQuery,);
         $indexedObjectClasses = array();
         while ($row = $results->nextRow()) {
             $indexedObjectClasses[] = $row["field_name"];

@@ -56,19 +56,19 @@ class SequenceGenerator {
      */
     public function incrementSequence($sequenceName) {
         $newValue = $this->ensureTableAndSequenceExists($sequenceName) + 1;
-        $this->databaseConnection->query("UPDATE kinikit_sequence SET current_value = " . $newValue . " WHERE sequence_name = '" . $sequenceName . "'");
+        $this->databaseConnection->query("UPDATE kinikit_sequence SET current_value = " . $newValue . " WHERE sequence_name = '" . $sequenceName . "'",);
         return $newValue;
     }
 
     // Ensure that the sequence table exists.  Return the current value from the sequence or 0 if a new one.
     private function ensureTableAndSequenceExists($sequenceName) {
 
-        $this->databaseConnection->query("CREATE TABLE IF NOT EXISTS kinikit_sequence (sequence_name VARCHAR(255), current_value INTEGER)");
+        $this->databaseConnection->query("CREATE TABLE IF NOT EXISTS kinikit_sequence (sequence_name VARCHAR(255), current_value INTEGER)",);
 
 
         $currentValue = $this->databaseConnection->queryForSingleValue("SELECT current_value FROM kinikit_sequence WHERE sequence_name = '" . $sequenceName . "'");
         if (!is_numeric($currentValue)) {
-            $this->databaseConnection->query("INSERT INTO kinikit_sequence (sequence_name, current_value) values ('" . $sequenceName . "', 0)");
+            $this->databaseConnection->query("INSERT INTO kinikit_sequence (sequence_name, current_value) values ('" . $sequenceName . "', 0)",);
             $currentValue = 0;
         }
 

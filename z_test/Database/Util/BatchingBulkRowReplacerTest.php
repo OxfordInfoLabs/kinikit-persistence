@@ -19,8 +19,8 @@ class BatchingBulkRowReplacerTest extends \PHPUnit\Framework\TestCase {
     public function setUp():void {
 
         $this->connection = DefaultDB::instance();
-        $this->connection->query("DROP TABLE IF EXISTS test_data");
-        $this->connection->query("CREATE TABLE test_data (id INTEGER, data VARCHAR(1000) NOT NULL, PRIMARY KEY (id))");
+        $this->connection->query("DROP TABLE IF EXISTS test_data",);
+        $this->connection->query("CREATE TABLE test_data (id INTEGER, data VARCHAR(1000) NOT NULL, PRIMARY KEY (id))",);
     }
 
     public function testCanAddSingleRowsToBatchAndTheseAreCommittedOnceBatchSizeIsReached() {

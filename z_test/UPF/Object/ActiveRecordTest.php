@@ -12,8 +12,8 @@ class ActiveRecordTest extends \PHPUnit\Framework\TestCase {
 
     public function setUp():void {
 
-        DefaultDB::instance()->query("DROP TABLE IF EXISTS test_active_record");
-        DefaultDB::instance()->query("CREATE TABLE test_active_record (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), age INTEGER, nickname VARCHAR(255), container_tag VARCHAR(255))");
+        DefaultDB::instance()->query("DROP TABLE IF EXISTS test_active_record",);
+        DefaultDB::instance()->query("CREATE TABLE test_active_record (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), age INTEGER, nickname VARCHAR(255), container_tag VARCHAR(255))",);
 
 
     }

@@ -25,11 +25,11 @@ class MSSQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
         try {
-            $this->connection->query("DROP TABLE test_parent");
+            $this->connection->query("DROP TABLE test_parent",);
         } catch (SQLException $e) {
         }
 
-        $this->connection->query("CREATE TABLE test_parent(id INTEGER IDENTITY(1,1) PRIMARY KEY, name VARCHAR(20))") or die ("Couldn't create table");
+        $this->connection->query("CREATE TABLE test_parent(id INTEGER IDENTITY(1,1) PRIMARY KEY, name VARCHAR(20))",) or die ("Couldn't create table");
 
     }
 
@@ -217,11 +217,11 @@ class MSSQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->connection = new MSSQLDatabaseConnection (Configuration::readParameter("sqlserver.servername"), Configuration::readParameter("sqlserver.username"), Configuration::readParameter("sqlserver.password"), Configuration::readParameter("sqlserver.database"));
 
         try {
-            $this->connection->query("DROP TABLE test_parent");
+            $this->connection->query("DROP TABLE test_parent",);
         } catch (SQLException $e) {
         }
 
-        $this->connection->query("CREATE TABLE test_parent(id INTEGER IDENTITY(1,1) PRIMARY KEY, name VARCHAR(20) NULL)") or die ("Couldn't create table");
+        $this->connection->query("CREATE TABLE test_parent(id INTEGER IDENTITY(1,1) PRIMARY KEY, name VARCHAR(20) NULL)",) or die ("Couldn't create table");
 
         $statement = new PreparedStatement ("INSERT INTO test_parent (name) VALUES (?)");
         $statement->addBindParameter(TableColumn::SQL_UNKNOWN, NULL);

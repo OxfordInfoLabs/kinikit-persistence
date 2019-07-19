@@ -129,8 +129,8 @@ class SchemaGeneratorTest extends \PHPUnit\Framework\TestCase {
 
     public function testTablesAreCreatedRecursivelyWhenCreateSchemaCalled() {
 
-        DefaultDB::instance()->query("DROP TABLE IF EXISTS my_funny_table");
-        DefaultDB::instance()->query("DROP TABLE IF EXISTS test_standard_object");
+        DefaultDB::instance()->query("DROP TABLE IF EXISTS my_funny_table",);
+        DefaultDB::instance()->query("DROP TABLE IF EXISTS test_standard_object",);
 
         // Create the schema
         $this->generator->createSchema(__DIR__, "Kinikit\Persistence\UPF\Engines\ORM\SchemaGenerator");

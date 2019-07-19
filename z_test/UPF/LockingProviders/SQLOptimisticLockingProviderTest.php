@@ -24,11 +24,11 @@ class SQLOptimisticLockingProviderTest extends \PHPUnit\Framework\TestCase {
 	object_pk			VARCHAR(255),
 	last_modified		DATETIME,
 	PRIMARY KEY (object_class, object_pk)
-)");
+)",);
         } catch (SQLException $e) {
             // OK
         }
-        DefaultDB::instance()->query("DELETE FROM kinikit_object_locking");
+        DefaultDB::instance()->query("DELETE FROM kinikit_object_locking",);
     }
 
     public function testGetLockingDataForObjectReturnsCurrentTimestampAsStringRegardlessOfMapperOrPKValues() {
@@ -47,7 +47,7 @@ class SQLOptimisticLockingProviderTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals("Kinikit\Persistence\UPF\Framework\NewObjectWithId||44||" . date('Y-m-d H:i'), DefaultDB::instance()->queryForSingleValue("SELECT  object_class || '||' || object_pk || '||' || SUBSTR(last_modified, 1, 16) FROM kinikit_object_locking WHERE object_pk = 44"));
 
-        DefaultDB::instance()->query("UPDATE kinikit_object_locking SET last_modified = '2010-01-01'");
+        DefaultDB::instance()->query("UPDATE kinikit_object_locking SET last_modified = '2010-01-01'",);
 
         $this->provider->updateLockingDataForObject(new ObjectMapper ("Kinikit\Persistence\UPF\Framework\NewObjectWithId"), 44);
 
@@ -66,7 +66,7 @@ class SQLOptimisticLockingProviderTest extends \PHPUnit\Framework\TestCase {
         $this->assertFalse($this->provider->isObjectLocked(new ObjectMapper ("Kinikit\Persistence\UPF\Framework\NewObjectWithId"), 77, '2011-01-01'));
 
         // Insert some data
-        DefaultDB::instance()->query("INSERT INTO kinikit_object_locking (object_class, object_pk, last_modified) VALUES ('Kinikit\\Persistence\\UPF\\Framework\\NewObjectWithId', 23, '2010-11-01')");
+        DefaultDB::instance()->query("INSERT INTO kinikit_object_locking (object_class, object_pk, last_modified) VALUES ('Kinikit\\Persistence\\UPF\\Framework\\NewObjectWithId', 23, '2010-11-01')",);
 
         // Check that a date in the future returns false for locked
         $this->assertFalse($this->provider->isObjectLocked(new ObjectMapper ("Kinikit\Persistence\UPF\Framework\NewObjectWithId"), 23, '2011-01-01'));

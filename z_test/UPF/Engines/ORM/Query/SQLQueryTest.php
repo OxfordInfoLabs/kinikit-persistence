@@ -69,8 +69,8 @@ class ORMSQLQueryTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfStaticTableInfoPassedThroughToQueryORMFieldsCanBePassedInQueries() {
 
-        DefaultDB::instance()->query("DROP TABLE IF EXISTS query_test");
-        DefaultDB::instance()->query("CREATE TABLE query_test (id INTEGER, my_compound_field INTEGER, another_field VARCHAR(255), dead_field VARCHAR(255))");
+        DefaultDB::instance()->query("DROP TABLE IF EXISTS query_test",);
+        DefaultDB::instance()->query("CREATE TABLE query_test (id INTEGER, my_compound_field INTEGER, another_field VARCHAR(255), dead_field VARCHAR(255))",);
 
         $staticTableInfo = ORMUtils::getStaticObjectTableInfo(new ObjectMapper("Kinikit\Persistence\UPF\Engines\ORM\Query\QueryTest", array(new ObjectPersistableField("id"), new ObjectPersistableField("myCompoundField"),
                 new ObjectPersistableField("anotherField"), new ObjectPersistableField("deadField"))

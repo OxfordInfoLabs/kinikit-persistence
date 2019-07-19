@@ -52,7 +52,7 @@ class SchemaGenerator {
             // Drop unless flag supplied as false
             if ($dropTables) {
                 try {
-                    $this->databaseConnection->query("DROP TABLE {$definition->getTableName()}");
+                    $this->databaseConnection->query("DROP TABLE {$definition->getTableName()}",);
                 } catch (SQLException $e) {
                     // Continue as likely table doesn't exist.
                 }

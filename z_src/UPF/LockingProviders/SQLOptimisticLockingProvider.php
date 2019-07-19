@@ -130,9 +130,9 @@ class SQLOptimisticLockingProvider extends SerialisableObject implements ObjectO
             $existingLockingRows =
                 $this->databaseConnection->queryForSingleValue("SELECT COUNT(*) FROM kinikit_object_locking WHERE object_class = '" . $escapedClassName . "' AND object_pk = '" . $escapedPK . "'");
             if ($existingLockingRows == 0) {
-                $this->databaseConnection->query("INSERT INTO kinikit_object_locking (object_class, object_pk, last_modified) VALUES ('" . $escapedClassName . "', '" . $escapedPK . "', '" . $newTimeStamp . "')");
+                $this->databaseConnection->query("INSERT INTO kinikit_object_locking (object_class, object_pk, last_modified) VALUES ('" . $escapedClassName . "', '" . $escapedPK . "', '" . $newTimeStamp . "')",);
             } else {
-                $this->databaseConnection->query("UPDATE kinikit_object_locking SET last_modified = '" . $newTimeStamp . "' WHERE object_class = '" . $escapedClassName . "' AND object_pk = '" . $escapedPK . "'");
+                $this->databaseConnection->query("UPDATE kinikit_object_locking SET last_modified = '" . $newTimeStamp . "' WHERE object_class = '" . $escapedClassName . "' AND object_pk = '" . $escapedPK . "'",);
             }
 
 

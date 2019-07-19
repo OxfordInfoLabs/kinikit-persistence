@@ -47,31 +47,31 @@ class ORMPersistenceEngineTest extends \PHPUnit\Framework\TestCase {
 
     public function setUp():void {
         $this->connection = DefaultDB::instance();
-        $this->connection->query("DROP TABLE IF EXISTS object_with_id");
-        $this->connection->query("CREATE TABLE object_with_id (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), age INTEGER, shoe_size INTEGER)");
+        $this->connection->query("DROP TABLE IF EXISTS object_with_id",);
+        $this->connection->query("CREATE TABLE object_with_id (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), age INTEGER, shoe_size INTEGER)",);
 
-        $this->connection->query("DROP TABLE IF EXISTS deep_object");
-        $this->connection->query("CREATE TABLE deep_object (id INTEGER PRIMARY KEY AUTOINCREMENT, sub_object_id VARCHAR(255), sub_object_id2 VARCHAR(255))");
-
-
-        $this->connection->query("DROP TABLE IF EXISTS new_object_with_id");
-        $this->connection->query("CREATE TABLE new_object_with_id (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), postcode VARCHAR(255), mobile VARCHAR(255))");
-
-        $this->connection->query("DROP TABLE IF EXISTS object_with_id_new_object_with_id");
-        $this->connection->query("CREATE TABLE object_with_id_new_object_with_id (object_with_id_id INTEGER, new_object_with_id_id INTEGER)");
-
-        $this->connection->query("DROP TABLE IF EXISTS child_object");
-        $this->connection->query("CREATE TABLE child_object (id INTEGER PRIMARY KEY AUTOINCREMENT, parent_id INTEGER, name VARCHAR(255), postcode VARCHAR(255), telephone_number VARCHAR(255), category VARCHAR(255), order_index INTEGER)");
+        $this->connection->query("DROP TABLE IF EXISTS deep_object",);
+        $this->connection->query("CREATE TABLE deep_object (id INTEGER PRIMARY KEY AUTOINCREMENT, sub_object_id VARCHAR(255), sub_object_id2 VARCHAR(255))",);
 
 
-        $this->connection->query("DROP TABLE IF EXISTS object_with_multi_pk");
-        $this->connection->query("CREATE TABLE object_with_multi_pk (element1 INTEGER, element2 VARCHAR(50), element3 VARCHAR(10), message TEXT, PRIMARY KEY (element1, element2, element3))");
+        $this->connection->query("DROP TABLE IF EXISTS new_object_with_id",);
+        $this->connection->query("CREATE TABLE new_object_with_id (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), postcode VARCHAR(255), mobile VARCHAR(255))",);
 
-        $this->connection->query("DROP TABLE IF EXISTS object_with_read_only_fields");
-        $this->connection->query("CREATE TABLE object_with_read_only_fields (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255))");
+        $this->connection->query("DROP TABLE IF EXISTS object_with_id_new_object_with_id",);
+        $this->connection->query("CREATE TABLE object_with_id_new_object_with_id (object_with_id_id INTEGER, new_object_with_id_id INTEGER)",);
 
-        $this->connection->query("DROP VIEW IF EXISTS object_with_read_only_fields_view");
-        $this->connection->query("CREATE VIEW object_with_read_only_fields_view AS SELECT o.*, 'Test Application' application_name, date('now') application_version FROM object_with_read_only_fields o");
+        $this->connection->query("DROP TABLE IF EXISTS child_object",);
+        $this->connection->query("CREATE TABLE child_object (id INTEGER PRIMARY KEY AUTOINCREMENT, parent_id INTEGER, name VARCHAR(255), postcode VARCHAR(255), telephone_number VARCHAR(255), category VARCHAR(255), order_index INTEGER)",);
+
+
+        $this->connection->query("DROP TABLE IF EXISTS object_with_multi_pk",);
+        $this->connection->query("CREATE TABLE object_with_multi_pk (element1 INTEGER, element2 VARCHAR(50), element3 VARCHAR(10), message TEXT, PRIMARY KEY (element1, element2, element3))",);
+
+        $this->connection->query("DROP TABLE IF EXISTS object_with_read_only_fields",);
+        $this->connection->query("CREATE TABLE object_with_read_only_fields (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255))",);
+
+        $this->connection->query("DROP VIEW IF EXISTS object_with_read_only_fields_view",);
+        $this->connection->query("CREATE VIEW object_with_read_only_fields_view AS SELECT o.*, 'Test Application' application_name, date('now') application_version FROM object_with_read_only_fields o",);
 
 
         $this->coordinator = new ObjectPersistenceCoordinator (array(new ORMPersistenceEngine ($this->connection)));

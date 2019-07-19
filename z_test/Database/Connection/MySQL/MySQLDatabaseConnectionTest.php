@@ -36,10 +36,10 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanGetTableMetaDataFromConnectionObject() {
 
-        $this->mysqlDatabaseConnection->query("DROP TABLE IF EXISTS test_child") or die ("Couldn't drop table");
-        $this->mysqlDatabaseConnection->query("CREATE TABLE test_child(id INTEGER AUTO_INCREMENT, note VARCHAR(20), parent_id INTEGER, PRIMARY KEY (id))") or die ("Couldn't create table");
-        $this->mysqlDatabaseConnection->query("DROP TABLE IF EXISTS test_child_multi_key") or die ("Couldn't drop table");
-        $this->mysqlDatabaseConnection->query("CREATE TABLE test_child_multi_key (id INTEGER AUTO_INCREMENT, description VARCHAR(20), parent_field1 INTEGER, parent_field2 VARCHAR(10), parent_field3 INTEGER, PRIMARY KEY (id))") or die ("Couldn't create table");
+        $this->mysqlDatabaseConnection->query("DROP TABLE IF EXISTS test_child",) or die ("Couldn't drop table");
+        $this->mysqlDatabaseConnection->query("CREATE TABLE test_child(id INTEGER AUTO_INCREMENT, note VARCHAR(20), parent_id INTEGER, PRIMARY KEY (id))",) or die ("Couldn't create table");
+        $this->mysqlDatabaseConnection->query("DROP TABLE IF EXISTS test_child_multi_key",) or die ("Couldn't drop table");
+        $this->mysqlDatabaseConnection->query("CREATE TABLE test_child_multi_key (id INTEGER AUTO_INCREMENT, description VARCHAR(20), parent_field1 INTEGER, parent_field2 VARCHAR(10), parent_field3 INTEGER, PRIMARY KEY (id))",) or die ("Couldn't create table");
 
         $mysqlConnection = $this->mysqlDatabaseConnection;
 
@@ -85,7 +85,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $mysqlConnection->executePreparedStatement($preparedStatement);
 
         // Check that the execution succeeded
-        $results = $mysqlConnection->queryWithResults("SELECT * from test_child WHERE id = " . $mysqlConnection->getLastAutoIncrementId());
+        $results = $mysqlConnection->queryWithResults("SELECT * from test_child WHERE id = " . $mysqlConnection->getLastAutoIncrementId(),);
         $row = $results->nextRow();
         $this->assertEquals("Interesting One for", $row ["note"]);
         $this->assertEquals(567, $row ["parent_id"]);
@@ -97,8 +97,8 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         // Get the mysql connection object
         $mysqlConnection = $this->mysqlDatabaseConnection;
 
-        $mysqlConnection->query("DROP TABLE IF EXISTS test_with_blob") or die ("Couldn't drop table");
-        $mysqlConnection->query("CREATE TABLE test_with_blob (id INTEGER AUTO_INCREMENT, blob_data LONGBLOB, PRIMARY KEY (id))") or die ("Couldn't create table");
+        $mysqlConnection->query("DROP TABLE IF EXISTS test_with_blob",) or die ("Couldn't drop table");
+        $mysqlConnection->query("CREATE TABLE test_with_blob (id INTEGER AUTO_INCREMENT, blob_data LONGBLOB, PRIMARY KEY (id))",) or die ("Couldn't create table");
 
         $preparedStatement = new PreparedStatement ("INSERT INTO test_with_blob (blob_data) VALUES (?)");
         $preparedStatement->addBindParameter(TableColumn::SQL_BLOB, new BlobWrapper ("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE"));
@@ -107,7 +107,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $mysqlConnection->executePreparedStatement($preparedStatement);
 
         // Check it made it in
-        $results = $mysqlConnection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $mysqlConnection->getLastAutoIncrementId());
+        $results = $mysqlConnection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $mysqlConnection->getLastAutoIncrementId(),);
         $row = $results->nextRow();
         $this->assertEquals("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE", $row ["blob_data"]);
 
@@ -119,7 +119,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $mysqlConnection->executePreparedStatement($preparedStatement);
 
         // Now check it made it in.
-        $results = $mysqlConnection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $mysqlConnection->getLastAutoIncrementId());
+        $results = $mysqlConnection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $mysqlConnection->getLastAutoIncrementId(),);
         $row = $results->nextRow();
         $this->assertEquals(file_get_contents("Database/Connection/testlargeobject.pdf"), $row ["blob_data"]);
 
@@ -161,7 +161,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCreateTableImplementedCorrectlyForMySQL() {
 
-        $this->mysqlDatabaseConnection->query("DROP TABLE IF EXISTS test_create_table");
+        $this->mysqlDatabaseConnection->query("DROP TABLE IF EXISTS test_create_table",);
 
         $columns = array();
         $columns[] = new TableColumn("id", TableColumn::SQL_INT, null, null, true, true, true);

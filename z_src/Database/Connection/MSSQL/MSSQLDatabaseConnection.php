@@ -161,8 +161,8 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
 
 
             // Set ANSI NULLS On.
-            $this->query("SET ANSI_NULLS ON;");
-            $this->query("SET ANSI_WARNINGS ON;");
+            $this->query("SET ANSI_NULLS ON;",);
+            $this->query("SET ANSI_WARNINGS ON;",);
 
         }
         return $this->connection;
@@ -197,7 +197,7 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
                 }
 
 
-                $results = new MSSQLResultSet ($this->query($tableSQL), $this->driver);
+                $results = new MSSQLResultSet ($this->query($tableSQL,), $this->driver);
 
                 // Add each field as a table column to the array
                 $tableColumns = array();
@@ -260,7 +260,7 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
                     if ($findPrimaryKeys == true) {
 
                         $result =
-                            new MSSQLResultSet ($this->query("SELECT [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE].TABLE_NAME, COLUMN_NAME FROM [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE] JOIN [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS] ON [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE].CONSTRAINT_NAME = [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS].CONSTRAINT_NAME WHERE [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS].CONSTRAINT_TYPE = 'PRIMARY KEY'AND [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE].TABLE_NAME = '" . $tableName . "' AND COLUMN_NAME = '" . $row ["COLUMN_NAME"] . "'"), $this->driver);
+                            new MSSQLResultSet ($this->query("SELECT [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE].TABLE_NAME, COLUMN_NAME FROM [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE] JOIN [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS] ON [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE].CONSTRAINT_NAME = [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS].CONSTRAINT_NAME WHERE [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS].CONSTRAINT_TYPE = 'PRIMARY KEY'AND [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE].TABLE_NAME = '" . $tableName . "' AND COLUMN_NAME = '" . $row ["COLUMN_NAME"] . "'",), $this->driver);
 
                         if ($result->nextRow()) {
                             $primaryKey = true;
@@ -313,8 +313,10 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
 
     /**
      * @param unknown_type $sql
+     * @param array $placeholders
+     * @return bool|mixed|resource
      */
-    public function query($sql) {
+    public function query($sql, ...$placeholders) {
 
         // Parse the query
         $sql = $this->queryParser->parse($sql);
@@ -362,11 +364,12 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
 
     /**
      * @param unknown_type $sql
-     * @return ResultSet
+     * @param array $placeholders
+     * @return MSSQLResultSet|null
      */
-    public function queryWithResults($sql) {
+    public function queryWithResults($sql, ...$placeholders) {
 
-        $results = $this->query($sql);
+        $results = $this->query($sql,);
         if ($results) {
             return new MSSQLResultSet ($results, $this->driver);
         } else {
@@ -440,7 +443,7 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
 
         }
 
-        $success = $this->query($statement);
+        $success = $this->query($statement,);
 
         if (!$success) {
             $this->lastError = mssql_get_last_message();
@@ -456,7 +459,7 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
 
     // Insert a blank row (overloaded)
     public function insertBlankRow($tableName) {
-        $this->query("INSERT INTO " . $tableName . " DEFAULT VALUES");
+        $this->query("INSERT INTO " . $tableName . " DEFAULT VALUES",);
     }
 
     /**
@@ -471,7 +474,7 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
      */
     public function getLastAutoIncrementId() {
 
-        $result = $this->query("select SCOPE_IDENTITY()");
+        $result = $this->query("select SCOPE_IDENTITY()",);
 
         if ($this->driver == MSSQLDatabaseConnection::DRIVER_SYBASE) {
             $id = mssql_result($result, 0, 0);
@@ -509,9 +512,9 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
 
         // If not in transaction, start a transaction
         if ($this->transactionDepth == 1) {
-            $this->query("BEGIN TRANSACTION");
+            $this->query("BEGIN TRANSACTION",);
         } else {
-            $this->query("SAVE TRANSACTION SAVEPOINT" . $this->transactionDepth);
+            $this->query("SAVE TRANSACTION SAVEPOINT" . $this->transactionDepth,);
         }
 
     }
@@ -527,9 +530,9 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
 
         try {
             if ($this->transactionDepth <= 1) {
-                $this->query("ROLLBACK TRANSACTION");
+                $this->query("ROLLBACK TRANSACTION",);
             } else {
-                $this->query("ROLLBACK TRANSACTION SAVEPOINT" . $this->transactionDepth);
+                $this->query("ROLLBACK TRANSACTION SAVEPOINT" . $this->transactionDepth,);
             }
         } catch (SQLException $e) {
             // Ignore exceptions here as little we can do.

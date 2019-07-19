@@ -31,9 +31,9 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     public function testCanQuerySqlLite3DatabaseByTargetingExistingPath() {
 
         $database = new SQLite3DatabaseConnection ($this->dbLocation);
-        $database->query("CREATE TABLE TEST (id INTEGER PRIMARY KEY, name VARCHAR(20))");
-        $database->query("INSERT INTO TEST VALUES (1, 'Hello world of fun')");
-        $database->query("INSERT INTO TEST VALUES (2, 'Goodbye Goodbye')");
+        $database->query("CREATE TABLE TEST (id INTEGER PRIMARY KEY, name VARCHAR(20))",);
+        $database->query("INSERT INTO TEST VALUES (1, 'Hello world of fun')",);
+        $database->query("INSERT INTO TEST VALUES (2, 'Goodbye Goodbye')",);
 
         $comparison = new \PDO ("sqlite:Database/Connection/SQLite3/testsqlite3.db");
         $results = $comparison->prepare("SELECT * FROM TEST")->execute();
@@ -44,7 +44,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $database = new SQLite3DatabaseConnection ($this->dbLocation);
 
-        $results = $database->queryWithResults("SELECT * FROM TEST");
+        $results = $database->queryWithResults("SELECT * FROM TEST",);
 
         $row = $results->nextRow();
         $this->assertEquals(1, $row ["id"]);
@@ -70,14 +70,14 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $database = new SQLite3DatabaseConnection ($this->dbLocation);
 
         try {
-            $results = $database->queryWithResults("SELECT * FROM TEST_MONKEY");
+            $results = $database->queryWithResults("SELECT * FROM TEST_MONKEY",);
             $this->fail("Should have thrown");
         } catch (SQLException $e){
             // Success
         }
 
         try {
-            $results = $database->query("SELECT * FROM TEST_MONKEY");
+            $results = $database->query("SELECT * FROM TEST_MONKEY",);
             $this->fail("Should have thrown");
         } catch (SQLException $e){
             // Success
@@ -103,7 +103,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $database->close();
         self::assertTrue(true);
         try {
-            $results = $database->queryWithResults("SELECT * FROM TEST");
+            $results = $database->queryWithResults("SELECT * FROM TEST",);
         } catch (Exception $e) {
             // Success
         }
@@ -113,7 +113,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     public function testLastInsertIdIsCorrectlySetIfApplicable() {
 
         $database = new SQLite3DatabaseConnection ($this->dbLocation);
-        $database->query("INSERT INTO TEST ('name') VALUES ('Booskaboo')");
+        $database->query("INSERT INTO TEST ('name') VALUES ('Booskaboo')",);
         $this->assertEquals(3, $database->getLastAutoIncrementId());
 
     }
@@ -123,7 +123,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $database = new SQLite3DatabaseConnection ($this->dbLocation);
 
         try {
-            $database->query("SELECT * FROM TEST_MONKEY");
+            $database->query("SELECT * FROM TEST_MONKEY",);
             $this->fail("Should have thrown here");
         } catch (SQLException $e){
             // Success
@@ -150,7 +150,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     public function testCanQueryUsingSQRTFunction() {
 
         $database = new SQLite3DatabaseConnection ($this->dbLocation);
-        $results = $database->queryWithResults("SELECT SQRT(id) myval FROM test");
+        $results = $database->queryWithResults("SELECT SQRT(id) myval FROM test",);
         $row = $results->nextRow();
         $this->assertEquals("1.0", $row ["myval"]);
         $results->close();
@@ -166,7 +166,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $database->executePreparedStatement($statement);
 
-        $results = $database->queryWithResults("SELECT * FROM TEST WHERE id = " . $database->getLastAutoIncrementId());
+        $results = $database->queryWithResults("SELECT * FROM TEST WHERE id = " . $database->getLastAutoIncrementId(),);
         $row = $results->nextRow();
         $this->assertEquals("Testing Testing 1,2,3", $row ["name"]);
         $results->close();
@@ -177,8 +177,8 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         // Get the mysql connection object
         $sqlite3Connection = new SQLite3DatabaseConnection ($this->dbLocation);
 
-        $sqlite3Connection->query("DROP TABLE IF EXISTS test_with_blob");
-        $sqlite3Connection->query("CREATE TABLE test_with_blob (id INTEGER PRIMARY KEY, blob_data LONGBLOB)");
+        $sqlite3Connection->query("DROP TABLE IF EXISTS test_with_blob",);
+        $sqlite3Connection->query("CREATE TABLE test_with_blob (id INTEGER PRIMARY KEY, blob_data LONGBLOB)",);
 
         $preparedStatement = new PreparedStatement ("INSERT INTO test_with_blob (blob_data) VALUES (?)");
         $preparedStatement->addBindParameter(TableColumn::SQL_BLOB, new BlobWrapper ("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE"));
@@ -187,7 +187,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $sqlite3Connection->executePreparedStatement($preparedStatement);
 
         // Check it made it in
-        $results = $sqlite3Connection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $sqlite3Connection->getLastAutoIncrementId());
+        $results = $sqlite3Connection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $sqlite3Connection->getLastAutoIncrementId(),);
         $row = $results->nextRow();
         $this->assertEquals("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE", $row ["blob_data"]);
         $results->close();
@@ -210,7 +210,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $sqlite3Connection->executePreparedStatement($preparedStatement);
 
         // Now check it made it in.
-        $results = $sqlite3Connection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $sqlite3Connection->getLastAutoIncrementId());
+        $results = $sqlite3Connection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $sqlite3Connection->getLastAutoIncrementId(),);
         $row = $results->nextRow();
 
 

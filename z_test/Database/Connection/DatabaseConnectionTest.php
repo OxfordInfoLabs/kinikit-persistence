@@ -24,17 +24,17 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     public function setUp():void {
 
         $this->connection = DefaultDB::instance();
-        $this->connection->query("DROP TABLE IF EXISTS test_data");
-        $this->connection->query("CREATE TABLE test_data (id INTEGER PRIMARY KEY AUTOINCREMENT, data VARCHAR(1000))");
+        $this->connection->query("DROP TABLE IF EXISTS test_data",);
+        $this->connection->query("CREATE TABLE test_data (id INTEGER PRIMARY KEY AUTOINCREMENT, data VARCHAR(1000))",);
     }
 
     public function testCallingRollbackRollsBackTheWholeRunningTransaction() {
 
-        $this->connection->query("BEGIN");
-        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')");
-        $this->connection->query("INSERT INTO test_data VALUES (200, 'killer gorilla')");
+        $this->connection->query("BEGIN",);
+        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')",);
+        $this->connection->query("INSERT INTO test_data VALUES (200, 'killer gorilla')",);
 
-        $results = $this->connection->queryWithResults("SELECT * FROM test_data");
+        $results = $this->connection->queryWithResults("SELECT * FROM test_data",);
         $row = $results->nextRow();
         $this->assertEquals(array(100, "monkey man"), array($row ["id"], $row ["data"]));
         $row = $results->nextRow();
@@ -45,20 +45,20 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->connection->rollback();
 
         // Now prove that we indeed rolled back the whole transaction
-        $results = $this->connection->queryWithResults("SELECT * FROM test_data");
+        $results = $this->connection->queryWithResults("SELECT * FROM test_data",);
         $this->assertNull($results->nextRow());
 
     }
 
     public function testCallingCommitWillCommitTheRunningTransaction() {
-        $this->connection->query("BEGIN");
-        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')");
+        $this->connection->query("BEGIN",);
+        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')",);
         $this->connection->commit();
 
         // Now rollback to confirm that commit happened.
         $this->connection->rollback();
 
-        $results = $this->connection->queryWithResults("SELECT * FROM test_data");
+        $results = $this->connection->queryWithResults("SELECT * FROM test_data",);
         $row = $results->nextRow();
         $this->assertEquals(array(100, "monkey man"), array($row ["id"], $row ["data"]));
 
@@ -71,8 +71,8 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         // Insert some test data
         $this->connection->beginTransaction();
-        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')");
-        $results = $this->connection->queryWithResults("SELECT * FROM test_data");
+        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')",);
+        $results = $this->connection->queryWithResults("SELECT * FROM test_data",);
         $row = $results->nextRow();
         $this->assertEquals(array(100, "monkey man"), array($row ["id"], $row ["data"]));
         $results->close();
@@ -81,7 +81,7 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->connection->rollback();
 
         // Now prove that we indeed rolled back
-        $results = $this->connection->queryWithResults("SELECT * FROM test_data");
+        $results = $this->connection->queryWithResults("SELECT * FROM test_data",);
         $this->assertNull($results->nextRow());
 
     }
@@ -89,20 +89,20 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     public function testIfBeginTransactionCalledWhilstInTransactionWithDefaultFlagSetTransactionSimplyContinues() {
 
         $this->connection->beginTransaction();
-        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')");
+        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')",);
         $this->connection->beginTransaction();
 
         // Check previous transaction not yet committed
         $newConn = new SQLite3DatabaseConnection(Configuration::readParameter("db.filename"));
-        $results = $newConn->queryWithResults("SELECT * FROM test_data");
+        $results = $newConn->queryWithResults("SELECT * FROM test_data",);
         $this->assertNull($results->nextRow());
         $results->close();
 
-        $this->connection->query("INSERT INTO test_data VALUES (200, 'killer gorilla')");
+        $this->connection->query("INSERT INTO test_data VALUES (200, 'killer gorilla')",);
         $this->connection->commit();
 
         // Check whole transaction now committed.
-        $results = $this->connection->queryWithResults("SELECT * FROM test_data");
+        $results = $this->connection->queryWithResults("SELECT * FROM test_data",);
         $row = $results->nextRow();
         $this->assertEquals(array(100, "monkey man"), array($row ["id"], $row ["data"]));
         $row = $results->nextRow();
@@ -112,8 +112,8 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanGetResultOfSingleValuedQuery() {
 
-        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')");
-        $this->connection->query("INSERT INTO test_data VALUES (200, 'plant man')");
+        $this->connection->query("INSERT INTO test_data VALUES (100, 'monkey man')",);
+        $this->connection->query("INSERT INTO test_data VALUES (200, 'plant man')",);
 
         $this->assertEquals(2, $this->connection->queryForSingleValue("SELECT count(*) from test_data"));
 
@@ -124,7 +124,7 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $columns = array("id", "data");
         $values = array(array(1, "Mark"), array(2, "Luke"), array(3, "Tim"), array(4, "John"));
 
-        $this->connection->query("DELETE FROM test_data");
+        $this->connection->query("DELETE FROM test_data",);
 
         $this->connection->bulkInsert("test_data", $columns, $values);
 
@@ -148,7 +148,7 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanBulkDeleteANumberOfRowsAtOnceUsingSingleColumn() {
 
-        $this->connection->query("DELETE FROM test_data");
+        $this->connection->query("DELETE FROM test_data",);
 
         // Firstly bulk insert a few rows
         $columns = array("id", "data");
@@ -180,7 +180,7 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanBulkDeleteANumberOfRowsAtOnceUsingCompoundColumnKey() {
 
-        $this->connection->query("DELETE FROM test_data");
+        $this->connection->query("DELETE FROM test_data",);
 
         // Firstly bulk insert a few rows
         $columns = array("id", "data");
@@ -212,7 +212,7 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
     public function testCanBulkReplaceANumberOfRowsUsingPrimaryKey() {
-        $this->connection->query("DELETE FROM test_data");
+        $this->connection->query("DELETE FROM test_data",);
 
 
         $columns = array("id", "data");
@@ -258,7 +258,7 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanExecuteScriptOfMultipleStatements() {
 
-        $this->connection->query("DROP TABLE IF EXISTS nathan");
+        $this->connection->query("DROP TABLE IF EXISTS nathan",);
 
         $this->connection->executeScript(file_get_contents("Database/Connection/testscript.sql"));
 
@@ -274,7 +274,7 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanCreateGenericTableUsingTableMetaData() {
 
-        $this->connection->query("DROP TABLE IF EXISTS test_create_table");
+        $this->connection->query("DROP TABLE IF EXISTS test_create_table",);
 
         $columns = array();
         $columns[] = new TableColumn("id", TableColumn::SQL_INT, null, null, true, true, true);
@@ -289,7 +289,7 @@ class DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
         // Now try one with compound primary key
-        $this->connection->query("DROP TABLE IF EXISTS test_create_table");
+        $this->connection->query("DROP TABLE IF EXISTS test_create_table",);
 
         $columns = array();
         $columns[] = new TableColumn("id", TableColumn::SQL_INT, null, null, true, false, true);

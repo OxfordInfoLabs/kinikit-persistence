@@ -46,9 +46,10 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * Issue a SQL query without results, returns success / failure.
      *
      * @param $sql
-     * @return boolean
+     * @param array $placeholders
+     * @return void
      */
-    public function query($sql) {
+    public function query($sql, ...$placeholders) {
         $this->lastSQL = $sql;
     }
 
@@ -57,10 +58,11 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * may throw SQLException if issues
      *
      * @param $sql
-     * @return ResultSet
+     * @param array $placeholders
+     * @return void
      * @throws SQLException
      */
-    public function queryWithResults($sql) {
+    public function queryWithResults($sql, ...$placeholders) {
         // TODO: Implement queryWithResults() method.
     }
 

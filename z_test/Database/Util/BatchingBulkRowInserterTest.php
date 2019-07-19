@@ -21,11 +21,11 @@ class BatchingBulkRowInserterTest extends \PHPUnit\Framework\TestCase {
 	public function setUp():void {
 		
 		$this->connection = DefaultDB::instance ();
-		$this->connection->query ( "DROP TABLE IF EXISTS test_data" );
-		$this->connection->query ( "CREATE TABLE test_data (id INTEGER, data VARCHAR(1000) NOT NULL) " );
+		$this->connection->query ("DROP TABLE IF EXISTS test_data", );
+		$this->connection->query ("CREATE TABLE test_data (id INTEGER, data VARCHAR(1000) NOT NULL) ", );
 
-		$this->connection->query("DROP TABLE IF EXISTS test_data_with_pk");
-		$this->connection->query ( "CREATE TABLE test_data_with_pk (id INTEGER, data VARCHAR(1000), PRIMARY KEY(id)) " );
+		$this->connection->query("DROP TABLE IF EXISTS test_data_with_pk",);
+		$this->connection->query ("CREATE TABLE test_data_with_pk (id INTEGER, data VARCHAR(1000), PRIMARY KEY(id)) ", );
 
 	}
 	

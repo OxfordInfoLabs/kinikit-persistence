@@ -73,7 +73,7 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
      */
     public function getTableMetaData($tableName) {
 
-        $results = $this->queryWithResults("PRAGMA table_info('" . $tableName . "')");
+        $results = $this->queryWithResults("PRAGMA table_info('" . $tableName . "')",);
 
         if ($results) {
 
@@ -105,11 +105,11 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
 
     /**
      * @param string $sql
+     * @param array $placeholders
      * @return boolean
      * @see BaseConnection::query()
-     *
      */
-    public function query($sql) {
+    public function query($sql, ...$placeholders) {
 
 
         $results = $this->connection->exec($sql);
@@ -129,11 +129,11 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
 
     /**
      * @param string $sql
-     * @return ResultSet
+     * @param array $placeholders
+     * @return SQLite3ResultSet
      * @see BaseConnection::queryWithResults()
-     *
      */
-    public function queryWithResults($sql) {
+    public function queryWithResults($sql, ...$placeholders) {
 
 
         $statement = $this->connection->prepare($sql);
@@ -212,7 +212,7 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
     }
 
     public function insertBlankRow($tableName) {
-        $this->query("INSERT INTO $tableName DEFAULT VALUES");
+        $this->query("INSERT INTO $tableName DEFAULT VALUES",);
     }
 
     /**

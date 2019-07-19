@@ -49,21 +49,26 @@ interface DatabaseConnection {
      * Issue a SQL query without results, returns database specific result.
      *
      * @param $sql
+     * @param array $placeholders
+     *
      * @return mixed
      * @throws SQLException
      */
-    public function query($sql);
+    public function query($sql, ...$placeholders);
 
 
     /**
      * Issue a SQL query with results.  Returns a ResultSet if successful or
      * may throw SQLException if issues
      *
+     * Placeholders may be applied which will be evaluated.
+     *
      * @param $sql
+     * @param array $placeholders
      * @return ResultSet
      * @throws SQLException
      */
-    public function queryWithResults($sql);
+    public function queryWithResults($sql, ...$placeholders);
 
 
     /**
