@@ -50,7 +50,7 @@ class TableMapper {
      *
      * @var array
      */
-    private $relationshipMappingData;
+    private $relationshipAliasPrefixes;
 
 
     /**
@@ -306,7 +306,7 @@ class TableMapper {
 
         // Map any relationship data
         foreach ($this->relationships as $index => $relationship) {
-            $relationshipAlias = $this->relationshipMappingData[$index]["alias"];
+            $relationshipAlias = $this->relationshipAliasPrefixes[$index];
 
             if (isset($rows[$pkString][$relationship->getMappedMember()])) {
                 $relationship->getRelatedTableMapper()->processQueryResult($result, $rows[$pkString][$relationship->getMappedMember()], $relationshipAlias);
@@ -360,12 +360,15 @@ class TableMapper {
         $selectJoinClauses = [];
         $additionalSelectColumns = [];
 
-        $this->relationshipMappingData = [];
+        $this->relationshipAliasPrefixes = [];
         $fullPathAliases = [];
         foreach ($this->relationships as $index => $relationship) {
 
             // Generate an alias for this relationship in the query
             $alias = $parentAlias . chr(65 + $index);
+
+            // Relationship alias prefix is with an additional __
+            $relationshipAliasPrefix = $alias . "__";
 
             // Get the select join clause.
             $selectJoinClauses[] = $relationship->getSelectJoinClause($parentAlias, $alias);
@@ -375,11 +378,11 @@ class TableMapper {
 
             $columns = $relatedTableMapper->allColumns;
             foreach ($columns as $column) {
-                $additionalSelectColumns[] = $alias . "." . $column . " " . $alias . "__" . $column;
+                $additionalSelectColumns[] = $alias . "." . $column . " " . $relationshipAliasPrefix . $column;
             }
 
-            $this->relationshipMappingData[] = ["alias" => $alias . "__",
-                "fullMember" => $parentPath . $relationship->getMappedMember()];
+
+            $this->relationshipAliasPrefixes[] = $relationshipAliasPrefix;
 
 
             $fullPathAliases[$parentPath . $relationship->getMappedMember()] = $alias . ".";
