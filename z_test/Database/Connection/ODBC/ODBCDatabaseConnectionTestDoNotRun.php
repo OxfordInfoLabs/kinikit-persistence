@@ -121,7 +121,7 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $statement = new PreparedStatement ("INSERT INTO test_parent (name) VALUES (?)");
         $statement->addBindParameter(TableColumn::SQL_VARCHAR, "Testing Testing 1,2");
 
-        $database->executePreparedStatement($statement);
+        $database->createPreparedStatement($statement);
 
         $results = $database->queryWithResults("SELECT * FROM test_parent WHERE id = " . $database->getLastAutoIncrementId(),);
         $row = $results->nextRow();
@@ -141,7 +141,7 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $preparedStatement->addBindParameter(TableColumn::SQL_BLOB, new BlobWrapper ("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE"));
 
         // Execute an explicit one.
-        $database->executePreparedStatement($preparedStatement);
+        $database->createPreparedStatement($preparedStatement);
 
         // Check it made it in
         $results = $database->queryWithResults("SELECT * from test_with_blob WHERE id = " . $database->getLastAutoIncrementId(),);
@@ -154,7 +154,7 @@ class ODBCDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $preparedStatement->addBindParameter(TableColumn::SQL_BLOB, new BlobWrapper (null, "persistence/database/connection/testlargeobject.pdf"));
 
         // Execute a filename based one
-        $database->executePreparedStatement($preparedStatement);
+        $database->createPreparedStatement($preparedStatement);
 
         // Now check it made it in.
         $results = $database->queryWithResults("SELECT * from test_with_blob WHERE id = " . $database->getLastAutoIncrementId(),);

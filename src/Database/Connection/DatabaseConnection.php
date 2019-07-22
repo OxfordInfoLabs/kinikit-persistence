@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Connection;
 
 
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 /**
@@ -46,18 +47,6 @@ interface DatabaseConnection {
 
 
     /**
-     * Issue a SQL query without results, returns database specific result.
-     *
-     * @param $sql
-     * @param array $placeholders
-     *
-     * @return mixed
-     * @throws SQLException
-     */
-    public function query($sql, ...$placeholders);
-
-
-    /**
      * Issue a SQL query with results.  Returns a ResultSet if successful or
      * may throw SQLException if issues
      *
@@ -68,18 +57,32 @@ interface DatabaseConnection {
      * @return ResultSet
      * @throws SQLException
      */
-    public function queryWithResults($sql, ...$placeholders);
+    public function query($sql, ...$placeholders);
+
+
+    /**
+     * Execute a statement which doesn't return any results.
+     * This will usually be implemented via a call to createPreparedStatement
+     * as a convenience macro for a single statement.  Returns a boolean
+     * indicating success of statement.
+     *
+     * @param $sql
+     * @param mixed ...$placeholders
+     * @return boolean
+     * @throws SQLException
+     */
+    public function execute($sql, ...$placeholders);
 
 
     /**
      * Execute a prepared statement (usually an update operation) and return a boolean according to
      * whether or not it was successful
      *
-     * @param $preparedStatement
-     * @return boolean
+     * @param string $sql
+     * @return PreparedStatement
      * @throws SQLException
      */
-    public function executePreparedStatement($preparedStatement);
+    public function createPreparedStatement($sql);
 
 
     /**

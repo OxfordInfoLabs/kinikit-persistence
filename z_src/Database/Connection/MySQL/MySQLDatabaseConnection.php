@@ -305,13 +305,14 @@ class MySQLDatabaseConnection extends DatabaseConnection {
     /**
      * Execute a prepared statement.  This currently does not support returned results.
      *
-     * @param PreparedStatement $preparedStatement
+     * @param PreparedStatement $sql
+     * @return bool
      */
-    public function executePreparedStatement($preparedStatement) {
+    public function createPreparedStatement($sql) {
 
 
         // Do MySQL preparation
-        $mySQLStmt = $this->getUnderlyingConnection()->prepare($preparedStatement->getSQL());
+        $mySQLStmt = $this->getUnderlyingConnection()->prepare($sql->getSQL());
 
         if ($mySQLStmt) {
 
@@ -319,7 +320,7 @@ class MySQLDatabaseConnection extends DatabaseConnection {
             $typeString = "";
             $values = array();
             $refValues = array();
-            $bindParameters = $preparedStatement->getBindParameters();
+            $bindParameters = $sql->getBindParameters();
 
             // Throw if mismatch of sizes.
             if (sizeof($bindParameters) != $mySQLStmt->param_count) {
@@ -401,7 +402,7 @@ class MySQLDatabaseConnection extends DatabaseConnection {
 
 
             if ($this->getQueryLogFile()) {
-                $query = $preparedStatement->getExplicitSQL();
+                $query = $sql->getExplicitSQL();
                 file_put_contents($this->getQueryLogFile(), "\n" . $query, FILE_APPEND);
             }
 
@@ -588,7 +589,7 @@ class MySQLDatabaseConnection extends DatabaseConnection {
         }
 
         // Execute the prepared statement.
-        return $this->executePreparedStatement($stmt);
+        return $this->createPreparedStatement($stmt);
     }
 
 

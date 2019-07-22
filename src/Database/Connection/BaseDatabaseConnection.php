@@ -8,6 +8,7 @@ use Kinikit\Core\Configuration\ConfigFile;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 
 /**
  * Base database connection which implements common defaults for the database connection.
@@ -81,6 +82,61 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
         $this->connect($configParams);
 
     }
+
+    /**
+     * Implement query method to ensure query is correctly
+     * processed and then call the abstract doQuery method
+     *
+     * @param string $sql
+     * @param mixed ...$placeholders
+     * @return ResultSet
+     */
+    public function query($sql, ...$placeholders) {
+
+        if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
+            $placeholders = $placeholders[0];
+        }
+        
+        return $this->doQuery($sql, $placeholders);
+    }
+
+
+    /**
+     * Implement execute method by creating a prepared statement and
+     * executing it once.
+     *
+     * @param $sql
+     * @param mixed ...$placeholders
+     * @return bool|void
+     * @throws SQLException
+     */
+    public function execute($sql, ...$placeholders) {
+
+        if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
+            $placeholders = $placeholders[0];
+        }
+
+        // Create prepared statement for passed SQL.
+        $statement = $this->createPreparedStatement($sql);
+
+        // Execute with placeholdere
+        $statement->execute($placeholders);
+
+        // Close the statement
+        $statement->close();
+
+        return true;
+    }
+
+
+    /**
+     * Actual do Query method, should be implemented by child implementations
+     *
+     * @param $sql
+     * @param $placeholderValues
+     * @return mixed
+     */
+    public abstract function doQuery($sql, $placeholderValues);
 
 
     /**
@@ -188,27 +244,6 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      */
     public function getLastErrorMessage() {
         return $this->lastErrorMessage;
-    }
-
-    /**
-     * Process placeholders in query
-     */
-    protected function processPlaceholders($query, $placeholderValues) {
-
-        // Handle the case that the first item has been passed as an array.
-        if (sizeof($placeholderValues) > 0 && is_array($placeholderValues[0])) {
-            $placeholderValues = $placeholderValues[0];
-        }
-
-        // Substitute placeholders
-        foreach ($placeholderValues as $placeholderValue) {
-            $placeholderValue = $this->escapeString($placeholderValue);
-            $placeholderValue = is_numeric($placeholderValue) ? $placeholderValue : "'" . $placeholderValue . "'";
-            $query = preg_replace("/\\?/", $placeholderValue, $query, 1);
-        }
-
-        return $query;
-
     }
 
 

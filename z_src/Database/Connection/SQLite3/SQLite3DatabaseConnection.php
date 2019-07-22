@@ -158,17 +158,18 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
     /**
      * Execute a prepared statement for sqlite 3 database
      *
-     * @param PreparedStatement $preparedStatement
+     * @param PreparedStatement $sql
+     * @return bool
      */
-    public function executePreparedStatement($preparedStatement) {
+    public function createPreparedStatement($sql) {
 
 
-        $sqlite3Stmt = $this->connection->prepare($preparedStatement->getSQL());
+        $sqlite3Stmt = $this->connection->prepare($sql->getSQL());
 
         if (!$sqlite3Stmt)
             return false;
 
-        $params = $preparedStatement->getBindParameters();
+        $params = $sql->getBindParameters();
 
         $blobHandle = null;
 
@@ -204,7 +205,7 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
             fclose($blobHandle);
 
         if ($this->logFile) {
-            file_put_contents($this->logFile, "\n\n" . $preparedStatement->getSQL(), FILE_APPEND);
+            file_put_contents($this->logFile, "\n\n" . $sql->getSQL(), FILE_APPEND);
         }
 
         return $success;
@@ -239,7 +240,7 @@ class SQLite3DatabaseConnection extends DatabaseConnection {
                 $column = $metaData->getColumn($insertColumnNames [$i]);
                 $stmt->addBindParameter($column->getType(), $row [$i]);
             }
-            $this->executePreparedStatement($stmt);
+            $this->createPreparedStatement($stmt);
         }
 
         return true;

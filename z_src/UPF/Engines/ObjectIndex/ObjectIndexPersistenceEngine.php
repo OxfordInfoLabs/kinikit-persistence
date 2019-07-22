@@ -285,7 +285,7 @@ class ObjectIndexPersistenceEngine extends ObjectPersistenceEngine {
             $preparedStatement->addBindParameter(TableColumn::SQL_VARCHAR, $fieldKey);
         }
 
-        $this->databaseConnection->executePreparedStatement($preparedStatement);
+        $this->databaseConnection->createPreparedStatement($preparedStatement);
 
 
         // Grab the session reference if one is provided.
@@ -342,7 +342,7 @@ class ObjectIndexPersistenceEngine extends ObjectPersistenceEngine {
         $removeStatement = new PreparedStatement ("DELETE FROM kinikit_object_index WHERE object_class = ? AND object_pk = ?");
         $removeStatement->addBindParameter(TableColumn::SQL_VARCHAR, $objectMapper->getClassName());
         $removeStatement->addBindParameter(TableColumn::SQL_VARCHAR, $primaryKeyValues);
-        $this->databaseConnection->executePreparedStatement($removeStatement);
+        $this->databaseConnection->createPreparedStatement($removeStatement);
     }
 
     /**

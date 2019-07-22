@@ -43,37 +43,25 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
     }
 
     /**
-     * Issue a SQL query without results, returns success / failure.
+     * Actually do the query execution
      *
      * @param $sql
-     * @param array $placeholders
+     * @param $placeholderValues
      * @return void
      */
-    public function query($sql, ...$placeholders) {
+    public function doQuery($sql, $placeholderValues) {
         $this->lastSQL = $sql;
     }
 
-    /**
-     * Issue a SQL query with results.  Returns a ResultSet if successful or
-     * may throw SQLException if issues
-     *
-     * @param $sql
-     * @param array $placeholders
-     * @return void
-     * @throws SQLException
-     */
-    public function queryWithResults($sql, ...$placeholders) {
-        // TODO: Implement queryWithResults() method.
-    }
 
     /**
-     * Execute a prepared statement (usually an update operation) and return a boolean according to
+     * Create a prepared statement (usually an update operation) and return a boolean according to
      * whether or not it was successful
      *
-     * @param $preparedStatement
-     * @return boolean
+     * @param $sql
+     * @return void
      */
-    public function executePreparedStatement($preparedStatement) {
+    public function createPreparedStatement($sql) {
         // TODO: Implement executePreparedStatement() method.
     }
 

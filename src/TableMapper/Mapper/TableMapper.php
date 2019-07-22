@@ -7,6 +7,7 @@ use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\TableMapper\Exception\PrimaryKeyRowNotFoundException;
 use Kinikit\Persistence\TableMapper\Exception\WrongPrimaryKeyLengthException;
 
+
 /**
  * Main
  *
@@ -76,7 +77,7 @@ class TableMapper {
 
         $primaryKeyClause = join(" AND ", $primaryKeyClauses);
 
-        $results = array_values($this->doQuery("SELECT * FROM {$this->tableName} WHERE {$primaryKeyClause}", $primaryKeyValue, true));
+        $results = array_values($this->doQuery("SELECT * FROM {$this->tableName} WHERE {$primaryKeyClause}", $primaryKeyValue));
         if (sizeof($results) > 0) {
             return $results[0];
         } else {
@@ -149,9 +150,9 @@ class TableMapper {
 
         // If just a where clause, handle this otherwise assume full query.
         if (substr(strtoupper(trim($query)), 0, 5) == "WHERE") {
-            $results = $this->doQuery("SELECT * FROM {$this->tableName} " . $query, $placeholderValues, true);
+            $results = $this->doQuery("SELECT * FROM {$this->tableName} " . $query, $placeholderValues);
         } else {
-            $results = $this->doQuery($query, $placeholderValues, true);
+            $results = $this->doQuery($query, $placeholderValues);
         }
 
         return array_values($results);
@@ -160,27 +161,22 @@ class TableMapper {
 
 
     // Actually do a query with or without results.
-    private function doQuery($query, $placeholderValues, $withResults) {
+    private function doQuery($query, $placeholderValues) {
 
+        $result = $this->databaseConnection->query($query, $placeholderValues);
+        $rows = [];
+        while ($row = $result->nextRow()) {
 
-        if ($withResults) {
-            $result = $this->databaseConnection->queryWithResults($query, $placeholderValues);
-            $rows = [];
-            while ($row = $result->nextRow()) {
-
-                // Index by PK for internal processing
-                $pkValue = [];
-                foreach ($this->primaryKeyColumns as $primaryKeyColumn) {
-                    $pkValue[] = $row[$primaryKeyColumn];
-                }
-
-                $rows[join("||", $pkValue)] = $row;
+            // Index by PK for internal processing
+            $pkValue = [];
+            foreach ($this->primaryKeyColumns as $primaryKeyColumn) {
+                $pkValue[] = $row[$primaryKeyColumn];
             }
 
-            return $rows;
-        } else {
-            return $this->databaseConnection->query($query, $placeholderValues);
+            $rows[join("||", $pkValue)] = $row;
         }
+
+        return $rows;
 
     }
 

@@ -164,7 +164,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $statement = new PreparedStatement ("INSERT INTO TEST (name) VALUES (?)");
         $statement->addBindParameter(TableColumn::SQL_VARCHAR, "Testing Testing 1,2,3");
 
-        $database->executePreparedStatement($statement);
+        $database->createPreparedStatement($statement);
 
         $results = $database->queryWithResults("SELECT * FROM TEST WHERE id = " . $database->getLastAutoIncrementId(),);
         $row = $results->nextRow();
@@ -184,7 +184,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $preparedStatement->addBindParameter(TableColumn::SQL_BLOB, new BlobWrapper ("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE"));
 
         // Execute an explicit one.
-        $sqlite3Connection->executePreparedStatement($preparedStatement);
+        $sqlite3Connection->createPreparedStatement($preparedStatement);
 
         // Check it made it in
         $results = $sqlite3Connection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $sqlite3Connection->getLastAutoIncrementId(),);
@@ -207,7 +207,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $preparedStatement->addBindParameter(TableColumn::SQL_BLOB, new BlobWrapper (null, "Database/Connection/testlargeobject.pdf"));
 
         // Execute a filename based one
-        $sqlite3Connection->executePreparedStatement($preparedStatement);
+        $sqlite3Connection->createPreparedStatement($preparedStatement);
 
         // Now check it made it in.
         $results = $sqlite3Connection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $sqlite3Connection->getLastAutoIncrementId(),);

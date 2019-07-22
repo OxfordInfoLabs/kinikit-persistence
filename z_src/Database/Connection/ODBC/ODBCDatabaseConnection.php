@@ -154,12 +154,13 @@ class ODBCDatabaseConnection extends DatabaseConnection {
     /**
      * Bind and execute a standard prepared statement
      *
-     * @param PreparedStatement $preparedStatement
+     * @param PreparedStatement $sql
+     * @return bool
      */
-    public function executePreparedStatement($preparedStatement) {
+    public function createPreparedStatement($sql) {
 
         // Prepare an ODBC statement
-        $odbcStatement = odbc_prepare($this->getUnderlyingConnection(), $preparedStatement->getSQL());
+        $odbcStatement = odbc_prepare($this->getUnderlyingConnection(), $sql->getSQL());
 
         if (!$odbcStatement) {
             return false;
@@ -169,7 +170,7 @@ class ODBCDatabaseConnection extends DatabaseConnection {
         $paramValues = array();
 
         // Add each value to the param values array
-        foreach ($preparedStatement->getBindParameters() as $param) {
+        foreach ($sql->getBindParameters() as $param) {
 
             $value = $param->getValue();
 

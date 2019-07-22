@@ -3,80 +3,33 @@
 namespace Kinikit\Persistence\Database\PreparedStatement;
 
 /**
- * Database independent wrapper for a prepared statement.
- * Essentially this is constructed initially with an SQL statement with substitution params marked using ?
- * Subsequent calls to bindParameter are then made, declaring both the type and the value of the parameter to bind.
+ * Database agnostic prepared statement
  *
  */
-class PreparedStatement {
+interface PreparedStatement {
 
-    private $sql = null;
-    private $bindParams = array();
-
-    public function __construct($sql = null) {
-        $this->sql = $sql;
-    }
 
     /**
-     * Add a bind parameter (necessarily one per question mark)
-     *
-     * @param integer $sqlType
-     * @param mixed $value
-     */
-    public function addBindParameter($sqlType, $value) {
-        $this->bindParams [] = new BindParameter ($sqlType, $value);
-    }
-
-    /**
-     * clear all currently set bind parameters
-     */
-    public function clearBindParameters() {
-        $this->bindParams = [];
-    }
-
-    /**
-     * Set the SQL string in use.
-     *
-     * @param string $sql
-     */
-    public function setSQL($sql) {
-        $this->sql = $sql;
-    }
-
-    /**
-     * Get the SQL
+     * Return the source statement SQL for this statement.
      *
      * @return string
      */
-    public function getSQL() {
-        return $this->sql;
-    }
+    public function getStatementSQL();
+
 
     /**
-     * Get the bind parameters
+     * Execute this statement for an array of parameter values matching ? in SQL.
      *
-     * @return array
+     * @param mixed[] $parameterValues
+     * @return mixed
      */
-    public function getBindParameters() {
-        return $this->bindParams;
-    }
+    public function execute($parameterValues);
 
 
     /**
-     * Return Explicit SQL with ? replaced by literal parameters - useful for logging purposes.
+     * Close this statement and free resources.
      */
-    public function getExplicitSQL() {
-        $explicitSQL = $this->sql;
-        foreach ($this->bindParams as $bindParam) {
-
-            $logValue = $bindParam->getValue() instanceof BlobWrapper ? "[[BLOB]]" : (is_numeric($bindParam->getValue()) ? $bindParam->getValue() : "'" . $bindParam->getValue() . "'");
-
-            $explicitSQL =
-                preg_replace("/\?/", $logValue, $explicitSQL, 1);
-        }
-
-        return $explicitSQL;
-    }
+    public function close();
 
 }
 

@@ -82,7 +82,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $preparedStatement->addBindParameter(TableColumn::SQL_VARCHAR, "Interesting One for");
         $preparedStatement->addBindParameter(TableColumn::SQL_INT, 567);
 
-        $mysqlConnection->executePreparedStatement($preparedStatement);
+        $mysqlConnection->createPreparedStatement($preparedStatement);
 
         // Check that the execution succeeded
         $results = $mysqlConnection->queryWithResults("SELECT * from test_child WHERE id = " . $mysqlConnection->getLastAutoIncrementId(),);
@@ -104,7 +104,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $preparedStatement->addBindParameter(TableColumn::SQL_BLOB, new BlobWrapper ("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE"));
 
         // Execute an explicit one.
-        $mysqlConnection->executePreparedStatement($preparedStatement);
+        $mysqlConnection->createPreparedStatement($preparedStatement);
 
         // Check it made it in
         $results = $mysqlConnection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $mysqlConnection->getLastAutoIncrementId(),);
@@ -116,7 +116,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $preparedStatement->addBindParameter(TableColumn::SQL_BLOB, new BlobWrapper (null, "Database/Connection/testlargeobject.pdf"));
 
         // Execute a filename based one
-        $mysqlConnection->executePreparedStatement($preparedStatement);
+        $mysqlConnection->createPreparedStatement($preparedStatement);
 
         // Now check it made it in.
         $results = $mysqlConnection->queryWithResults("SELECT * from test_with_blob WHERE id = " . $mysqlConnection->getLastAutoIncrementId(),);
@@ -135,7 +135,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         // Execute and expect exception
         try {
-            $mysqlConnection->executePreparedStatement($preparedStatement);
+            $mysqlConnection->createPreparedStatement($preparedStatement);
             $this->fail("Should have thrown here");
         } catch (SQLException $e) {
             // Success
@@ -147,7 +147,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         ob_start();
 
         try {
-            $mysqlConnection->executePreparedStatement($preparedStatement);
+            $mysqlConnection->createPreparedStatement($preparedStatement);
             ob_end_clean();
             $this->fail("Should have thrown here");
         } catch (WrongNumberOfPreparedStatementParametersException $e) {

@@ -379,12 +379,14 @@ class MSSQLDatabaseConnection extends DatabaseConnection {
     }
 
     /**
-     * @param unknown_type $preparedStatement
+     * @param unknown_type $sql
+     * @param bool $test
+     * @return bool|string
      */
-    public function executePreparedStatement($preparedStatement, $test = false) {
+    public function createPreparedStatement($sql, $test = false) {
 
-        $sql = $preparedStatement->getSQL();
-        $bindParameters = $preparedStatement->getBindParameters();
+        $sql = $sql->getSQL();
+        $bindParameters = $sql->getBindParameters();
 
         $sqlArray = explode("?", $sql);
 
