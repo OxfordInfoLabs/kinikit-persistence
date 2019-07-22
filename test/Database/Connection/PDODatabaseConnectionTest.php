@@ -14,14 +14,14 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $configuration = Configuration::instance()->getAllParameters();
 
         // Try MySQL one
-        $pdoConnection = new PDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
             "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
 
 
         $this->assertTrue($pdoConnection->getPDO() instanceof \PDO);
 
         // Try SQL Lite one
-        $pdoConnection = new PDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]]);
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]]);
 
         $this->assertTrue($pdoConnection->getPDO() instanceof \PDO);
 
@@ -33,7 +33,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $configuration = Configuration::instance()->getAllParameters();
 
         // Try MySQL one
-        $pdoConnection = new PDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
             "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
 
 
@@ -51,7 +51,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
         // Try SQL Lite one
-        $pdoConnection = new PDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]]);
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]]);
 
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo");
@@ -74,7 +74,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $configuration = Configuration::instance()->getAllParameters();
 
         // Try MySQL one
-        $pdoConnection = new PDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
             "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo_with_blob");
@@ -92,7 +92,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
         // Try SQL Lite one
-        $pdoConnection = new PDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]]);
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]]);
 
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo_with_blob");

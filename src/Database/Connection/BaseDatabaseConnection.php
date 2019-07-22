@@ -96,7 +96,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
         if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
             $placeholders = $placeholders[0];
         }
-        
+
         return $this->doQuery($sql, $placeholders);
     }
 
@@ -128,6 +128,19 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
         return true;
     }
 
+    /**
+     * Intercept requests for create prepared statement
+     * to allow for SQL rewriting if required.
+     *
+     * @param string $sql
+     * @return PreparedStatement|void
+     */
+    public function createPreparedStatement($sql) {
+
+        return $this->doCreatePreparedStatement($sql);
+
+    }
+
 
     /**
      * Actual do Query method, should be implemented by child implementations
@@ -137,6 +150,51 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * @return mixed
      */
     public abstract function doQuery($sql, $placeholderValues);
+
+
+    /**
+     * Actual do method for creating a prepared statement.
+     *
+     * @param $sql
+     * @return PreparedStatement
+     */
+    public abstract function doCreatePreparedStatement($sql);
+
+
+    /**
+     * Execute a script containing multiple statements terminated by ;
+     * Split each statement and execute in turn.
+     *
+     * @param $scriptContents
+     */
+    public function executeScript($scriptContents) {
+
+
+        $numberProcessed = 1;
+
+        while ($numberProcessed > 0)
+            $scriptContents = preg_replace("/'(.*?);(.*?)'/", "'$1||^^$2'", $scriptContents, -1, $numberProcessed);
+
+
+        $splitStatements = explode(";", $scriptContents);
+
+
+        foreach ($splitStatements as $statement) {
+
+            if (trim($statement)) {
+
+                $numberProcessed = 1;
+
+                while ($numberProcessed > 0)
+                    $statement = preg_replace("/'(.*?)\|\|\^\^(.*?)'/", "'$1;$2'", $statement, -1, $numberProcessed);
+
+
+                $this->execute($statement);
+
+            }
+        }
+
+    }
 
 
     /**

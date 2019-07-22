@@ -4,12 +4,13 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 
+use Kinikit\Core\Exception\MethodNotImplementedException;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\PDOPreparedStatement;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\PDOResultSet;
 
-class PDODatabaseConnection extends BaseDatabaseConnection {
+abstract class PDODatabaseConnection extends BaseDatabaseConnection {
 
 
     /**
@@ -118,7 +119,7 @@ class PDODatabaseConnection extends BaseDatabaseConnection {
      * @return PreparedStatement
      * @throws SQLException
      */
-    public function createPreparedStatement($sql) {
+    public function doCreatePreparedStatement($sql) {
         return new PDOPreparedStatement($sql, $this->connection);
     }
 
@@ -140,4 +141,6 @@ class PDODatabaseConnection extends BaseDatabaseConnection {
     public function close() {
         $this->connection = null;
     }
+
+
 }

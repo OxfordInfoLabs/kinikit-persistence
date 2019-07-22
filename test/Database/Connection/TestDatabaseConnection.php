@@ -3,6 +3,7 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 class TestDatabaseConnection extends BaseDatabaseConnection {
@@ -61,7 +62,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * @param $sql
      * @return void
      */
-    public function createPreparedStatement($sql) {
+    public function doCreatePreparedStatement($sql) {
         // TODO: Implement executePreparedStatement() method.
     }
 
@@ -87,5 +88,18 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      */
     public function close() {
         // TODO: Implement close() method.
+    }
+
+
+
+
+    /**
+     * Get table column meta data for a given table as an associative array keyed in by column name.
+     *
+     * @param $tableName
+     * @return \Kinikit\Persistence\Database\MetaData\TableColumn[string]
+     */
+    public function getTableColumnMetaData($tableName) {
+        // TODO: Implement getTableColumnMetaData() method.
     }
 }

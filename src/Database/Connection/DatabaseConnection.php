@@ -86,6 +86,15 @@ interface DatabaseConnection {
 
 
     /**
+     * Execute a script containing multiple statements terminated by ;
+     * Split each statement and execute in turn.
+     *
+     * @param $scriptContents
+     */
+    public function executeScript($scriptContents);
+
+
+    /**
      * Get the last auto increment id if an insert into auto increment occurred
      *
      * @return int
@@ -133,6 +142,15 @@ interface DatabaseConnection {
      * @throws SQLException
      */
     public function close();
+
+
+    /**
+     * Get table column meta data for a given table as an associative array keyed in by column name.
+     *
+     * @param $tableName
+     * @return \Kinikit\Persistence\Database\MetaData\TableColumn[string]
+     */
+    public function getTableColumnMetaData($tableName);
 
 
 }

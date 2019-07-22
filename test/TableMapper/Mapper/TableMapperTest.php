@@ -7,6 +7,7 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\TableMapper\Exception\PrimaryKeyRowNotFoundException;
 use Kinikit\Persistence\TableMapper\Exception\WrongPrimaryKeyLengthException;
+use Kinikit\Persistence\TableMapper\Relationship\ManyToOneTableRelationship;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,13 +21,7 @@ class TableMapperTest extends TestCase {
     public function setUp(): void {
 
         $databaseConnection = Container::instance()->get(DatabaseConnection::class);
-
-        $databaseConnection->query("DROP TABLE IF EXISTS example");
-        $databaseConnection->query("CREATE TABLE example (id integer PRIMARY KEY, name VARCHAR(20), last_modified DATE)");
-
-        $databaseConnection->query("INSERT INTO example(name, last_modified) VALUES ('Mark', '2010-01-01')");
-        $databaseConnection->query("INSERT INTO example(name, last_modified) VALUES ('John', '2012-01-01')");
-        $databaseConnection->query("INSERT INTO example(name, last_modified) VALUES ('Dave', '2014-01-01')");
+        $databaseConnection->executeScript(file_get_contents(__DIR__ . "/tablemapper.sql"));
 
     }
 
@@ -34,8 +29,7 @@ class TableMapperTest extends TestCase {
     public function testNotFoundExceptionRaisedIfAttemptToGetInvalidPrimaryKeyRow() {
 
         // Create a basic mapper
-        $tableMapper = new TableMapper("example", "id");
-
+        $tableMapper = new TableMapper("example");
 
         try {
             $tableMapper->fetch(4);
@@ -49,7 +43,7 @@ class TableMapperTest extends TestCase {
     public function testWrongPrimaryKeyLengthExceptionRaisedIfAttemptToGetRowWithDifferentKeyLength() {
 
         // Create a basic mapper
-        $tableMapper = new TableMapper("example", "id");
+        $tableMapper = new TableMapper("example");
 
         try {
             $tableMapper->fetch([4, 12]);
@@ -64,7 +58,7 @@ class TableMapperTest extends TestCase {
     public function testCanFetchValidRowsByPrimaryKeyUsingDefaultConnection() {
 
         // Create a basic mapper
-        $tableMapper = new TableMapper("example", "id");
+        $tableMapper = new TableMapper("example");
 
         $this->assertEquals(["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"], $tableMapper->fetch(1));
         $this->assertEquals(["id" => 2, "name" => "John", "last_modified" => "2012-01-01"], $tableMapper->fetch(2));
@@ -78,7 +72,7 @@ class TableMapperTest extends TestCase {
     public function testCanMultiFetchRowsByPrimaryKeyUsingDefaultConnection() {
 
         // Create a basic mapper
-        $tableMapper = new TableMapper("example", "id");
+        $tableMapper = new TableMapper("example");
 
         // Single id syntax
         $this->assertEquals([
@@ -122,22 +116,73 @@ class TableMapperTest extends TestCase {
     public function testCanQueryForRowsUsingDefaultConnection() {
 
         // Create a basic mapper
-        $tableMapper = new TableMapper("example", "id");
+        $tableMapper = new TableMapper("example");
         $this->assertEquals([
             ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"]
-        ], $tableMapper->query("WHERE name = ?", "Mark"));
+        ], $tableMapper->filter("WHERE name = ?", "Mark"));
 
 
         $this->assertEquals([
             ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
             ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
-        ], $tableMapper->query("WHERE name = ? or name = ? ORDER by id", "Mark", "Dave"));
+        ], $tableMapper->filter("WHERE name = ? or name = ? ORDER by id", "Mark", "Dave"));
 
 
-        // Test full query
-        $this->assertEquals([
-            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
-        ], $tableMapper->query("SELECT * from example where last_modified > '2013-01-01'"));
+    }
+
+
+    public function testIfManyToOneRelationshipIsDefinedQueriesAlsoQueryRelatedEntitiesViaJoin() {
+
+        // Create a mapper with a one to one table relationship with another child.
+        $tableMapper = new TableMapper("example_parent",
+            [new ManyToOneTableRelationship(new TableMapper("example_child"),
+                "child1", "child_id")]);
+
+
+        // Check some primary key fetches
+        $this->assertEquals(["id" => 1, "name" => "Mary Jones", "child_id" => null], $tableMapper->fetch(1));
+        $this->assertEquals(["id" => 2, "name" => "Jane Walsh", "child_id" => 1, "child1" =>
+            ["id" => 1, "description" => "Washing", "child2_id" => null]], $tableMapper->fetch(2));
+
+        $this->assertEquals(["id" => 3, "name" => "James Smith", "child_id" => 2, "child1" =>
+            ["id" => 2, "description" => "Swimming", "child2_id" => null]], $tableMapper->fetch(3));
+
+
+        // Now do a regular query
+        $results = $tableMapper->filter("WHERE name LIKE ? OR child_id = ?", "JA%", 1);
+        $this->assertEquals(["id" => 2, "name" => "Jane Walsh", "child_id" => 1, "child1" =>
+            ["id" => 1, "description" => "Washing", "child2_id" => null]], $results[0]);
+
+        $this->assertEquals(["id" => 3, "name" => "James Smith", "child_id" => 2, "child1" =>
+            ["id" => 2, "description" => "Swimming", "child2_id" => null]], $results[1]);
+
+
+        // Now do a nested one to one
+        $tableMapper = new TableMapper("example_parent",
+            [new ManyToOneTableRelationship(
+                new TableMapper("example_child",
+                    [new ManyToOneTableRelationship(new TableMapper("example_child2"), "child2", "child2_id")]
+                ),
+                "child1", "child_id")]);
+
+
+        $this->assertEquals(["id" => 4, "name" => "Heather Wright", "child_id" => 3, "child1" =>
+            ["id" => 3, "description" => "Cooking", "child2_id" => 1, "child2" => [
+                "id" => 1, "profession" => "Doctor"]
+            ]], $tableMapper->fetch(4));
+
+
+        // Now attempt to execute a query with nested where clause constraints
+        $this->assertEquals([["id" => 4, "name" => "Heather Wright", "child_id" => 3, "child1" =>
+            ["id" => 3, "description" => "Cooking", "child2_id" => 1, "child2" => [
+                "id" => 1, "profession" => "Doctor"]
+            ]]], $tableMapper->filter("WHERE child1.description = 'Cooking'"));
+
+
+        $this->assertEquals([["id" => 4, "name" => "Heather Wright", "child_id" => 3, "child1" =>
+            ["id" => 3, "description" => "Cooking", "child2_id" => 1, "child2" => [
+                "id" => 1, "profession" => "Doctor"]
+            ]]], $tableMapper->filter("WHERE child1.child2.id = 1"));
 
 
     }
