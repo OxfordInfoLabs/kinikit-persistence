@@ -145,12 +145,12 @@ interface DatabaseConnection {
 
 
     /**
-     * Get table column meta data for a given table as an associative array keyed in by column name.
+     * Get Table meta data for a table name
      *
      * @param $tableName
-     * @return \Kinikit\Persistence\Database\MetaData\TableColumn[string]
+     * @return \Kinikit\Persistence\Database\MetaData\TableMetaData
      */
-    public function getTableColumnMetaData($tableName);
+    public function getTableMetaData($tableName);
 
 
 }

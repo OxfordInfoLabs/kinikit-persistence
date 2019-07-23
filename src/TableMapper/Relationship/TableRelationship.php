@@ -37,9 +37,11 @@ interface TableRelationship {
      * @param string $parentAlias
      * @param string $myAlias
      *
+     * @param $parentTableName
+     * @param $parentPrimaryKeyColumns
      * @return mixed
      */
-    public function getSelectJoinClause($parentAlias, $myAlias);
+    public function getSelectJoinClause($parentAlias, $myAlias, $parentTableName, $parentPrimaryKeyColumns);
 
 
 }

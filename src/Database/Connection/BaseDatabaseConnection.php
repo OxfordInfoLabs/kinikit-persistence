@@ -45,6 +45,12 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      */
     protected $configParams;
 
+
+    /**
+     * @var \Kinikit\Persistence\Database\MetaData\TableMetaData[string]
+     */
+    protected $cachedMetaData = [];
+
     /**
      * Constructor - calls connect automatically to prevent need to call connect explicitly
      *
@@ -304,5 +310,24 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
         return $this->lastErrorMessage;
     }
 
+    /**
+     * @param $tableName
+     * @return TableMetaData|\Kinikit\Persistence\Database\MetaData\TableMetaData|void
+     */
+    public function getTableMetaData($tableName) {
+        if (!isset($this->cachedMetaData[$tableName])) {
+            $this->cachedMetaData[$tableName] = new \Kinikit\Persistence\Database\MetaData\TableMetaData($tableName, $this->getTableColumnMetaData($tableName));
+        }
+        return $this->cachedMetaData[$tableName];
+    }
+
+
+    /**
+     * Get table column meta data for a given table as an associative array keyed in by column name.
+     *
+     * @param $tableName
+     * @return \Kinikit\Persistence\Database\MetaData\TableColumn[]
+     */
+    public abstract function getTableColumnMetaData($tableName);
 
 }

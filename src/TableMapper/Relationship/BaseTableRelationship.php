@@ -23,9 +23,13 @@ abstract class BaseTableRelationship implements TableRelationship {
      * which will be added to the parent array containing the child data.
      *
      * BaseTableRelationship constructor.
-     * @param $relatedTableMapper
+     * @param TableMapper|string $relatedTableMapper
+     * @param string $mappedMember
      */
     public function __construct($relatedTableMapper, $mappedMember) {
+        if (is_string($relatedTableMapper))
+            $relatedTableMapper = new TableMapper($relatedTableMapper);
+        
         $this->relatedTableMapper = $relatedTableMapper;
         $this->mappedMember = $mappedMember;
     }
@@ -42,7 +46,7 @@ abstract class BaseTableRelationship implements TableRelationship {
     /**
      * @return string
      */
-    public function getMappedMember(){
+    public function getMappedMember() {
         return $this->mappedMember;
     }
 

@@ -4,9 +4,12 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
-class ManyToOneTableRelationship extends BaseTableRelationship {
+class OneToOneTableRelationship extends BaseTableRelationship {
 
-    private $parentJoinColumnNames;
+    /**
+     * @var string[]
+     */
+    private $childJoinColumnNames;
 
     /**
      * Construct a one to one relationship
@@ -16,17 +19,16 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      * @param $mappedMember
      * @param $parentJoinColumnName
      */
-    public function __construct($relatedTableMapper, $mappedMember, $parentJoinColumnNames) {
+    public function __construct($relatedTableMapper, $mappedMember, $childJoinColumnNames) {
         parent::__construct($relatedTableMapper, $mappedMember);
 
         // Ensure we have an array of the right length for parent join columns.
-        if (!is_array($parentJoinColumnNames)) {
-            $parentJoinColumnNames = [$parentJoinColumnNames];
+        if (!is_array($childJoinColumnNames)) {
+            $childJoinColumnNames = [$childJoinColumnNames];
         }
 
-        $this->parentJoinColumnNames = $parentJoinColumnNames;
+        $this->childJoinColumnNames = $childJoinColumnNames;
     }
-
 
     /**
      * Return a boolean indicating whether or not this
@@ -51,9 +53,8 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
         $clause = "LEFT JOIN " . $this->relatedTableMapper->getTableName() . " $myAlias ON ";
 
         $onClauses = [];
-        $relatedPk = $this->relatedTableMapper->getPrimaryKeyColumnNames();
-        foreach ($this->parentJoinColumnNames as $index => $joinColumnName) {
-            $onClauses[] = "$parentAlias.$joinColumnName = $myAlias.{$relatedPk[$index]}";
+        foreach ($this->childJoinColumnNames as $index => $joinColumnName) {
+            $onClauses[] = "$parentAlias.{$parentPrimaryKeyColumns[$index]} = $myAlias.$joinColumnName";
         }
 
         $clause .= join(" AND ", $onClauses);
