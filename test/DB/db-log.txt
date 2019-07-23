@@ -1,9 +1,7 @@
-PRAGMA table_info('example')
-Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.id=?
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.id=?
-Completed in 0 seconds
+Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.id=?
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.id=?
@@ -15,7 +13,7 @@ Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE (_X.id=?) OR (_X.id=?)
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE (_X.id=?) OR (_X.id=?)
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE (_X.id=?) OR (_X.id=?) OR (_X.id=?) OR (_X.id=?)
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE (_X.id=?) OR (_X.id=?) OR (_X.id=?) OR (_X.id=?)
@@ -62,7 +60,7 @@ PRAGMA table_info('example_child_with_parent_key')
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 2
 Completed in 0 seconds
@@ -77,7 +75,7 @@ LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id
 Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.name LIKE ?
 Completed in 0.0001 seconds
@@ -86,7 +84,7 @@ LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _XA.d
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.id = ?)
-Completed in 0.0002 seconds
+Completed in 0 seconds
 SELECT DISTINCT _X.id FROM example_parent _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id LIMIT 4
 Completed in 0 seconds
@@ -95,16 +93,16 @@ LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.i
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
 LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 1
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT DISTINCT _X.id FROM example_parent _X 
 LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _XA.profession = ?
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
 LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE (_X.id = ?) OR (_X.id = ?)
-Completed in 0 seconds
+Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
 LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id IN (2, 3)
-Completed in 0 seconds
+Completed in 0.0001 seconds
 SELECT DISTINCT _X.id FROM example_parent _X 
 LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id LIMIT 4
 Completed in 0.0001 seconds
@@ -115,4 +113,4 @@ SELECT _X.name FROM example _X
 Completed in 0 seconds
 SELECT _X.name, _XA.description FROM example_parent _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id IN (1, 2)
-Completed in 0.0001 seconds
+Completed in 0 seconds

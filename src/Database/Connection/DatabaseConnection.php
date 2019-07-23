@@ -3,6 +3,7 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 
+use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
@@ -151,6 +152,17 @@ interface DatabaseConnection {
      * @return \Kinikit\Persistence\Database\MetaData\TableMetaData
      */
     public function getTableMetaData($tableName);
+
+
+    /**
+     * Get the bulk data manager for this database connection.
+     * Used for Inserting, Updating and Replacing table data in bulk.
+     * This is useful as different RDBMS engines do and don't support
+     * use of certain operations.
+     *
+     * @return BulkDataManager
+     */
+    public function getBulkDataManager();
 
 
 }

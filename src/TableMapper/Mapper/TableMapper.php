@@ -225,4 +225,15 @@ class TableMapper {
     }
 
 
+    /**
+     * Insert data into this table and any other relational tables
+     * attached.
+     *
+     * @param $data
+     */
+    public function insert($data) {
+
+    }
+
+
 }

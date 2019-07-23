@@ -7,6 +7,8 @@ namespace Kinikit\Persistence\Database\Connection;
 use Kinikit\Core\Configuration\ConfigFile;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Util\ArrayUtils;
+use Kinikit\Persistence\Database\BulkData\BulkDataManager;
+use Kinikit\Persistence\Database\BulkData\DefaultBulkDataManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 
@@ -329,5 +331,19 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * @return \Kinikit\Persistence\Database\MetaData\TableColumn[]
      */
     public abstract function getTableColumnMetaData($tableName);
+
+
+    /**
+     * Get the bulk data manager for this database connection.
+     * Used for Inserting, Updating and Replacing table data in bulk.
+     * This is useful as different RDBMS engines do and don't support
+     * use of certain operations.
+     *
+     * @return BulkDataManager
+     */
+    public function getBulkDataManager() {
+        return new DefaultBulkDataManager($this);
+    }
+
 
 }

@@ -83,6 +83,6 @@ class PDOPreparedStatement extends BasePreparedStatement {
      * Close this statement and free resources.
      */
     public function close() {
-        // TODO: Implement close() method.
+        $this->statement = null;
     }
 }
