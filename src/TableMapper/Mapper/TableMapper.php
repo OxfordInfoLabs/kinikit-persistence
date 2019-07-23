@@ -184,7 +184,7 @@ class TableMapper {
      * @param string $whereClause
      * @param mixed[] $placeholderValues
      */
-    public function filter($whereClause, ...$placeholderValues) {
+    public function filter($whereClause = "", ...$placeholderValues) {
 
         // If just a where clause, handle this otherwise assume full query.
         $results = $this->queryEngine->query("SELECT * FROM {$this->tableName} " . $whereClause, $placeholderValues);
@@ -202,10 +202,25 @@ class TableMapper {
      * @param $whereClause
      * @param mixed ...$placeholderValues
      */
-    public function values($expressions, $whereClause, ...$placeholderValues) {
+    public function values($expressions, $whereClause = "", ...$placeholderValues) {
+
+        $valuesOnly = !is_array($expressions);
+        if ($valuesOnly) {
+            $expressions = [$expressions];
+        }
 
         $results = $this->queryEngine->query("SELECT " . join(", ", $expressions) . " FROM {$this->tableName} " . $whereClause, $placeholderValues);
-        return array_values($results);
+        $results = array_values($results);
+
+        // if values only, reduce to values array
+        if ($valuesOnly) {
+            foreach ($results as $index => $result) {
+                $resultValue = array_values($result);
+                $results[$index] = array_shift($resultValue);
+            }
+        }
+
+        return $results;
 
     }
 

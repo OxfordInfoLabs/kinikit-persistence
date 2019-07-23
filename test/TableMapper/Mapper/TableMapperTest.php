@@ -115,6 +115,19 @@ class TableMapperTest extends TestCase {
     }
 
 
+    public function testCanGetValuesArray() {
+
+        // Create a basic mapper
+        $tableMapper = new TableMapper("example");
+
+        // Check array one
+        $this->assertEquals([["bobby" => "Mark"], ["bobby" => "John"], ["bobby" => "Dave"]], $tableMapper->values(["DISTINCT(name) bobby"]));
+
+
+        // Check if supplied as single string just values returned
+        $this->assertEquals(["Mark", "John", "Dave"], $tableMapper->values("DISTINCT(name) bobby"));
+
+    }
 
 
 }
