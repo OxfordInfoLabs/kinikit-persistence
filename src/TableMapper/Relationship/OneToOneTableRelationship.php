@@ -4,6 +4,8 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
+use Kinikit\Persistence\TableMapper\Mapper\TableRelationshipSaveData;
+
 class OneToOneTableRelationship extends BaseTableRelationship {
 
     /**
@@ -49,7 +51,10 @@ class OneToOneTableRelationship extends BaseTableRelationship {
      * @param $parentPrimaryKeyColumns
      * @return mixed
      */
-    public function getSelectJoinClause($parentAlias, $myAlias, $parentTableName, $parentPrimaryKeyColumns) {
+    public function getSelectJoinClause($parentAlias, $myAlias) {
+
+        $parentPrimaryKeyColumns = $this->parentMapper->getPrimaryKeyColumnNames();
+
         $clause = "LEFT JOIN " . $this->relatedTableMapper->getTableName() . " $myAlias ON ";
 
         $onClauses = [];
@@ -61,6 +66,23 @@ class OneToOneTableRelationship extends BaseTableRelationship {
 
         return $clause;
 
+
+    }
+
+    /**
+     * Implement post action as one to one's should have parent id fields.
+     *
+     * @param string $saveType
+     * @param TableRelationshipSaveData $relationshipData
+     * @return mixed|void
+     */
+    public function postParentSaveOperation($saveType, $relationshipData) {
+
+        // Synchronise the child fields from the parent
+        $relationshipData->synchroniseChildFieldsFromParent($this->parentMapper->getPrimaryKeyColumnNames(), $this->childJoinColumnNames);
+
+        // Perform a save operation using the child rows.
+        $this->performSaveOperationOnChild($saveType, $relationshipData->getAllChildRows());
 
     }
 

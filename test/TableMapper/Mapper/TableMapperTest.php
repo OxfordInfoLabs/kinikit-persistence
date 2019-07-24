@@ -130,4 +130,69 @@ class TableMapperTest extends TestCase {
     }
 
 
+    public function testCanInsertDataForSimpleTable() {
+
+        // Create a basic mapper
+        $tableMapper = new TableMapper("example");
+
+        $tableMapper->insert(["name" => "Conrad"]);
+
+        $this->assertEquals(1, sizeof($tableMapper->filter("WHERE name = 'Conrad'")));
+
+        $tableMapper->insert([["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]]);
+
+        $this->assertEquals(3, sizeof($tableMapper->filter("WHERE name In ('Stephen', 'Willis', 'Pedro')")));
+
+    }
+
+
+    public function testCanInsertRelationalDataToOneToOneRelationshipAsWellIfSupplied() {
+
+        $childMapper = new TableMapper("example_child_with_parent_key");
+        $tableMapper = new TableMapper("example_parent", [new OneToOneTableRelationship($childMapper, "child", "parent_id")]);
+
+
+        $insertData = [
+            "name" => "Michael",
+            "child" => [
+                "description" => "Swimming Lanes"
+            ]];
+
+
+        $tableMapper->insert($insertData);
+
+
+        $this->assertEquals(1, sizeof($tableMapper->filter("WHERE name = 'Michael'")));
+        $this->assertEquals(1, sizeof($childMapper->filter("WHERE description = 'Swimming Lanes' AND parent_id = 5")));
+
+
+        // Now try a double nested one.
+        $childMapper = new TableMapper("example_child_with_parent_key", [
+            new OneToOneTableRelationship("example_child_with_parent_key", "child", "parent_id")
+        ]);
+
+        $tableMapper = new TableMapper("example_parent", [
+            new OneToOneTableRelationship($childMapper, "child", "parent_id")
+        ]);
+
+
+        $insertData = [
+            "name" => "Stephanie",
+            "child" => [
+                "description" => "Cycling Lanes",
+                "child" => [
+                    "description" => "Jumping up and down"
+                ]
+            ]];
+
+
+        $tableMapper->insert($insertData);
+
+
+        $this->assertEquals(1, sizeof($tableMapper->filter("WHERE name = 'Stephanie'")));
+        $this->assertEquals(1, sizeof($childMapper->filter("WHERE description = 'Cycling Lanes' AND parent_id = 6")));
+        $this->assertEquals(1, sizeof($childMapper->filter("WHERE description = 'Jumping up and down' AND parent_id = 9")));
+
+    }
+
 }

@@ -47,7 +47,10 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
      * @param $parentPrimaryKeyColumns
      * @return mixed
      */
-    public function getSelectJoinClause($parentAlias, $myAlias, $parentTableName, $parentPrimaryKeyColumns) {
+    public function getSelectJoinClause($parentAlias, $myAlias) {
+
+        $parentPrimaryKeyColumns = $this->parentMapper->getPrimaryKeyColumnNames();
+        $parentTableName = $this->parentMapper->getTableName();
 
         $linkAlias = $myAlias . "L";
 
@@ -68,4 +71,6 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
 
 
     }
+
+   
 }

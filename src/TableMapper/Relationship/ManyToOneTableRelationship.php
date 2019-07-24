@@ -47,7 +47,7 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      * @param $parentPrimaryKeyColumns
      * @return mixed
      */
-    public function getSelectJoinClause($parentAlias, $myAlias, $parentTableName, $parentPrimaryKeyColumns) {
+    public function getSelectJoinClause($parentAlias, $myAlias) {
         $clause = "LEFT JOIN " . $this->relatedTableMapper->getTableName() . " $myAlias ON ";
 
         $onClauses = [];
@@ -62,6 +62,7 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
 
 
     }
+
 
 
 }

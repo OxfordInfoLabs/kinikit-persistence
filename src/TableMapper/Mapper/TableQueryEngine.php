@@ -1,11 +1,12 @@
 <?php
 
 
-namespace Kinikit\Persistence\TableMapper\Query;
+namespace Kinikit\Persistence\TableMapper\Mapper;
 
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
 use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
 
 
@@ -42,13 +43,17 @@ class TableQueryEngine {
      * queries and relational queries on relationships for the passed table
      * and relationships structure
      *
+     * @param TableMapper $tableMapper
      *
      * TableQuery constructor.
      */
-    public function __construct($tableName, $relationships = [], $databaseConnection = null) {
-        $this->tableName = $tableName;
-        $this->relationships = $relationships ?? [];
-        $this->databaseConnection = $databaseConnection ?? Container::instance()->get(DatabaseConnection::class);
+    public function __construct($tableMapper) {
+        if (is_string($tableMapper)) {
+            $tableMapper = new TableMapper($tableMapper);
+        }
+        $this->tableName = $tableMapper->getTableName();
+        $this->relationships = $tableMapper->getRelationships();
+        $this->databaseConnection = $tableMapper->getDatabaseConnection();
     }
 
 
@@ -291,7 +296,7 @@ class TableQueryEngine {
             $relationshipAliasPrefix = $alias . "__";
 
             // Get the select join clause.
-            $selectJoinClauses[] = $relationship->getSelectJoinClause($parentAlias, $alias, $this->tableName, $primaryKeyColumns);
+            $selectJoinClauses[] = $relationship->getSelectJoinClause($parentAlias, $alias);
 
             // Now create additional select columns
             $relatedTableMapper = $relationship->getRelatedTableMapper();

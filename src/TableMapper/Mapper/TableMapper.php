@@ -2,11 +2,14 @@
 
 namespace Kinikit\Persistence\TableMapper\Mapper;
 
+use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\TableMapper\Exception\PrimaryKeyRowNotFoundException;
 use Kinikit\Persistence\TableMapper\Exception\WrongPrimaryKeyLengthException;
-use Kinikit\Persistence\TableMapper\Query\TableQueryEngine;
+use Kinikit\Persistence\TableMapper\Relationship\ManyToManyTableRelationship;
+use Kinikit\Persistence\TableMapper\Relationship\ManyToOneTableRelationship;
 use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
 
 
@@ -38,6 +41,20 @@ class TableMapper {
      */
     private $queryEngine;
 
+
+    /**
+     * @var BulkDataManager
+     */
+    private $bulkDataManager;
+
+
+    // Save operations
+    const SAVE_OPERATION_INSERT = "INSERT";
+    const SAVE_OPERATION_UPDATE = "UPDATE";
+    const SAVE_OPERATION_REPLACE = "REPLACE";
+    const SAVE_OPERATION_SAVE = "SAVE";
+
+
     /**
      * TableMapper constructor.
      *
@@ -49,7 +66,14 @@ class TableMapper {
         $this->tableName = $tableName;
         $this->relationships = $relationships ?? [];
         $this->databaseConnection = $databaseConnection ?? Container::instance()->get(DatabaseConnection::class);
-        $this->queryEngine = new TableQueryEngine($tableName, $relationships, $databaseConnection);
+        $this->queryEngine = new TableQueryEngine($this);
+        $this->bulkDataManager = $this->databaseConnection->getBulkDataManager();
+
+        // Ensure we synchronise parent mappers.
+        foreach ($this->relationships as $relationship) {
+            $relationship->setParentMapper($this);
+        }
+
     }
 
 
@@ -59,6 +83,21 @@ class TableMapper {
     public function getTableName() {
         return $this->tableName;
     }
+
+    /**
+     * @return TableRelationship[]
+     */
+    public function getRelationships(): array {
+        return $this->relationships;
+    }
+
+    /**
+     * @return DatabaseConnection
+     */
+    public function getDatabaseConnection() {
+        return $this->databaseConnection;
+    }
+
 
     /**
      * Get the table query engine
@@ -77,6 +116,21 @@ class TableMapper {
      */
     public function getPrimaryKeyColumnNames() {
         return array_keys($this->databaseConnection->getTableMetaData($this->tableName)->getPrimaryKeyColumns());
+    }
+
+
+    /**
+     * Return a boolean indicating whether or not this has auto increment PK.
+     *
+     * @return bool
+     */
+    protected function getAutoIncrementPk() {
+        $pkColumns = $this->databaseConnection->getTableMetaData($this->tableName)->getPrimaryKeyColumns();
+        foreach ($pkColumns as $pkColumn) {
+            if ($pkColumn->isAutoIncrement())
+                return $pkColumn->getName();
+        }
+        return null;
     }
 
     /**
@@ -226,14 +280,102 @@ class TableMapper {
 
 
     /**
-     * Insert data into this table and any other relational tables
-     * attached.
+     * Insert data into this table and any other relational tables.  Please note, the
+     * data array is mutable for use when relational data is being updated.
      *
      * @param $data
      */
     public function insert($data) {
 
+        // Process save data and act accordingly
+        $data = $this->processSaveData($data);
+
+        // Check for auto increment pk
+        $autoIncrementPk = $this->getAutoIncrementPk();
+
+        // if we have relationship data, we need to process this here.
+        if (isset($data["relationshipData"])) {
+
+            // Run pre-save operations for certain relationship types
+            foreach ($data["relationshipData"] as $relationshipIndex => $relationshipDatum) {
+                $this->relationships[$relationshipIndex]->preParentSaveOperation(self::SAVE_OPERATION_INSERT, $relationshipDatum);
+            }
+
+            // If an auto increment pk, need to insert / update each value
+            if ($autoIncrementPk) {
+                foreach ($data["saveRows"] as $index => $item) {
+                    $this->bulkDataManager->insert($this->tableName, $item);
+                    $data["saveRows"][$index][$autoIncrementPk] = $this->databaseConnection->getLastAutoIncrementId();
+                }
+            } else {
+                $this->bulkDataManager->insert($this->tableName, $data["saveRows"]);
+            }
+
+
+            // Run post-save operations for certain relationship types
+            foreach ($data["relationshipData"] as $relationshipIndex => $relationshipDatum) {
+                $this->relationships[$relationshipIndex]->postParentSaveOperation(self::SAVE_OPERATION_INSERT, $relationshipDatum);
+                $relationshipDatum->updateParentMember();
+            }
+
+
+            $objectBinder = Container::instance()->get(ObjectBinder::class);
+            echo json_encode($objectBinder->bindToArray($data["saveRows"]), JSON_PRETTY_PRINT);
+
+
+        } else {
+            $this->bulkDataManager->insert($this->tableName, $data["saveRows"]);
+        }
     }
 
+
+
+    // Process incoming data for a save operation
+    // Essentially return a structured array ready for relational processing
+    private function processSaveData($data) {
+
+        if (!isset($data[0])) {
+            $data = [$data];
+        }
+
+
+        // if we have relationships, process otherwise simply return data for insert.
+        if (sizeof($this->relationships) > 0) {
+
+            // Sift through the relationships first and decide which ones need to pre-process and which ones can wait.
+            $structuredData = ["saveRows" => [], "relationshipData" => []];
+            foreach ($data as $index => $datum) {
+
+                // Process relationship data
+                foreach ($this->relationships as $relIndex => $relationship) {
+
+                    if (isset($data[$index][$relationship->getMappedMember()])) {
+
+                        // Now get the data for the relationship.
+                        $relationshipData = $data[$index][$relationship->getMappedMember()];
+                        if (!isset($relationshipData[0])) $relationshipData = [$relationshipData];
+
+                        if (!isset($structuredData["relationshipData"][$relIndex]))
+                            $structuredData["relationshipData"][$relIndex] = new TableRelationshipSaveData($relationship->getMappedMember(), $relationship->isMultiple());
+
+                        $structuredData["relationshipData"][$relIndex]->addChildRows($datum, $relationshipData);
+
+                        // Remove the mapped member from the parent insert array.
+                        unset($datum[$relationship->getMappedMember()]);
+                    }
+                }
+
+                $structuredData["saveRows"][] = &$datum;
+
+            }
+
+
+            return $structuredData;
+
+        } else {
+            return ["saveRows" => $data];
+        }
+
+    }
 
 }

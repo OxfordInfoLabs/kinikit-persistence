@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS example;
-CREATE TABLE example (id integer PRIMARY KEY, name VARCHAR(20), last_modified DATE);
+CREATE TABLE example (id integer PRIMARY KEY AUTOINCREMENT, name VARCHAR(20), last_modified DATE);
 
 INSERT INTO example(name, last_modified) VALUES ('Mark', '2010-01-01');
 INSERT INTO example(name, last_modified) VALUES ('John', '2012-01-01');
@@ -12,10 +12,10 @@ DROP TABLE IF EXISTS example_child2;
 DROP TABLE IF EXISTS example_child_with_parent_key;
 DROP TABLE IF EXISTS example_many_to_many_link;
 
-CREATE TABLE example_parent (id integer PRIMARY KEY, name VARCHAR(20), child_id INTEGER);
-CREATE TABLE example_child (id integer PRIMARY KEY, description VARCHAR(20), child2_id INTEGER);
-CREATE TABLE example_child2 (id integer PRIMARY KEY, profession VARCHAR(20));
-CREATE TABLE example_child_with_parent_key (id integer PRIMARY KEY, description VARCHAR(20), parent_id INTEGER);
+CREATE TABLE example_parent (id integer PRIMARY KEY AUTOINCREMENT, name VARCHAR(20), child_id INTEGER);
+CREATE TABLE example_child (id integer PRIMARY KEY AUTOINCREMENT, description VARCHAR(20), child2_id INTEGER);
+CREATE TABLE example_child2 (id integer PRIMARY KEY AUTOINCREMENT, profession VARCHAR(20));
+CREATE TABLE example_child_with_parent_key (id integer PRIMARY KEY AUTOINCREMENT, description VARCHAR(20), parent_id INTEGER);
 CREATE TABLE example_many_to_many_link (example_parent_id integer, example_child2_id integer);
 
 

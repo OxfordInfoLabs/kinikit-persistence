@@ -2,7 +2,10 @@
 
 namespace Kinikit\Persistence\TableMapper\Query;
 
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
+use Kinikit\Persistence\TableMapper\Mapper\TableQueryEngine;
 use Kinikit\Persistence\TableMapper\Relationship\ManyToManyTableRelationship;
 use Kinikit\Persistence\TableMapper\Relationship\ManyToOneTableRelationship;
 use Kinikit\Persistence\TableMapper\Relationship\OneToManyTableRelationship;
@@ -11,6 +14,13 @@ use Kinikit\Persistence\TableMapper\Relationship\OneToOneTableRelationship;
 include_once "autoloader.php";
 
 class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
+
+    public function setUp(): void {
+
+        $databaseConnection = Container::instance()->get(DatabaseConnection::class);
+        $databaseConnection->executeScript(file_get_contents(__DIR__ . "/../Mapper/tablemapper.sql"));
+
+    }
 
 
     public function testCanQueryForRowsUsingDefaultConnection() {
@@ -34,9 +44,9 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
     public function testIfManyToOneRelationshipIsDefinedQueriesAlsoQueryRelatedEntitiesViaJoin() {
 
         // Create a mapper with a one to one table relationship with another child.
-        $queryEngine = new TableQueryEngine("example_parent",
+        $queryEngine = new TableQueryEngine(new TableMapper("example_parent",
             [new ManyToOneTableRelationship(new TableMapper("example_child"),
-                "child1", "child_id")]);
+                "child1", "child_id")]));
 
 
         // Check some primary key fetches
@@ -58,12 +68,12 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
 
 
         // Now do a nested one to one
-        $queryEngine = new TableQueryEngine("example_parent",
+        $queryEngine = new TableQueryEngine(new TableMapper("example_parent",
             [new ManyToOneTableRelationship(
                 new TableMapper("example_child",
                     [new ManyToOneTableRelationship(new TableMapper("example_child2"), "child2", "child2_id")]
                 ),
-                "child1", "child_id")]);
+                "child1", "child_id")]));
 
 
         $this->assertEquals([4 => ["id" => 4, "name" => "Heather Wright", "child_id" => 3, "child1" =>
@@ -91,9 +101,11 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
     public function testIfOneToOneRelationshipDefinedQueriesAlsoQueryRelatedEntities() {
 
         // Create a mapper with a one to one table relationship with another child.
-        $queryEngine = new TableQueryEngine("example_parent",
+        $mapper = new TableMapper("example_parent",
             [new OneToOneTableRelationship(new TableMapper("example_child_with_parent_key"),
                 "child1", "parent_id")]);
+
+        $queryEngine = $mapper->getQueryEngine();
 
 
         $this->assertEquals([["id" => 1, "name" => "Mary Jones", "child_id" => null,
@@ -127,9 +139,9 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
 
 
         // Create a mapper with a one to one table relationship with another child.
-        $queryEngine = new TableQueryEngine("example_parent",
+        $queryEngine = new TableQueryEngine(new TableMapper("example_parent",
             [new OneToManyTableRelationship(new TableMapper("example_child_with_parent_key"),
-                "child1", "parent_id")]);
+                "child1", "parent_id")]));
 
 
         $this->assertEquals([["id" => 1, "name" => "Mary Jones", "child_id" => null,
@@ -172,9 +184,9 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
     public function testIfManyToManyRelationshipDefinedQueriesAlsoQueryRelatedEntities() {
 
         // Create a mapper with a one to one table relationship with another child.
-        $queryEngine = new TableQueryEngine("example_parent",
+        $queryEngine = new TableQueryEngine(new TableMapper("example_parent",
             [new ManyToManyTableRelationship(new TableMapper("example_child2"),
-                "manytomany", "example_many_to_many_link")]);
+                "manytomany", "example_many_to_many_link")]));
 
 
         $this->assertEquals([
@@ -206,9 +218,9 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals([["name" => "Mark"], ["name" => "John"], ["name" => "Dave"]], $queryEngine->query("SELECT name FROM example"));
 
-        $queryEngine = new TableQueryEngine("example_parent",
+        $queryEngine = new TableQueryEngine(new TableMapper("example_parent",
             [new OneToManyTableRelationship(new TableMapper("example_child_with_parent_key"),
-                "child1", "parent_id")]);
+                "child1", "parent_id")]));
 
         $this->assertEquals([["name" => "Mary Jones", "description" => "Swimming"], ["name" => "Jane Walsh", "description" => "Cooking"]],
             $queryEngine->query("SELECT name, child1.description FROM example_parent WHERE id IN (1, 2)"));

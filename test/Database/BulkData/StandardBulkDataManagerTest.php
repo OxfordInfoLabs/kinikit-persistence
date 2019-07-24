@@ -246,7 +246,6 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         $results = $query->fetchAll();
         $this->assertEquals(0, sizeof($results));
 
-
     }
 
 }

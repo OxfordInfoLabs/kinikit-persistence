@@ -108,6 +108,13 @@ class TableColumn {
         return $this->autoIncrement;
     }
 
+    /**
+     * @param bool $autoIncrement
+     */
+    public function setAutoIncrement($autoIncrement) {
+        $this->autoIncrement = $autoIncrement;
+    }
+
 
     /**
      * @return mixed

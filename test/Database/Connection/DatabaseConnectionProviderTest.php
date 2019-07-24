@@ -6,8 +6,8 @@ namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Persistence\Database\Vendor\MySQL\MySQLDatabaseConnection;
-use Kinikit\Persistence\Database\Vendor\SQLite3\SQLite3DatabaseConnection;
+use Kinikit\Persistence\Database\Vendors\MySQL\MySQLDatabaseConnection;
+use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 
 class DatabaseConnectionProviderTest extends \PHPUnit\Framework\TestCase {
 

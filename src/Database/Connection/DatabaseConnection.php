@@ -12,8 +12,8 @@ use Kinikit\Persistence\Database\ResultSet\ResultSet;
  * Database connection interface
  *
  * @implementationConfigParam db.provider
- * @implementation sqlite3 \Kinikit\Persistence\Database\Vendor\SQLite3\SQLite3DatabaseConnection
- * @implementation mysql \Kinikit\Persistence\Database\Vendor\MySQL\MySQLDatabaseConnection
+ * @implementation sqlite3 \Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection
+ * @implementation mysql \Kinikit\Persistence\Database\Vendors\MySQL\MySQLDatabaseConnection
  *
  * Interface DatabaseConnection
  */
