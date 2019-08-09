@@ -20,21 +20,6 @@ use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
  */
 class TableMapper {
 
-    /**
-     * @var string
-     */
-    private $tableName;
-
-    /**
-     * @var TableRelationship[]
-     */
-    private $relationships = [];
-
-    /**
-     * @var DatabaseConnection
-     */
-    private $databaseConnection;
-
 
     /**
      * @var TableQueryEngine
@@ -62,51 +47,12 @@ class TableMapper {
      * @param TableRelationship[] $relationships
      * @param DatabaseConnection $databaseConnection
      */
-    public function __construct($tableName, $relationships = [], $databaseConnection = null) {
-        $this->tableName = $tableName;
-        $this->relationships = $relationships ?? [];
-        $this->databaseConnection = $databaseConnection ?? Container::instance()->get(DatabaseConnection::class);
-        $this->queryEngine = new TableQueryEngine($this);
-        $this->bulkDataManager = $this->databaseConnection->getBulkDataManager();
-
-        // Ensure we synchronise parent mappers.
-        foreach ($this->relationships as $relationship) {
-            $relationship->setParentMapper($this);
-        }
-
+    public function __construct($databaseConnection) {
+        $this->queryEngine = new TableQueryEngine($databaseConnection);
     }
 
 
-    /**
-     * @return string
-     */
-    public function getTableName() {
-        return $this->tableName;
-    }
 
-    /**
-     * @return TableRelationship[]
-     */
-    public function getRelationships(): array {
-        return $this->relationships;
-    }
-
-    /**
-     * @return DatabaseConnection
-     */
-    public function getDatabaseConnection() {
-        return $this->databaseConnection;
-    }
-
-
-    /**
-     * Get the table query engine
-     *
-     * @return TableQueryEngine
-     */
-    public function getQueryEngine() {
-        return $this->queryEngine;
-    }
 
 
     /**

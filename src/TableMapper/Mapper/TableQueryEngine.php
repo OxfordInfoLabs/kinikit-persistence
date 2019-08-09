@@ -18,59 +18,26 @@ use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
  */
 class TableQueryEngine {
 
-    /**
-     * @var string
-     */
-    private $tableName;
-
-    /**
-     * @var TableRelationship[]
-     */
-    private $relationships;
-
-    /**
-     * @var DatabaseConnection
-     */
-    private $databaseConnection;
-
-    /**
-     * @var string[]
-     */
-    private $relationshipAliasPrefixes;
-
-    /**
-     * Table query class - provides support for
-     * queries and relational queries on relationships for the passed table
-     * and relationships structure
-     *
-     * @param TableMapper $tableMapper
-     *
-     * TableQuery constructor.
-     */
-    public function __construct($tableMapper) {
-        if (is_string($tableMapper)) {
-            $tableMapper = new TableMapper($tableMapper);
-        }
-        $this->tableName = $tableMapper->getTableName();
-        $this->relationships = $tableMapper->getRelationships();
-        $this->databaseConnection = $tableMapper->getDatabaseConnection();
-    }
-
 
     /**
      * Execute a query for the defined table,
      *
-     * @param $query
-     * @param $placeholderValues
+     * @param TableMapping|string $tableMapping
+     * @param string $query
+     * @param mixed[] $placeholderValues
      * @return array
      * @throws \Kinikit\Persistence\Database\Exception\SQLException
      */
-    public function query($query, $placeholderValues = []) {
+    public function query($tableMapping, $query, $placeholderValues = []) {
+
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
+        }
 
         // Process the query parts for relationships.
-        list($additionalSelectColumns, $joinClauses, $fullPathAliases) = $this->processQueryPartsForRelationships("", "_X");
+        list($additionalSelectColumns, $joinClauses, $fullPathAliases) = $this->processQueryPartsForRelationships($tableMapping, "", "_X");
 
-        $allColumns = $this->getAllColumnNames();
+        $allColumns = $tableMapping->getColumnNames();
 
         $doubleQueryRequired = strpos(strtoupper($query), "OFFSET") !== false || strpos(strtoupper($query), "LIMIT") !== false;
 
@@ -95,7 +62,7 @@ class TableQueryEngine {
 
 
         if (strpos($query, "SELECT") !== 0) {
-            $query = "SELECT * FROM {$this->tableName} " . $query;
+            $query = "SELECT * FROM {$tableMapping->getTableName()} " . $query;
         }
 
         // If we have a select * query add all required columns
@@ -106,7 +73,7 @@ class TableQueryEngine {
             if ($doubleQueryRequired) {
 
                 // Select just distinct primary keys as a first query
-                $pks = $this->query("SELECT DISTINCT " . join(", ", $this->getPrimaryKeyColumnNames()) . substr($query, 8), $placeholderValues);
+                $pks = $this->query($tableMapping, "SELECT DISTINCT " . join(", ", $tableMapping->getPrimaryKeyColumnNames()) . substr($query, 8), $placeholderValues);
 
                 // Create clauses
                 $clauses = [];
@@ -123,7 +90,7 @@ class TableQueryEngine {
                 // No do a second query for just the pks
                 $pkQuery = "WHERE " . join(" OR ", $clauses);
 
-                return $this->query($pkQuery, $pkPlaceholders);
+                return $this->query($tableMapping, $pkQuery, $pkPlaceholders);
 
             }
 
@@ -148,14 +115,14 @@ class TableQueryEngine {
 
 
         // Finally, add join clauses to the from clause.
-        $replacementClause = "FROM {$this->tableName} _X ";
+        $replacementClause = "FROM {$tableMapping->getTableName()} _X ";
         if (sizeof($joinClauses) > 0) {
             $replacementClause .= "\n" . join("\n", $joinClauses);
         }
 
-        $query = str_replace("FROM {$this->tableName}", $replacementClause, $query);
+        $query = str_replace("FROM {$tableMapping->getTableName()}", $replacementClause, $query);
 
-        $results = $this->databaseConnection->query($query, $placeholderValues)->fetchAll();
+        $results = $tableMapping->getDatabaseConnection()->query($query, $placeholderValues)->fetchAll();
 
         if ($requiresMapping) {
 
@@ -164,12 +131,12 @@ class TableQueryEngine {
              */
             $rows = [];
             foreach ($results as $result) {
-                $this->processQueryResult($result, $rows, "_X__");
+                $this->processQueryResult($tableMapping, $result, $rows, "_X__");
             }
 
 
             // Clean relational data before returning
-            $this->cleanRelationshipData($rows);
+            $this->cleanRelationshipData($tableMapping, $rows);
 
             return $rows;
         } else {
@@ -183,13 +150,14 @@ class TableQueryEngine {
     /**
      * Process a single query result including mapping relationship data.
      *
+     * @param TableMapping $tableMapping
      * @param $results
      * @return array
      */
-    protected function processQueryResult($result, &$rows, $myTableAlias) {
+    protected function processQueryResult($tableMapping, $result, &$rows, $myTableAlias) {
 
 
-        $primaryKeyColumns = $this->getPrimaryKeyColumnNames();
+        $primaryKeyColumns = $tableMapping->getPrimaryKeyColumnNames();
 
         // Index by PK for internal processing
         $pkValue = [];
@@ -228,14 +196,15 @@ class TableQueryEngine {
 
 
         // Map any relationship data
-        foreach ($this->relationships as $index => $relationship) {
-            $relationshipAlias = $this->relationshipAliasPrefixes[$index];
+        $relationshipAliasPrefixes = $tableMapping->getRelationshipAliasPrefixes();
+        foreach ($tableMapping->getRelationships() as $index => $relationship) {
+            $relationshipAlias = $relationshipAliasPrefixes[$index];
 
             if (isset($rows[$pkString][$relationship->getMappedMember()])) {
-                $relationship->getRelatedTableMapper()->getQueryEngine()->processQueryResult($result, $rows[$pkString][$relationship->getMappedMember()], $relationshipAlias);
+                $this->processQueryResult($relationship->getRelatedTableMapping(), $result, $rows[$pkString][$relationship->getMappedMember()], $relationshipAlias);
             } else {
                 $newRow = [];
-                $relationship->getRelatedTableMapper()->getQueryEngine()->processQueryResult($result, $newRow, $relationshipAlias);
+                $this->processQueryResult($relationship->getRelatedTableMapping(), $result, $newRow, $relationshipAlias);
                 if (sizeof($newRow) > 0) {
                     $rows[$pkString][$relationship->getMappedMember()] = $newRow;
                 }
@@ -250,16 +219,16 @@ class TableQueryEngine {
      * Clean relationship data after the fact to ensure that singles and arrays are returned
      * according to rules.
      */
-    protected function cleanRelationshipData(&$rows) {
+    protected function cleanRelationshipData($tableMapping, &$rows) {
         foreach ($rows as $key => $row) {
 
-            foreach ($this->relationships as $relationship) {
+            foreach ($tableMapping->getRelationships() as $relationship) {
 
                 // If we have a relational entry in the data, proceed
                 if (isset($row[$relationship->getMappedMember()])) {
 
                     // Clean sub entries first
-                    $relationship->getRelatedTableMapper()->getQueryEngine()->cleanRelationshipData($row[$relationship->getMappedMember()]);
+                    $this->cleanRelationshipData($relationship->getRelatedTableMapping(), $row[$relationship->getMappedMember()]);
 
                     $values = array_values($row[$relationship->getMappedMember()]);
                     if ($relationship->isMultiple()) {
@@ -277,17 +246,17 @@ class TableQueryEngine {
     /**
      * Process query parts for relationships.
      *
-     * @param $query
+     * @param TableMapping $tableMapping
+     * @param string $parentPath
+     * @param string $parentAlias
      */
-    protected function processQueryPartsForRelationships($parentPath, $parentAlias) {
+    protected function processQueryPartsForRelationships($tableMapping, $parentPath, $parentAlias) {
         $selectJoinClauses = [];
         $additionalSelectColumns = [];
 
-        $primaryKeyColumns = $this->getPrimaryKeyColumnNames();
-
-        $this->relationshipAliasPrefixes = [];
+        $relationshipAliasPrefixes = [];
         $fullPathAliases = [];
-        foreach ($this->relationships as $index => $relationship) {
+        foreach ($tableMapping->getRelationships() as $index => $relationship) {
 
             // Generate an alias for this relationship in the query
             $alias = $parentAlias . chr(65 + $index);
@@ -299,21 +268,19 @@ class TableQueryEngine {
             $selectJoinClauses[] = $relationship->getSelectJoinClause($parentAlias, $alias);
 
             // Now create additional select columns
-            $relatedTableMapper = $relationship->getRelatedTableMapper();
+            $relatedTableMapping = $relationship->getRelatedTableMapping();
 
-            $columns = $relatedTableMapper->getQueryEngine()->getAllColumnNames();
+            $columns = $relatedTableMapping->getColumnNames();
             foreach ($columns as $column) {
                 $additionalSelectColumns[] = $alias . "." . $column . " " . $relationshipAliasPrefix . $column;
             }
 
-
-            $this->relationshipAliasPrefixes[] = $relationshipAliasPrefix;
-
+            $relationshipAliasPrefixes[] = $relationshipAliasPrefix;
 
             $fullPathAliases[$parentPath . $relationship->getMappedMember()] = [$alias . ".", $relationship];
 
             // Call the related entity recursively to add other join data.
-            list ($relatedSelectColumns, $relatedJoinClauses, $relatedFullPathAliases) = $relationship->getRelatedTableMapper()->getQueryEngine()->processQueryPartsForRelationships($parentPath . $relationship->getMappedMember() . ".", $alias);
+            list ($relatedSelectColumns, $relatedJoinClauses, $relatedFullPathAliases) = $this->processQueryPartsForRelationships($relationship->getRelatedTableMapping(), $parentPath . $relationship->getMappedMember() . ".", $alias);
             $additionalSelectColumns = array_merge($additionalSelectColumns, $relatedSelectColumns);
             $selectJoinClauses = array_merge($selectJoinClauses, $relatedJoinClauses);
             $fullPathAliases = array_merge($fullPathAliases, $relatedFullPathAliases);
@@ -321,25 +288,12 @@ class TableQueryEngine {
 
         }
 
+        // Set the relationship alias prefixes on the mapping
+        $tableMapping->setRelationshipAliasPrefixes($relationshipAliasPrefixes);
+
+
         return array($additionalSelectColumns, $selectJoinClauses, $fullPathAliases);
     }
 
-
-    /**
-     * Get the primary key columns
-     *
-     * @return string[]
-     */
-    protected function getPrimaryKeyColumnNames() {
-        return array_keys($this->databaseConnection->getTableMetaData($this->tableName)->getPrimaryKeyColumns());
-    }
-
-
-    /**
-     * Get all column names
-     */
-    protected function getAllColumnNames() {
-        return array_keys($this->databaseConnection->getTableMetaData($this->tableName)->getColumns());
-    }
 
 }

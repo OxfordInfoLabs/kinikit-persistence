@@ -12,12 +12,12 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      * Construct a one to one relationship
      *
      * OneToOneTableRelationship constructor.
-     * @param $relatedTableMapper
+     * @param $relatedTableMapping
      * @param $mappedMember
      * @param $parentJoinColumnName
      */
-    public function __construct($relatedTableMapper, $mappedMember, $parentJoinColumnNames) {
-        parent::__construct($relatedTableMapper, $mappedMember);
+    public function __construct($relatedTableMapping, $mappedMember, $parentJoinColumnNames) {
+        parent::__construct($relatedTableMapping, $mappedMember);
 
         // Ensure we have an array of the right length for parent join columns.
         if (!is_array($parentJoinColumnNames)) {
@@ -48,10 +48,10 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      * @return mixed
      */
     public function getSelectJoinClause($parentAlias, $myAlias) {
-        $clause = "LEFT JOIN " . $this->relatedTableMapper->getTableName() . " $myAlias ON ";
+        $clause = "LEFT JOIN " . $this->relatedTableMapping->getTableName() . " $myAlias ON ";
 
         $onClauses = [];
-        $relatedPk = $this->relatedTableMapper->getPrimaryKeyColumnNames();
+        $relatedPk = $this->relatedTableMapping->getPrimaryKeyColumnNames();
         foreach ($this->parentJoinColumnNames as $index => $joinColumnName) {
             $onClauses[] = "$parentAlias.$joinColumnName = $myAlias.{$relatedPk[$index]}";
         }

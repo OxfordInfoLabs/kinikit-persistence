@@ -4,20 +4,21 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
+use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Mapper\TableRelationshipSaveData;
 
 abstract class BaseTableRelationship implements TableRelationship {
 
     /**
-     * @var TableMapper
+     * @var TableMapping
      */
-    protected $relatedTableMapper;
+    protected $relatedTableMapping;
 
 
     /**
-     * @var TableMapper
+     * @var TableMapping
      */
-    protected $parentMapper;
+    protected $parentMapping;
 
 
     /**
@@ -30,35 +31,35 @@ abstract class BaseTableRelationship implements TableRelationship {
      * which will be added to the parent array containing the child data.
      *
      * BaseTableRelationship constructor.
-     * @param TableMapper|string $relatedTableMapper
+     * @param TableMapping|string $relatedTableMapping
      * @param string $mappedMember
      */
-    public function __construct($relatedTableMapper, $mappedMember) {
-        if (is_string($relatedTableMapper))
-            $relatedTableMapper = new TableMapper($relatedTableMapper);
+    public function __construct($relatedTableMapping, $mappedMember) {
+        if (is_string($relatedTableMapping))
+            $relatedTableMapping = new TableMapping($relatedTableMapping);
 
-        $this->relatedTableMapper = $relatedTableMapper;
+        $this->relatedTableMapping = $relatedTableMapping;
         $this->mappedMember = $mappedMember;
     }
 
     /**
      * Set parent mapper
      *
-     * @param TableMapper $parentMapper
+     * @param TableMapping $parentMapping
      * @return mixed|void
      */
-    public function setParentMapper($parentMapper) {
-        $this->parentMapper = $parentMapper;
+    public function setParentMapping($parentMapping) {
+        $this->parentMapping = $parentMapping;
     }
 
 
     /**
      * Get the related table mapper in use.
      *
-     * @return TableMapper
+     * @return TableMapping
      */
-    public function getRelatedTableMapper() {
-        return $this->relatedTableMapper;
+    public function getRelatedTableMapping() {
+        return $this->relatedTableMapping;
     }
 
     /**
@@ -101,7 +102,7 @@ abstract class BaseTableRelationship implements TableRelationship {
 
         switch ($saveType) {
             case TableMapper::SAVE_OPERATION_INSERT:
-                $this->relatedTableMapper->insert($rowData);
+                $this->relatedTableMapping->insert($rowData);
                 break;
 
         }

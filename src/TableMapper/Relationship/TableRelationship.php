@@ -3,8 +3,7 @@
 
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
-
-use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
+use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Mapper\TableRelationshipSaveData;
 
 interface TableRelationship {
@@ -13,15 +12,15 @@ interface TableRelationship {
     /**
      * Set parent mapper on this relationship
      *
-     * @param TableMapper $parentMapper
+     * @param TableMapping $parentMapping
      * @return mixed
      */
-    public function setParentMapper($parentMapper);
+    public function setParentMapping($parentMapping);
 
     /**
-     * @return TableMapper
+     * @return TableMapping
      */
-    public function getRelatedTableMapper();
+    public function getRelatedTableMapping();
 
     /**
      * @return string

@@ -17,12 +17,12 @@ class OneToOneTableRelationship extends BaseTableRelationship {
      * Construct a one to one relationship
      *
      * OneToOneTableRelationship constructor.
-     * @param $relatedTableMapper
+     * @param $relatedTableMapping
      * @param $mappedMember
      * @param $parentJoinColumnName
      */
-    public function __construct($relatedTableMapper, $mappedMember, $childJoinColumnNames) {
-        parent::__construct($relatedTableMapper, $mappedMember);
+    public function __construct($relatedTableMapping, $mappedMember, $childJoinColumnNames) {
+        parent::__construct($relatedTableMapping, $mappedMember);
 
         // Ensure we have an array of the right length for parent join columns.
         if (!is_array($childJoinColumnNames)) {
@@ -53,9 +53,9 @@ class OneToOneTableRelationship extends BaseTableRelationship {
      */
     public function getSelectJoinClause($parentAlias, $myAlias) {
 
-        $parentPrimaryKeyColumns = $this->parentMapper->getPrimaryKeyColumnNames();
+        $parentPrimaryKeyColumns = $this->parentMapping->getPrimaryKeyColumnNames();
 
-        $clause = "LEFT JOIN " . $this->relatedTableMapper->getTableName() . " $myAlias ON ";
+        $clause = "LEFT JOIN " . $this->relatedTableMapping->getTableName() . " $myAlias ON ";
 
         $onClauses = [];
         foreach ($this->childJoinColumnNames as $index => $joinColumnName) {
@@ -79,7 +79,7 @@ class OneToOneTableRelationship extends BaseTableRelationship {
     public function postParentSaveOperation($saveType, $relationshipData) {
 
         // Synchronise the child fields from the parent
-        $relationshipData->synchroniseChildFieldsFromParent($this->parentMapper->getPrimaryKeyColumnNames(), $this->childJoinColumnNames);
+        $relationshipData->synchroniseChildFieldsFromParent($this->parentMapping->getPrimaryKeyColumnNames(), $this->childJoinColumnNames);
 
         // Perform a save operation using the child rows.
         $this->performSaveOperationOnChild($saveType, $relationshipData->getAllChildRows());

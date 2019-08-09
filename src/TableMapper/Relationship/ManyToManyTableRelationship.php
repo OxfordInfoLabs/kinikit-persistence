@@ -16,12 +16,12 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
      *
      * OneToOneTableRelationship constructor.
      *
-     * @param $relatedTableMapper
+     * @param $relatedTableMapping
      * @param $mappedMember
      * @param $parentJoinColumnName
      */
-    public function __construct($relatedTableMapper, $mappedMember, $linkTableName) {
-        parent::__construct($relatedTableMapper, $mappedMember);
+    public function __construct($relatedTableMapping, $mappedMember, $linkTableName) {
+        parent::__construct($relatedTableMapping, $mappedMember);
         $this->linkTableName = $linkTableName;
     }
 
@@ -49,8 +49,8 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
      */
     public function getSelectJoinClause($parentAlias, $myAlias) {
 
-        $parentPrimaryKeyColumns = $this->parentMapper->getPrimaryKeyColumnNames();
-        $parentTableName = $this->parentMapper->getTableName();
+        $parentPrimaryKeyColumns = $this->parentMapping->getPrimaryKeyColumnNames();
+        $parentTableName = $this->parentMapping->getTableName();
 
         $linkAlias = $myAlias . "L";
 
@@ -59,13 +59,13 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
         foreach ($parentPrimaryKeyColumns as $parentPrimaryKeyColumn) {
             $parentJoinClauses[] = $parentAlias . "." . $parentPrimaryKeyColumn . " = " . $linkAlias . "." . $parentTableName . "_" . $parentPrimaryKeyColumn;
         }
-        foreach ($this->getRelatedTableMapper()->getPrimaryKeyColumnNames() as $childPrimaryKeyColumn) {
-            $childJoinClauses[] = $linkAlias . "." . $this->getRelatedTableMapper()->getTableName() . "_" . $childPrimaryKeyColumn . " = " . $myAlias . "." . $childPrimaryKeyColumn;
+        foreach ($this->getRelatedTableMapping()->getPrimaryKeyColumnNames() as $childPrimaryKeyColumn) {
+            $childJoinClauses[] = $linkAlias . "." . $this->getRelatedTableMapping()->getTableName() . "_" . $childPrimaryKeyColumn . " = " . $myAlias . "." . $childPrimaryKeyColumn;
         }
 
 
         $joinClause = "LEFT JOIN {$this->linkTableName} $linkAlias ON " . join(" AND ", $parentJoinClauses);
-        $joinClause .= " LEFT JOIN {$this->getRelatedTableMapper()->getTableName()} $myAlias ON " . join(" AND ", $childJoinClauses);
+        $joinClause .= " LEFT JOIN {$this->getRelatedTableMapping()->getTableName()} $myAlias ON " . join(" AND ", $childJoinClauses);
 
         return $joinClause;
 
