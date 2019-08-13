@@ -28,80 +28,46 @@ class TableMapper {
 
 
     /**
-     * @var BulkDataManager
+     * @var TablePersistenceEngine
      */
-    private $bulkDataManager;
-
-
-    // Save operations
-    const SAVE_OPERATION_INSERT = "INSERT";
-    const SAVE_OPERATION_UPDATE = "UPDATE";
-    const SAVE_OPERATION_REPLACE = "REPLACE";
-    const SAVE_OPERATION_SAVE = "SAVE";
-
+    private $persistenceEngine;
 
     /**
-     * TableMapper constructor.
+     * TableMapper constructor - designed for autowiring of dependencies.
      *
-     * @param string $tableName
-     * @param TableRelationship[] $relationships
-     * @param DatabaseConnection $databaseConnection
+     * @param TableQueryEngine $queryEngine
+     * @param TablePersistenceEngine $persistenceEngine
      */
-    public function __construct($databaseConnection) {
-        $this->queryEngine = new TableQueryEngine($databaseConnection);
-    }
-
-
-
-
-
-    /**
-     * Lazy load the primary key columns using the db connection
-     *
-     * @return string[]
-     */
-    public function getPrimaryKeyColumnNames() {
-        return array_keys($this->databaseConnection->getTableMetaData($this->tableName)->getPrimaryKeyColumns());
+    public function __construct($queryEngine, $persistenceEngine) {
+        $this->queryEngine = $queryEngine;
+        $this->persistenceEngine = $persistenceEngine;
     }
 
 
     /**
-     * Return a boolean indicating whether or not this has auto increment PK.
+     * Fetch a row by primary key from the configured table mappeer
      *
-     * @return bool
-     */
-    protected function getAutoIncrementPk() {
-        $pkColumns = $this->databaseConnection->getTableMetaData($this->tableName)->getPrimaryKeyColumns();
-        foreach ($pkColumns as $pkColumn) {
-            if ($pkColumn->isAutoIncrement())
-                return $pkColumn->getName();
-        }
-        return null;
-    }
-
-    /**
-     * Lazy load the column names using the db connection
-     */
-    protected function getAllColumnNames() {
-        return array_keys($this->databaseConnection->getTableMetaData($this->tableName)->getColumns());
-    }
-
-    /**
-     * Fetch a row by primary key from the configured table
-     *
+     * @param string|TableMapping $tableMapping
      * @param mixed $primaryKeyValue
+     * @return mixed[]
      */
-    public function fetch($primaryKeyValue) {
+    public function fetch($tableMapping, $primaryKeyValue) {
+
+        // Ensure we have a table mapping object
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
+        }
 
         // If primary key is not an array, make it so.
         if (!is_array($primaryKeyValue)) {
             $primaryKeyValue = [$primaryKeyValue];
         }
 
-        $pkColumnNames = $this->getPrimaryKeyColumnNames();
+        $tableName = $tableMapping->getTableName();
+        $pkColumnNames = $tableMapping->getPrimaryKeyColumnNames();
 
         if (sizeof($primaryKeyValue) != sizeof($pkColumnNames)) {
-            throw new WrongPrimaryKeyLengthException($this->tableName, $primaryKeyValue, sizeof($pkColumnNames));
+            throw new WrongPrimaryKeyLengthException($tableName, $primaryKeyValue, sizeof($pkColumnNames));
         }
 
         $primaryKeyClauses = [];
@@ -111,11 +77,12 @@ class TableMapper {
 
         $primaryKeyClause = join(" AND ", $primaryKeyClauses);
 
-        $results = array_values($this->queryEngine->query("SELECT * FROM {$this->tableName} WHERE {$primaryKeyClause}", $primaryKeyValue));
+        $results = $this->queryEngine->query($tableMapping, "SELECT * FROM {$tableName} WHERE {$primaryKeyClause}", $primaryKeyValue);
+        $results = is_array($results) ? array_values($results) : [];
         if (sizeof($results) > 0) {
             return $results[0];
         } else {
-            throw new PrimaryKeyRowNotFoundException($this->tableName, $primaryKeyValue);
+            throw new PrimaryKeyRowNotFoundException($tableName, $primaryKeyValue);
         }
 
 
@@ -125,17 +92,25 @@ class TableMapper {
      * Fetch multiple rows by primary key from the configured table.  If ignore missing objects
      * is supplied no exception is raised, otherwise error is raised if row count <> primary keys supplied.
      *
-     * @param $primaryKeyValues
+     * @param string|TableMapping $tableMapping
+     * @param mixed[] $primaryKeyValues
      * @param bool $ignoreMissingObjects
-     * @return mixed
+     * @return mixed[]
      */
-    public function multiFetch($primaryKeyValues, $ignoreMissingObjects = false) {
+    public function multiFetch($tableMapping, $primaryKeyValues, $ignoreMissingObjects = false) {
+
+        // Ensure we have a table mapping object
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
+        }
 
         if (!is_array($primaryKeyValues)) {
             $primaryKeyValues = [$primaryKeyValues];
         }
 
-        $primaryKeyColumns = $this->getPrimaryKeyColumnNames();
+        $primaryKeyColumns = $tableMapping->getPrimaryKeyColumnNames();
+        $tableName = $tableMapping->getTableName();
+
 
         $primaryKeyClauses = [];
         $placeholderValues = [];
@@ -161,14 +136,15 @@ class TableMapper {
 
         $whereClause = join(" OR ", $primaryKeyClauses);
 
-        $results = $this->queryEngine->query("SELECT * FROM {$this->tableName} WHERE $whereClause", $placeholderValues, true);
+
+        $results = $this->queryEngine->query($tableMapping, "SELECT * FROM {$tableName} WHERE $whereClause", $placeholderValues);
 
         $orderedResults = [];
         foreach ($serialisedPks as $serialisedPk) {
             if (isset($results[$serialisedPk]))
                 $orderedResults[] = $results[$serialisedPk];
             else if (!$ignoreMissingObjects)
-                throw new PrimaryKeyRowNotFoundException($this->tableName, $primaryKeyValues, true);
+                throw new PrimaryKeyRowNotFoundException($tableName, $primaryKeyValues, true);
         }
 
         return $orderedResults;
@@ -180,11 +156,16 @@ class TableMapper {
      * Get a filtered list of items matching the supplied WHERE / ORDER BY clause which should include the
      * directive WHERE, ORDER BY, LIMIT, OFFSET etc.
      *
-     *
+     * @param string|TableMapping $tableMapping
      * @param string $whereClause
      * @param mixed[] $placeholderValues
      */
-    public function filter($whereClause = "", ...$placeholderValues) {
+    public function filter($tableMapping, $whereClause = "", ...$placeholderValues) {
+
+        // Ensure we have a table mapping object
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
+        }
 
         // If just a where clause, handle this otherwise assume full query.
         $results = $this->queryEngine->query("SELECT * FROM {$this->tableName} " . $whereClause, $placeholderValues);
@@ -198,19 +179,25 @@ class TableMapper {
      * Get a values array for one or more expressions (either column names or SQL expressions e.g. count, distinct etc) using
      * items from this table or related entities thereof.
      *
+     * @param string|TableMapping $tableMapping
      * @param $expressions
      * @param $whereClause
      * @param mixed ...$placeholderValues
      */
-    public function values($expressions, $whereClause = "", ...$placeholderValues) {
+    public function values($tableMapping, $expressions, $whereClause = "", ...$placeholderValues) {
+
+        // Ensure we have a table mapping object
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
+        }
 
         $valuesOnly = !is_array($expressions);
         if ($valuesOnly) {
             $expressions = [$expressions];
         }
 
-        $results = $this->queryEngine->query("SELECT " . join(", ", $expressions) . " FROM {$this->tableName} " . $whereClause, $placeholderValues);
-        $results = array_values($results);
+        $results = $this->queryEngine->query($tableMapping, "SELECT " . join(", ", $expressions) . " FROM {$tableMapping->getTableName()} " . $whereClause, $placeholderValues);
+        $results = is_array($results) ? array_values($results) : [];
 
         // if values only, reduce to values array
         if ($valuesOnly) {
@@ -226,102 +213,80 @@ class TableMapper {
 
 
     /**
-     * Insert data into this table and any other relational tables.  Please note, the
-     * data array is mutable for use when relational data is being updated.
+     * Insert data using the supplied table mapper.  This will perform a strict insert (i.e. no updates to existing data)
      *
+     * @param string|TableMapping $tableMapping
      * @param $data
      */
-    public function insert($data) {
+    public function insert($tableMapping, $data) {
 
-        // Process save data and act accordingly
-        $data = $this->processSaveData($data);
-
-        // Check for auto increment pk
-        $autoIncrementPk = $this->getAutoIncrementPk();
-
-        // if we have relationship data, we need to process this here.
-        if (isset($data["relationshipData"])) {
-
-            // Run pre-save operations for certain relationship types
-            foreach ($data["relationshipData"] as $relationshipIndex => $relationshipDatum) {
-                $this->relationships[$relationshipIndex]->preParentSaveOperation(self::SAVE_OPERATION_INSERT, $relationshipDatum);
-            }
-
-            // If an auto increment pk, need to insert / update each value
-            if ($autoIncrementPk) {
-                foreach ($data["saveRows"] as $index => $item) {
-                    $this->bulkDataManager->insert($this->tableName, $item);
-                    $data["saveRows"][$index][$autoIncrementPk] = $this->databaseConnection->getLastAutoIncrementId();
-                }
-            } else {
-                $this->bulkDataManager->insert($this->tableName, $data["saveRows"]);
-            }
-
-
-            // Run post-save operations for certain relationship types
-            foreach ($data["relationshipData"] as $relationshipIndex => $relationshipDatum) {
-                $this->relationships[$relationshipIndex]->postParentSaveOperation(self::SAVE_OPERATION_INSERT, $relationshipDatum);
-                $relationshipDatum->updateParentMember();
-            }
-
-
-            $objectBinder = Container::instance()->get(ObjectBinder::class);
-            echo json_encode($objectBinder->bindToArray($data["saveRows"]), JSON_PRETTY_PRINT);
-
-
-        } else {
-            $this->bulkDataManager->insert($this->tableName, $data["saveRows"]);
+        // Ensure we have a table mapping object
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
         }
+
+        // Save the rows using insert operation.
+        $this->persistenceEngine->saveRows($tableMapping, $data, TablePersistenceEngine::SAVE_OPERATION_INSERT);
     }
 
 
+    /**
+     * Update data using the supplied table mapper.  This will perform a strict update (i.e. no new inserts).  Any new
+     * data will be ignored.
+     *
+     * @param string|TableMapping $tableMapping
+     * @param $data
+     */
+    public function update($tableMapping, $data) {
 
-    // Process incoming data for a save operation
-    // Essentially return a structured array ready for relational processing
-    private function processSaveData($data) {
-
-        if (!isset($data[0])) {
-            $data = [$data];
+        // Ensure we have a table mapping object
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
         }
 
-
-        // if we have relationships, process otherwise simply return data for insert.
-        if (sizeof($this->relationships) > 0) {
-
-            // Sift through the relationships first and decide which ones need to pre-process and which ones can wait.
-            $structuredData = ["saveRows" => [], "relationshipData" => []];
-            foreach ($data as $index => $datum) {
-
-                // Process relationship data
-                foreach ($this->relationships as $relIndex => $relationship) {
-
-                    if (isset($data[$index][$relationship->getMappedMember()])) {
-
-                        // Now get the data for the relationship.
-                        $relationshipData = $data[$index][$relationship->getMappedMember()];
-                        if (!isset($relationshipData[0])) $relationshipData = [$relationshipData];
-
-                        if (!isset($structuredData["relationshipData"][$relIndex]))
-                            $structuredData["relationshipData"][$relIndex] = new TableRelationshipSaveData($relationship->getMappedMember(), $relationship->isMultiple());
-
-                        $structuredData["relationshipData"][$relIndex]->addChildRows($datum, $relationshipData);
-
-                        // Remove the mapped member from the parent insert array.
-                        unset($datum[$relationship->getMappedMember()]);
-                    }
-                }
-
-                $structuredData["saveRows"][] = &$datum;
-
-            }
-
-
-            return $structuredData;
-
-        } else {
-            return ["saveRows" => $data];
-        }
-
+        // Save the rows using insert operation.
+        $this->persistenceEngine->saveRows($tableMapping, $data, TablePersistenceEngine::SAVE_OPERATION_UPDATE);
     }
+
+
+    /**
+     * Replace data using the supplied table mapper.  This will essentially remove and insert data so will handle new and
+     * existing data.  Please note any subordinate relational entities attached will be replaced down the chain but unlike
+     * the save operation it will not clean up any additional relational entities.
+     *
+     * @param string|TableMapping $tableMapping
+     * @param $data
+     */
+    public function replace($tableMapping, $data) {
+
+        // Ensure we have a table mapping object
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
+        }
+
+        // Save the rows using insert operation.
+        $this->persistenceEngine->saveRows($tableMapping, $data, TablePersistenceEngine::SAVE_OPERATION_REPLACE);
+    }
+
+
+    /**
+     * Save data using the supplied table mapper.  This is the most useful and natural method for saving trees of data
+     * it will create / update new items as required and also remove any non-supplied items in e.g. many-to-many
+     * or one-to-many relationships to provide a consistently saved object tree.  Used by the ORM framework.
+     *
+     * @param string|TableMapping $tableMapping
+     * @param $data
+     */
+    public function save($tableMapping, $data) {
+
+        // Ensure we have a table mapping object
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
+        }
+
+        // Save the rows using insert operation.
+        $this->persistenceEngine->saveRows($tableMapping, $data, TablePersistenceEngine::SAVE_OPERATION_SAVE);
+    }
+
 
 }

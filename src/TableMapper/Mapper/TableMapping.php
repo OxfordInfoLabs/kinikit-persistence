@@ -51,6 +51,11 @@ class TableMapping {
 
 
     /**
+     * @var string
+     */
+    private $autoIncrementPkColumn;
+
+    /**
      * Array of relationship alias prefixes used by the table query engine.
      *
      * @var string[]
@@ -115,6 +120,24 @@ class TableMapping {
             $this->primaryKeyColumnNames = array_keys($this->databaseConnection->getTableMetaData($this->tableName)->getPrimaryKeyColumns());
         }
         return $this->primaryKeyColumnNames;
+    }
+
+
+    /**
+     * Return a boolean indicating whether or not this has auto increment PK.
+     *
+     * @return bool
+     */
+    public function getAutoIncrementPk() {
+        if (!$this->autoIncrementPkColumn) {
+            $pkColumns = $this->databaseConnection->getTableMetaData($this->tableName)->getPrimaryKeyColumns();
+            foreach ($pkColumns as $pkColumn) {
+                if ($pkColumn->isAutoIncrement())
+                    $this->autoIncrementPkColumn = $pkColumn->getName();
+            }
+
+        }
+        return $this->autoIncrementPkColumn;
     }
 
 

@@ -30,7 +30,7 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
     public function testCanQueryForRowsUsingDefaultConnection() {
 
         // Create a basic mapper
-        $queryEngine = new TableQueryEngine($this->databaseConnection);
+        $queryEngine = new TableQueryEngine();
         $this->assertEquals([
             1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"]
         ], $queryEngine->query("example", "WHERE name = ?", ["Mark"]));
@@ -40,6 +40,10 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
             1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
             3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
         ], $queryEngine->query("example", "WHERE name = ? or name = ? ORDER by id", ["Mark", "Dave"]));
+
+
+
+
 
 
     }

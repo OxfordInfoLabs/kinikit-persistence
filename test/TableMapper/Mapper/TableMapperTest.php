@@ -4,6 +4,8 @@ namespace Kinikit\Persistence\TableMapper\Mapper;
 
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Testing\MockObject;
+use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\TableMapper\Exception\PrimaryKeyRowNotFoundException;
 use Kinikit\Persistence\TableMapper\Exception\WrongPrimaryKeyLengthException;
@@ -11,6 +13,8 @@ use Kinikit\Persistence\TableMapper\Relationship\ManyToOneTableRelationship;
 use Kinikit\Persistence\TableMapper\Relationship\OneToManyTableRelationship;
 use Kinikit\Persistence\TableMapper\Relationship\OneToOneTableRelationship;
 use PHPUnit\Framework\TestCase;
+
+include_once "autoloader.php";
 
 /**
  * Test cases for the table mapper
@@ -20,21 +24,45 @@ use PHPUnit\Framework\TestCase;
  */
 class TableMapperTest extends TestCase {
 
+    /**
+     * @var TableMapper
+     */
+    private $tableMapper;
+
+    /**
+     * @var MockObject
+     */
+    private $queryEngine;
+
+
+    /**
+     * @var MockObject
+     */
+    private $persistenceEngine;
+
     public function setUp(): void {
 
-        $databaseConnection = Container::instance()->get(DatabaseConnection::class);
-        $databaseConnection->executeScript(file_get_contents(__DIR__ . "/tablemapper.sql"));
+        /**
+         * @var MockObjectProvider $mockObjectProvider
+         */
+        $mockObjectProvider = Container::instance()->get(MockObjectProvider::class);
 
+        $this->queryEngine = $mockObjectProvider->getMockInstance(TableQueryEngine::class);
+        $this->persistenceEngine = $mockObjectProvider->getMockInstance(TablePersistenceEngine::class);
+
+        $this->tableMapper = new TableMapper($this->queryEngine, $this->persistenceEngine);
     }
 
 
     public function testNotFoundExceptionRaisedIfAttemptToGetInvalidPrimaryKeyRow() {
 
-        // Create a basic mapper
-        $tableMapper = new TableMapper("example");
+        $tableMapping = new TableMapping("example");
+
+        $this->queryEngine->returnValue("query", [], [$tableMapping, "SELECT * FROM example WHERE id=?", [4]]);
+
 
         try {
-            $tableMapper->fetch(4);
+            $this->tableMapper->fetch($tableMapping, 4);
             $this->fail("Should have thrown here");
         } catch (PrimaryKeyRowNotFoundException $e) {
             $this->assertTrue(true);
@@ -44,11 +72,10 @@ class TableMapperTest extends TestCase {
 
     public function testWrongPrimaryKeyLengthExceptionRaisedIfAttemptToGetRowWithDifferentKeyLength() {
 
-        // Create a basic mapper
-        $tableMapper = new TableMapper("example");
+        $tableMapping = new TableMapping("example");
 
         try {
-            $tableMapper->fetch([4, 12]);
+            $this->tableMapper->fetch($tableMapping, [4, 12]);
             $this->fail("Should have thrown here");
         } catch (WrongPrimaryKeyLengthException $e) {
             $this->assertTrue(true);
@@ -60,53 +87,69 @@ class TableMapperTest extends TestCase {
     public function testCanFetchValidRowsByPrimaryKeyUsingDefaultConnection() {
 
         // Create a basic mapper
-        $tableMapper = new TableMapper("example");
+        $tableMapping = new TableMapping("example");
 
-        $this->assertEquals(["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"], $tableMapper->fetch(1));
-        $this->assertEquals(["id" => 2, "name" => "John", "last_modified" => "2012-01-01"], $tableMapper->fetch(2));
-        $this->assertEquals(["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"], $tableMapper->fetch(3));
+        $this->queryEngine->returnValue("query", [["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"]], [$tableMapping, "SELECT * FROM example WHERE id=?", [1]]);
+        $this->queryEngine->returnValue("query", [["id" => 2, "name" => "John", "last_modified" => "2012-01-01"]], [$tableMapping, "SELECT * FROM example WHERE id=?", [2]]);
+        $this->queryEngine->returnValue("query", [["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]], [$tableMapping, "SELECT * FROM example WHERE id=?", [3]]);
+
+
+        $this->assertEquals(["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"], $this->tableMapper->fetch($tableMapping, 1));
+        $this->assertEquals(["id" => 2, "name" => "John", "last_modified" => "2012-01-01"], $this->tableMapper->fetch($tableMapping, 2));
+        $this->assertEquals(["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"], $this->tableMapper->fetch($tableMapping, 3));
 
         // Check arrays as well
-        $this->assertEquals(["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"], $tableMapper->fetch([3]));
+        $this->assertEquals(["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"], $this->tableMapper->fetch($tableMapping, [3]));
     }
 
 
     public function testCanMultiFetchRowsByPrimaryKeyUsingDefaultConnection() {
 
         // Create a basic mapper
-        $tableMapper = new TableMapper("example");
+        $tableMapping = new TableMapping("example");
+
+        $this->queryEngine->returnValue("query", [1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"], 3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]],
+            [$tableMapping, "SELECT * FROM example WHERE (id=?) OR (id=?)", [1, 3]]);
+
+        $this->queryEngine->returnValue("query", [1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"], 3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]],
+            [$tableMapping, "SELECT * FROM example WHERE (id=?) OR (id=?)", [3, 1]]);
+
+
+        $this->queryEngine->returnValue("query", [1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"], 3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]],
+            [$tableMapping, "SELECT * FROM example WHERE (id=?) OR (id=?) OR (id=?) OR (id=?)", [5, 3, 1, 4]]);
+
 
         // Single id syntax
         $this->assertEquals([
             ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
             ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
-        ], $tableMapper->multiFetch([1, 3]));
+        ], $this->tableMapper->multiFetch($tableMapping, [1, 3]));
 
 
         // Order preservation
         $this->assertEquals([
             ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"],
             ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
-        ], $tableMapper->multiFetch([3, 1]));
+        ], $this->tableMapper->multiFetch($tableMapping, [3, 1]));
 
 
         // Array syntax.
         $this->assertEquals([
             ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
             ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
-        ], $tableMapper->multiFetch([[1], [3]]));
+        ], $this->tableMapper->multiFetch($tableMapping, [[1], [3]]));
 
 
         // Tolerate missing values
         $this->assertEquals([
             ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"],
             ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
-        ], $tableMapper->multiFetch([5, 3, 1, 4], true));
+        ], $this->tableMapper->multiFetch($tableMapping, [5, 3, 1, 4], true));
 
 
         // Throw if not ignoring missing values
         try {
-            $tableMapper->multiFetch([5, 3, 1, 4]);
+            $this->tableMapper->multiFetch($tableMapping, [5, 3, 1, 4]);
             $this->fail("Should have thrown here");
         } catch (PrimaryKeyRowNotFoundException $e) {
             // Success
@@ -118,80 +161,81 @@ class TableMapperTest extends TestCase {
     public function testCanGetValuesArray() {
 
         // Create a basic mapper
-        $tableMapper = new TableMapper("example");
+        $tableMapping = new TableMapping("example");
+
+
+        $this->queryEngine->returnValue("query", [["bobby" => "Mark"], ["bobby" => "John"], ["bobby" => "Dave"]],
+            [$tableMapping, "SELECT DISTINCT(name) bobby FROM example ", []]);
 
         // Check array one
-        $this->assertEquals([["bobby" => "Mark"], ["bobby" => "John"], ["bobby" => "Dave"]], $tableMapper->values(["DISTINCT(name) bobby"]));
+        $this->assertEquals([["bobby" => "Mark"], ["bobby" => "John"], ["bobby" => "Dave"]], $this->tableMapper->values($tableMapping, ["DISTINCT(name) bobby"]));
 
 
         // Check if supplied as single string just values returned
-        $this->assertEquals(["Mark", "John", "Dave"], $tableMapper->values("DISTINCT(name) bobby"));
+        $this->assertEquals(["Mark", "John", "Dave"], $this->tableMapper->values($tableMapping, "DISTINCT(name) bobby"));
 
     }
 
 
-    public function testCanInsertDataForSimpleTable() {
+    public function testInsertCorrectlyCallsPersistenceEngine() {
 
         // Create a basic mapper
-        $tableMapper = new TableMapper("example");
+        $tableMapping = new TableMapping("example");
 
-        $tableMapper->insert(["name" => "Conrad"]);
+        $this->tableMapper->insert($tableMapping, ["name" => "Conrad"]);
 
-        $this->assertEquals(1, sizeof($tableMapper->filter("WHERE name = 'Conrad'")));
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("saveRows", [$tableMapping, ["name" => "Conrad"], TablePersistenceEngine::SAVE_OPERATION_INSERT]));
 
-        $tableMapper->insert([["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]]);
+        $this->tableMapper->insert($tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]]);
 
-        $this->assertEquals(3, sizeof($tableMapper->filter("WHERE name In ('Stephen', 'Willis', 'Pedro')")));
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("saveRows", [$tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]], TablePersistenceEngine::SAVE_OPERATION_INSERT]));
 
     }
 
 
-    public function testCanInsertRelationalDataToOneToOneRelationshipAsWellIfSupplied() {
+    public function testUpdateCorrectlyCallsPersistenceEngine() {
 
-        $childMapper = new TableMapper("example_child_with_parent_key");
-        $tableMapper = new TableMapper("example_parent", [new OneToOneTableRelationship($childMapper, "child", "parent_id")]);
+        // Create a basic mapper
+        $tableMapping = new TableMapping("example");
 
+        $this->tableMapper->update($tableMapping, ["name" => "Conrad"]);
 
-        $insertData = [
-            "name" => "Michael",
-            "child" => [
-                "description" => "Swimming Lanes"
-            ]];
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("saveRows", [$tableMapping, ["name" => "Conrad"], TablePersistenceEngine::SAVE_OPERATION_UPDATE]));
 
+        $this->tableMapper->update($tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]]);
 
-        $tableMapper->insert($insertData);
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("saveRows", [$tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]], TablePersistenceEngine::SAVE_OPERATION_UPDATE]));
 
+    }
 
-        $this->assertEquals(1, sizeof($tableMapper->filter("WHERE name = 'Michael'")));
-        $this->assertEquals(1, sizeof($childMapper->filter("WHERE description = 'Swimming Lanes' AND parent_id = 5")));
+    public function testReplaceCorrectlyCallsPersistenceEngine() {
 
+        // Create a basic mapper
+        $tableMapping = new TableMapping("example");
 
-        // Now try a double nested one.
-        $childMapper = new TableMapper("example_child_with_parent_key", [
-            new OneToOneTableRelationship("example_child_with_parent_key", "child", "parent_id")
-        ]);
+        $this->tableMapper->replace($tableMapping, ["name" => "Conrad"]);
 
-        $tableMapper = new TableMapper("example_parent", [
-            new OneToOneTableRelationship($childMapper, "child", "parent_id")
-        ]);
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("saveRows", [$tableMapping, ["name" => "Conrad"], TablePersistenceEngine::SAVE_OPERATION_REPLACE]));
 
+        $this->tableMapper->replace($tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]]);
 
-        $insertData = [
-            "name" => "Stephanie",
-            "child" => [
-                "description" => "Cycling Lanes",
-                "child" => [
-                    "description" => "Jumping up and down"
-                ]
-            ]];
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("saveRows", [$tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]], TablePersistenceEngine::SAVE_OPERATION_REPLACE]));
+
+    }
 
 
-        $tableMapper->insert($insertData);
+    public function testSaveCorrectlyCallsPersistenceEngine() {
 
+        // Create a basic mapper
+        $tableMapping = new TableMapping("example");
 
-        $this->assertEquals(1, sizeof($tableMapper->filter("WHERE name = 'Stephanie'")));
-        $this->assertEquals(1, sizeof($childMapper->filter("WHERE description = 'Cycling Lanes' AND parent_id = 6")));
-        $this->assertEquals(1, sizeof($childMapper->filter("WHERE description = 'Jumping up and down' AND parent_id = 9")));
+        $this->tableMapper->save($tableMapping, ["name" => "Conrad"]);
+
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("saveRows", [$tableMapping, ["name" => "Conrad"], TablePersistenceEngine::SAVE_OPERATION_SAVE]));
+
+        $this->tableMapper->save($tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]]);
+
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("saveRows", [$tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]], TablePersistenceEngine::SAVE_OPERATION_SAVE]));
 
     }
 

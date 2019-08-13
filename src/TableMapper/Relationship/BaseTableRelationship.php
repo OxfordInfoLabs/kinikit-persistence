@@ -3,8 +3,10 @@
 
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
+use Kinikit\Persistence\TableMapper\Mapper\TablePersistenceEngine;
 use Kinikit\Persistence\TableMapper\Mapper\TableRelationshipSaveData;
 
 abstract class BaseTableRelationship implements TableRelationship {
@@ -25,6 +27,7 @@ abstract class BaseTableRelationship implements TableRelationship {
      * @var string
      */
     protected $mappedMember;
+
 
     /**
      * Construct parent with related table mapper and the mapped member
@@ -100,12 +103,9 @@ abstract class BaseTableRelationship implements TableRelationship {
      */
     protected function performSaveOperationOnChild($saveType, $rowData) {
 
-        switch ($saveType) {
-            case TableMapper::SAVE_OPERATION_INSERT:
-                $this->relatedTableMapping->insert($rowData);
-                break;
-
-        }
+        // Get the global persistence engine instance and save the child.
+        $persistenceEngine = Container::instance()->get(TablePersistenceEngine::class);
+        $persistenceEngine->saveRows($this->relatedTableMapping, $rowData, $saveType);
 
     }
 
