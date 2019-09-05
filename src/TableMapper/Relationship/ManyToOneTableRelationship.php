@@ -16,8 +16,8 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      * @param $mappedMember
      * @param $parentJoinColumnName
      */
-    public function __construct($relatedTableMapping, $mappedMember, $parentJoinColumnNames) {
-        parent::__construct($relatedTableMapping, $mappedMember);
+    public function __construct($relatedTableMapping, $mappedMember, $parentJoinColumnNames, $saveCascade = false, $deleteCascade = false) {
+        parent::__construct($relatedTableMapping, $mappedMember, $saveCascade, $deleteCascade);
 
         // Ensure we have an array of the right length for parent join columns.
         if (!is_array($parentJoinColumnNames)) {
@@ -63,6 +63,50 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
 
     }
 
+    /**
+     * Retrieve child data for parent rows.
+     *
+     * @param array $parentRows
+     * @return array|void
+     */
+    public function retrieveChildData(&$parentRows) {
+        // TODO: Implement retrieveChildData() method.
+    }
 
+
+    public function preParentSaveOperation($saveType, &$relationshipData) {
+
+        // Save the child first
+        $this->performSaveOperationOnChild($saveType, $relationshipData);
+
+        // Synchronise parent columns.
+        $this->synchroniseParentFieldsFromChild($this->relatedTableMapping->getPrimaryKeyColumnNames(), $this->parentJoinColumnNames, $relationshipData);
+    }
+
+
+    /**
+     * Unrelate children
+     *
+     * @param array $parentRows
+     * @param null $childRows
+     */
+    public function unrelateChildren($parentRows, $childRows = null) {
+
+        $childPKColumns = $this->relatedTableMapping->getPrimaryKeyColumnNames();
+
+        $childPks = [];
+        foreach ($parentRows as $parentRow) {
+            $childPk = [];
+            foreach ($this->parentJoinColumnNames as $index => $parentJoinColumnName) {
+                $childPk[$childPKColumns[$index]] = $parentRow[$parentJoinColumnName];
+            }
+            $childPks[] = $childPk;
+        }
+
+        if ($this->deleteCascade) {
+            $this->tablePersistenceEngine->deleteRows($this->relatedTableMapping, $childPks);
+        }
+
+    }
 
 }

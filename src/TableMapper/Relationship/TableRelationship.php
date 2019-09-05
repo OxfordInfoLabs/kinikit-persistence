@@ -38,7 +38,7 @@ interface TableRelationship {
 
 
     /**
-     * Get the select join clause for this relationship
+     * Get the select join clause for this relationship for use in the query engine.
      *
      * Pass the parent and my alias through
      *
@@ -53,13 +53,22 @@ interface TableRelationship {
 
 
     /**
+     * Get child data using the parent row data as reference.
+     *
+     * @param array $parentRows
+     * @return array
+     */
+    public function retrieveChildData(&$parentRows);
+
+
+    /**
      * Pre parent save trigger - all data passed by reference to make it mutable.
      *
      * @param string $saveType
      * @param TableRelationshipSaveData $relationshipData
      * @return mixed
      */
-    public function preParentSaveOperation($saveType, $relationshipData);
+    public function preParentSaveOperation($saveType, &$relationshipData);
 
 
     /**
@@ -69,6 +78,17 @@ interface TableRelationship {
      * @param TableRelationshipSaveData $relationshipData
      * @return mixed
      */
-    public function postParentSaveOperation($saveType, $relationshipData);
+    public function postParentSaveOperation($saveType, &$relationshipData);
+
+
+    /**
+     * Unrelate children from parent.  If explicit set of child rows passed
+     * these are unrelated otherwise it is assumed that all child rows from the
+     * parent are to be processed.
+     *
+     * @param array $parentRows
+     * @param array $childRows
+     */
+    public function unrelateChildren($parentRows, $childRows = null);
 
 }

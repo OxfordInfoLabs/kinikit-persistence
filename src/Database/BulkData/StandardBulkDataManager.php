@@ -49,7 +49,7 @@ class StandardBulkDataManager extends DefaultBulkDataManager {
             $values = [];
             foreach ($slice as $sliceItem) {
                 foreach ($insertColumns as $column) {
-                    $values[] = $sliceItem[$column];
+                    $values[] = $sliceItem[$column] ?? null;
                 }
             }
 

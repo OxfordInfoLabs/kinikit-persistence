@@ -4,6 +4,9 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
+use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
+use Kinikit\Persistence\TableMapper\Mapper\TablePersistenceEngine;
+
 class ManyToManyTableRelationship extends BaseTableRelationship {
 
     /**
@@ -20,8 +23,8 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
      * @param $mappedMember
      * @param $parentJoinColumnName
      */
-    public function __construct($relatedTableMapping, $mappedMember, $linkTableName) {
-        parent::__construct($relatedTableMapping, $mappedMember);
+    public function __construct($relatedTableMapping, $mappedMember, $linkTableName, $saveCascade = false, $deleteCascade = false) {
+        parent::__construct($relatedTableMapping, $mappedMember, $saveCascade, $deleteCascade);
         $this->linkTableName = $linkTableName;
     }
 
@@ -72,5 +75,70 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
 
     }
 
-   
+
+    /**
+     * Get child data using the parent row data as reference.
+     *
+     * @param array $parentRows
+     * @return array
+     */
+    public function retrieveChildData(&$parentRows) {
+        // TODO: Implement retrieveChildData() method.
+    }
+
+
+    /**
+     * Implement post action as one to one's should have parent id fields.
+     *
+     * @param string $saveType
+     * @param array $relationshipData
+     * @return mixed|void
+     */
+    public function postParentSaveOperation($saveType, &$relationshipData) {
+
+        // Perform a save operation using the child rows.
+        $this->performSaveOperationOnChild($saveType, $relationshipData);
+
+        $parentTableName = $this->parentMapping->getTableName();
+        $childTableName = $this->getRelatedTableMapping()->getTableName();
+        $parentPrimaryKeyColumns = $this->parentMapping->getPrimaryKeyColumnNames();
+        $childPrimaryKeyColumns = $this->getRelatedTableMapping()->getPrimaryKeyColumnNames();
+
+        $insertData = [];
+        foreach ($relationshipData["relatedItemsByParent"] as $relatedItem) {
+            foreach ($relatedItem["items"] as $item) {
+                $row = [];
+                foreach ($parentPrimaryKeyColumns as $parentPrimaryKeyColumn) {
+                    $columnName = $parentTableName . "_" . $parentPrimaryKeyColumn;
+                    $row[$columnName] = $relatedItem["parentRow"][$parentPrimaryKeyColumn] ?? "";
+                }
+
+                foreach ($childPrimaryKeyColumns as $childPrimaryKeyColumn) {
+                    $columnName = $childTableName . "_" . $childPrimaryKeyColumn;
+                    $row[$columnName] = $item[$childPrimaryKeyColumn] ?? "";
+                }
+
+                $insertData[] = $row;
+            }
+        }
+
+        $linkTableMapper = new TableMapping($this->linkTableName);
+        $persistenceEngine = new TablePersistenceEngine();
+        $persistenceEngine->saveRows($linkTableMapper, $insertData, $saveType);
+    }
+
+
+
+
+    /**
+     * Unrelate children from parent.  If explicit set of child rows passed
+     * these are unrelated otherwise it is assumed that all child rows from the
+     * parent are to be processed.
+     *
+     * @param array $parentRows
+     * @param array $childRows
+     */
+    public function unrelateChildren($parentRows, $childRows = null) {
+        // TODO: Implement unrelateChildren() method.
+    }
 }

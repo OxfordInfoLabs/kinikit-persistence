@@ -124,6 +124,19 @@ class TableMapping {
 
 
     /**
+     * Get the primary key values from a data row using column names.
+     */
+    public function getPrimaryKeyValues($dataRow) {
+        $pkValues = [];
+        foreach ($this->getPrimaryKeyColumnNames() as $columnName) {
+            $pkValues[$columnName] = $dataRow[$columnName];
+        }
+
+        return $pkValues;
+    }
+
+
+    /**
      * Return a boolean indicating whether or not this has auto increment PK.
      *
      * @return bool

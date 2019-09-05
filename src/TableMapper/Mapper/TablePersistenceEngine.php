@@ -3,10 +3,6 @@
 
 namespace Kinikit\Persistence\TableMapper\Mapper;
 
-
-use Kinikit\Core\Binding\ObjectBinder;
-use Kinikit\Core\DependencyInjection\Container;
-
 class TablePersistenceEngine {
 
 
@@ -18,7 +14,7 @@ class TablePersistenceEngine {
 
 
     /**
-     * Save the passed rows using a table mapping.  Perform the operation specified which are as follows:
+     * Save the passed rows using a table mapping.  Return updated row structure with new primary keys etc.
      *
      * INSERT: Strictly insert rows including any linked relational rows.
      * UPDATE: Strictly update rows including linked relational rows - this will fail silently if row data doesn't exist.
@@ -31,95 +27,169 @@ class TablePersistenceEngine {
      */
     public function saveRows($tableMapping, $rows, $saveOperation = self::SAVE_OPERATION_SAVE) {
 
-        // Process save data and act accordingly
-        $data = $this->processSaveData($tableMapping, $rows);
+        if (sizeof($rows) == 0) {
+            return $rows;
+        }
+
+        if (!isset($rows[0])) {
+            $rows = [$rows];
+        }
+        $this->__saveRows($tableMapping, $rows, $saveOperation);
+        return $rows;
+    }
+
+
+    /**
+     * Delete the passed rows using a table mapping.  This will follow delete cascade rules to
+     * ensure that
+     *
+     * @param TableMapping $tableMapping
+     * @param $rows
+     */
+    public function deleteRows($tableMapping, $rows) {
+        if (sizeof($rows) == 0) {
+            return;
+        }
+
+        if (!isset($rows[0])) {
+            $rows = [$rows];
+        }
+
+
+        // Delete the rows
+        $bulkDataManager = $tableMapping->getDatabaseConnection()->getBulkDataManager();
+        $bulkDataManager->delete($tableMapping->getTableName(), $rows);
+
 
         // Gather objects for use below.
-        $autoIncrementPk = $tableMapping->getAutoIncrementPk();
-        $bulkDataManager = $tableMapping->getDatabaseConnection()->getBulkDataManager();
         $relationships = $tableMapping->getRelationships();
-        $tableName = $tableMapping->getTableName();
 
-        // if we have relationship data, we need to process this here.
-        if (isset($data["relationshipData"])) {
-
-            // Run pre-save operations for certain relationship types
-            foreach ($data["relationshipData"] as $relationshipIndex => $relationshipDatum) {
-                $relationships[$relationshipIndex]->preParentSaveOperation(self::SAVE_OPERATION_INSERT, $relationshipDatum);
+        // if we have relationship data, we need to unrelate any children.
+        if (sizeof($relationships) > 0) {
+            foreach ($relationships as $relationship) {
+                $relationship->unrelateChildren($rows);
             }
-
-            // If an auto increment pk, need to insert / update each value
-            if ($autoIncrementPk) {
-                foreach ($data["saveRows"] as $index => $item) {
-                    $bulkDataManager->insert($tableName, $item);
-                    $data["saveRows"][$index][$autoIncrementPk] = $tableMapping->getDatabaseConnection()->getLastAutoIncrementId();
-                }
-            } else {
-                $bulkDataManager->insert($tableName, $data["saveRows"]);
-            }
-
-
-            // Run post-save operations for certain relationship types
-            foreach ($data["relationshipData"] as $relationshipIndex => $relationshipDatum) {
-                $relationships[$relationshipIndex]->postParentSaveOperation(self::SAVE_OPERATION_INSERT, $relationshipDatum);
-                $relationshipDatum->updateParentMember();
-            }
-
-
-        } else {
-            $bulkDataManager->insert($tableMapping->getTableName(), $data["saveRows"]);
         }
 
 
     }
 
 
+    /**
+     * Internal save rows function.  This saves the main row and processes any relationship data.
+     *
+     * @param $tableMapping
+     * @param $rows
+     * @param $saveOperation
+     */
+    public function __saveRows($tableMapping, &$rows, $saveOperation) {
 
-    // Process incoming data for a save operation
-    // Essentially return a structured array ready for relational processing
-    private function processSaveData($tableMapping, $data) {
-
-        if (!isset($data[0])) {
-            $data = [$data];
-        }
-
+        // Gather objects for use below.
         $relationships = $tableMapping->getRelationships();
 
-        // if we have relationships, process otherwise simply return data for insert.
+
+        // if we have relationship data, we need to process this here.
         if (sizeof($relationships) > 0) {
 
-            // Sift through the relationships first and decide which ones need to pre-process and which ones can wait.
-            $structuredData = ["saveRows" => [], "relationshipData" => []];
-            foreach ($data as $index => $datum) {
+            $relationalData = [];
 
-                // Process relationship data
-                foreach ($relationships as $relIndex => $relationship) {
+            // Get relational save data
+            $this->populateRelationalData($relationships, $rows, $relationalData);
 
-                    if (isset($data[$index][$relationship->getMappedMember()])) {
 
-                        // Now get the data for the relationship.
-                        $relationshipData = $data[$index][$relationship->getMappedMember()];
-                        if (!isset($relationshipData[0])) $relationshipData = [$relationshipData];
+            // Run pre-save operations where certain relationship types require it.
+            $relationshipColumns = [];
+            foreach ($relationships as $index => $relationship) {
+                $relationship->preParentSaveOperation($saveOperation, $relationalData[$index]);
+                $relationshipColumns[] = $relationship->getMappedMember();
+            }
 
-                        if (!isset($structuredData["relationshipData"][$relIndex]))
-                            $structuredData["relationshipData"][$relIndex] = new TableRelationshipSaveData($relationship->getMappedMember(), $relationship->isMultiple());
+            // Gather the save columns by removing relationship columns as required.
+            $saveColumns = array_diff(array_keys($rows[0]), $relationshipColumns);
 
-                        $structuredData["relationshipData"][$relIndex]->addChildRows($datum, $relationshipData);
+            // Save the main row.
+            $this->saveRowData($tableMapping, $saveOperation, $rows, $saveColumns);
 
-                        // Remove the mapped member from the parent insert array.
-                        unset($datum[$relationship->getMappedMember()]);
-                    }
-                }
-
-                $structuredData["saveRows"][] = &$datum;
-
+            // Run post-save operations where certain relationship types require it.
+            foreach ($relationships as $index => $relationship) {
+                $relationship->postParentSaveOperation($saveOperation, $relationalData[$index]);
             }
 
 
-            return $structuredData;
-
         } else {
-            return ["saveRows" => $data];
+            $saveColumns = array_keys($rows[0]);
+            $this->saveRowData($tableMapping, $saveOperation, $rows, $saveColumns);
+        }
+
+    }
+
+
+    // Fill the save data with a relational structure from the save row array.
+    private function populateRelationalData($relationships, &$saveRows, &$relationalData) {
+
+        foreach ($relationships as $index => $relationship) {
+            $relationalData[$index] = ["allRelatedItems" => [], "relatedItemsByParent" => []];
+            $mappedMember = $relationship->getMappedMember();
+            foreach ($saveRows as $rowIndex => $saveRow) {
+
+                $relationalData[$index]["relatedItemsByParent"][$rowIndex] = ["parentRow" => &$saveRows[$rowIndex], "items" => []];
+
+                // If we have relational data, add it in with a parent indicator
+                if (isset($saveRow[$mappedMember])) {
+                    if (isset($saveRow[$mappedMember][0])) {
+                        for ($i = 0; $i < sizeof($saveRow[$mappedMember]); $i++) {
+                            $relationalData[$index]["allRelatedItems"][] = &$saveRows[$rowIndex][$mappedMember][$i];
+                            $relationalData[$index]["relatedItemsByParent"][$rowIndex]["items"][] = &$saveRows[$rowIndex][$mappedMember][$i];
+                        }
+                    } else {
+                        $relationalData[$index]["allRelatedItems"][] = &$saveRows[$rowIndex][$mappedMember];
+                        $relationalData[$index]["relatedItemsByParent"][$rowIndex]["items"][] = &$saveRows[$rowIndex][$mappedMember];
+                    }
+                }
+
+            }
+        }
+    }
+
+
+    // Save row data, taking account of any
+    private function saveRowData($tableMapping, $saveOperation, &$data, $saveColumns) {
+
+        $autoIncrementPk = $tableMapping->getAutoIncrementPk();
+
+        // If an auto increment pk, need to insert / update each value
+        if ($saveOperation != self::SAVE_OPERATION_UPDATE && $autoIncrementPk) {
+            foreach ($data as $index => $item) {
+                $this->saveRowDataForOperation($tableMapping, $saveOperation, $data[$index], $saveColumns);
+                if (!isset($data[$index][$autoIncrementPk]))
+                    $data[$index][$autoIncrementPk] = $tableMapping->getDatabaseConnection()->getLastAutoIncrementId();
+            }
+        } else {
+            $this->saveRowDataForOperation($tableMapping, $saveOperation, $data, $saveColumns);
+        }
+    }
+
+
+    /**
+     * Actually save row data using the table mapping and the defined save operation.
+     *
+     * @param TableMapping $tableMapping
+     * @param string $saveOperation
+     * @param mixed[] $data
+     */
+    private function saveRowDataForOperation($tableMapping, $saveOperation, $data, $saveColumns) {
+        $bulkDataManager = $tableMapping->getDatabaseConnection()->getBulkDataManager();
+        switch ($saveOperation) {
+            case self::SAVE_OPERATION_INSERT:
+                $bulkDataManager->insert($tableMapping->getTableName(), $data, $saveColumns);
+                break;
+            case self::SAVE_OPERATION_UPDATE:
+                $bulkDataManager->update($tableMapping->getTableName(), $data, $saveColumns);
+                break;
+            case self::SAVE_OPERATION_REPLACE:
+            case self::SAVE_OPERATION_SAVE:
+                $bulkDataManager->replace($tableMapping->getTableName(), $data, $saveColumns);
+                break;
         }
 
     }

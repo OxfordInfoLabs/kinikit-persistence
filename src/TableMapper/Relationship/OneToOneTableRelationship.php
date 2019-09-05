@@ -4,6 +4,8 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
+use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
+use Kinikit\Persistence\TableMapper\Mapper\TablePersistenceEngine;
 use Kinikit\Persistence\TableMapper\Mapper\TableRelationshipSaveData;
 
 class OneToOneTableRelationship extends BaseTableRelationship {
@@ -21,8 +23,8 @@ class OneToOneTableRelationship extends BaseTableRelationship {
      * @param $mappedMember
      * @param $parentJoinColumnName
      */
-    public function __construct($relatedTableMapping, $mappedMember, $childJoinColumnNames) {
-        parent::__construct($relatedTableMapping, $mappedMember);
+    public function __construct($relatedTableMapping, $mappedMember, $childJoinColumnNames, $saveCascade = true, $deleteCascade = true) {
+        parent::__construct($relatedTableMapping, $mappedMember, $saveCascade, $deleteCascade);
 
         // Ensure we have an array of the right length for parent join columns.
         if (!is_array($childJoinColumnNames)) {
@@ -70,19 +72,69 @@ class OneToOneTableRelationship extends BaseTableRelationship {
     }
 
     /**
+     * Retrieve child data
+     *
+     * @param $parentRow
+     * @return mixed|void
+     */
+    public function retrieveChildData(&$parentRows) {
+
+    }
+
+
+    /**
      * Implement post action as one to one's should have parent id fields.
      *
      * @param string $saveType
-     * @param TableRelationshipSaveData $relationshipData
+     * @param array $relationshipData
      * @return mixed|void
      */
-    public function postParentSaveOperation($saveType, $relationshipData) {
+    public function postParentSaveOperation($saveType, &$relationshipData) {
 
         // Synchronise the child fields from the parent
-        $relationshipData->synchroniseChildFieldsFromParent($this->parentMapping->getPrimaryKeyColumnNames(), $this->childJoinColumnNames);
+        $this->synchroniseChildFieldsFromParent($this->parentMapping->getPrimaryKeyColumnNames(), $this->childJoinColumnNames, $relationshipData);
 
         // Perform a save operation using the child rows.
-        $this->performSaveOperationOnChild($saveType, $relationshipData->getAllChildRows());
+        $this->performSaveOperationOnChild($saveType, $relationshipData);
+
+    }
+
+
+    /**
+     * Unrelate children
+     *
+     * @param $parentRows
+     * @param null $childRows
+     * @return mixed|void
+     */
+    public function unrelateChildren($parentRows, $childRows = null) {
+
+        $rowsToDelete = $childRows ? $childRows : [];
+
+        if (sizeof($rowsToDelete) == 0) {
+
+            // Retrieve and fill in child data for each parent row.
+            $this->retrieveChildData($parentRows);
+
+            foreach ($parentRows as $parentRow) {
+                if (isset($parentRow[$this->mappedMember]) && is_array($parentRow[$this->mappedMember]) && sizeof($parentRow[$this->mappedMember])) {
+                    $children = isset($parentRow[$this->mappedMember][0]) ? $parentRow[$this->mappedMember] : [$parentRow[$this->mappedMember]];
+                    $rowsToDelete = array_merge($rowsToDelete, $children);
+                }
+            }
+        }
+
+        // If delete cascade, delete all child rows.  Otherwise, update to null
+        if ($this->deleteCascade) {
+            $this->tablePersistenceEngine->deleteRows($this->relatedTableMapping, $rowsToDelete);
+        } else {
+            foreach ($rowsToDelete as $index => $row) {
+                foreach ($this->childJoinColumnNames as $childJoinColumnName) {
+                    $rowsToDelete[$index][$childJoinColumnName] = null;
+                }
+            }
+            $this->tablePersistenceEngine->saveRows($this->relatedTableMapping, $rowsToDelete, TablePersistenceEngine::SAVE_OPERATION_UPDATE);
+        }
 
     }
 
