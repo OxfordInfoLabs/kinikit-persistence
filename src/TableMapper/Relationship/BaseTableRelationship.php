@@ -48,17 +48,16 @@ abstract class BaseTableRelationship implements TableRelationship {
      */
     protected $deleteCascade;
 
+    /**
+     * @var TableQueryEngine
+     */
+    protected $tableQueryEngine;
+
 
     /**
      * @var TablePersistenceEngine
      */
     protected $tablePersistenceEngine;
-
-
-    /**
-     * @var TableQueryEngine
-     */
-    protected $tableQueryEngine;
 
     /**
      * Construct parent with related table mapper and the mapped member
@@ -76,7 +75,6 @@ abstract class BaseTableRelationship implements TableRelationship {
 
         $this->saveCascade = $saveCascade;
         $this->deleteCascade = $deleteCascade;
-
         $this->tablePersistenceEngine = new TablePersistenceEngine();
         $this->tableQueryEngine = new TableQueryEngine();
 

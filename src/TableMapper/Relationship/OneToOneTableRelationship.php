@@ -79,6 +79,42 @@ class OneToOneTableRelationship extends BaseTableRelationship {
      */
     public function retrieveChildData(&$parentRows) {
 
+        // Calculate which rows we need to fetch based upon parent rows with missing data.
+        $fetchRows = [];
+        $queryValues = [];
+        $queryClauses = [];
+        foreach ($parentRows as $index => $parentRow) {
+            if (!isset($parentRow[$this->mappedMember])) {
+                $pkValues = $this->parentMapping->getPrimaryKeyValues($parentRow);
+                $fetchRows[join("||", $pkValues)] = $index;
+
+                $queryClause = [];
+                foreach ($this->parentMapping->getPrimaryKeyColumnNames() as $pkIndex => $columnName) {
+                    $queryValues[] = $pkValues[$columnName];
+                    $queryClause[] = $this->childJoinColumnNames[$pkIndex] . "=?";
+                }
+                $queryClauses[] = "(" . join(" AND ", $queryClause) . ")";
+
+                $parentRows[$index][$this->mappedMember] = [];
+
+            }
+        }
+
+        // Fetch the required child rows and map back onto the parent.
+        if (sizeof($queryClauses) > 0) {
+            $fetchedRows = $this->tableQueryEngine->query($this->relatedTableMapping, "WHERE " . join(" OR ", $queryClauses), $queryValues);
+            foreach ($fetchedRows as $fetchedRow) {
+
+                $pkString = [];
+                foreach ($this->childJoinColumnNames as $childJoinColumnName) {
+                    $pkString[] = $fetchedRow[$childJoinColumnName];
+                }
+
+                $pkString = join("||", $pkString);
+                $parentRows[$fetchRows[$pkString]][$this->mappedMember][] = $fetchedRow;
+            }
+        }
+
     }
 
 

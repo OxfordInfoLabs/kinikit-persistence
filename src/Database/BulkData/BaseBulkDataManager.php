@@ -222,6 +222,7 @@ abstract class BaseBulkDataManager implements BulkDataManager {
      * @return PreparedStatement
      */
     protected function getPreparedStatement($operationKey, $statementSQL) {
+
         if (!isset($this->preparedStatements[$operationKey][$statementSQL])) {
             $this->preparedStatements[$operationKey] = [];
             $this->preparedStatements[$operationKey][$statementSQL] = $this->databaseConnection->createPreparedStatement($statementSQL);

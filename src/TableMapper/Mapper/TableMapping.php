@@ -68,7 +68,7 @@ class TableMapping {
      * @param string $tableName
      * @param TableRelationship[] $relationships
      */
-    public function __construct($tableName, $relationships = [], $databaseConnection = null) {
+    public function __construct($tableName, $relationships = [], $databaseConnection = null, $primaryKeyColumnNames = null) {
         $this->tableName = $tableName;
         $this->relationships = $relationships;
 
@@ -83,6 +83,8 @@ class TableMapping {
                 $relationship->setParentMapping($this);
             }
         }
+
+        $this->primaryKeyColumnNames = $primaryKeyColumnNames;
     }
 
     /**

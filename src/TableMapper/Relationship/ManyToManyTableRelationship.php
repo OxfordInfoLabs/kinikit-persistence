@@ -83,7 +83,73 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
      * @return array
      */
     public function retrieveChildData(&$parentRows) {
-        // TODO: Implement retrieveChildData() method.
+
+        $parentTableName = $this->parentMapping->getTableName();
+
+        $fetchChildren = [];
+        $fetchClauses = [];
+        $fetchValues = [];
+        foreach ($parentRows as $index => $parentRow) {
+            if (!isset($parentRow[$this->mappedMember])) {
+                $parentPks = $this->parentMapping->getPrimaryKeyValues($parentRow);
+                $fetchChildren[join("||", $parentPks)] = $index;
+
+                $clause = [];
+                foreach ($parentPks as $column => $value) {
+                    $clause[] = $parentTableName . "_" . $column . " =?";
+                    $fetchValues[] = $value;
+                }
+                $fetchClauses[] = "(" . join(" AND ", $clause) . ")";
+
+                $parentRows[$index][$this->mappedMember] = [];
+            }
+        }
+
+        if (sizeof($fetchChildren) > 0) {
+            $childTableName = $this->relatedTableMapping->getTableName();
+            $linkTableName = $this->linkTableName;
+            $childPKColumns = $this->relatedTableMapping->getPrimaryKeyColumnNames();
+            $parentPKColumns = $this->parentMapping->getPrimaryKeyColumnNames();
+
+            $linkTableMapping = $this->getLinkTableMapping();
+            $linkRecords = $this->tableQueryEngine->query($linkTableMapping, "WHERE " . join(" OR ", $fetchClauses), $fetchValues);
+
+            // Now create a relational lookup table for mapping after the fact
+            $parentLookup = [];
+            $childClauses = [];
+            $childValues = [];
+            foreach ($linkRecords as $linkRecord) {
+                $parentPk = [];
+                foreach ($parentPKColumns as $parentPKColumn) {
+                    $parentPk[] = $linkRecord[$parentTableName . "_" . $parentPKColumn];
+                }
+
+                $childPk = [];
+                $childClause = [];
+                foreach ($childPKColumns as $childPKColumn) {
+                    $childPk[] = $linkRecord[$childTableName . "_" . $childPKColumn];
+                    $childValues[] = $linkRecord[$childTableName . "_" . $childPKColumn];
+                    $childClause[] = "$childPKColumn=?";
+                }
+                $childClauses[] = "(" . join(" AND ", $childClause) . ")";
+
+                $parentLookup[join("||", $childPk)] = join("||", $parentPk);
+
+            }
+
+            // Now grab the children
+            $children = $this->tableQueryEngine->query($this->relatedTableMapping, "WHERE " . join(" OR ", $childClauses), $childValues);
+
+            // Now map the child back to the parent
+            foreach ($children as $child) {
+                $pk = join("||", $this->relatedTableMapping->getPrimaryKeyValues($child));
+                if (isset($parentLookup[$pk])) {
+                    $parentRows[$fetchChildren[$parentLookup[$pk]]][$this->mappedMember][] = $child;
+                }
+            }
+
+        }
+
     }
 
 
@@ -122,12 +188,10 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
             }
         }
 
-        $linkTableMapper = new TableMapping($this->linkTableName);
+        $linkTableMapper = $this->getLinkTableMapping();
         $persistenceEngine = new TablePersistenceEngine();
         $persistenceEngine->saveRows($linkTableMapper, $insertData, $saveType);
     }
-
-
 
 
     /**
@@ -139,6 +203,75 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
      * @param array $childRows
      */
     public function unrelateChildren($parentRows, $childRows = null) {
-        // TODO: Implement unrelateChildren() method.
+
+        if (sizeof($parentRows) == 0)
+            return;
+
+        // Ensure we have loaded data for parent rows.
+        $this->retrieveChildData($parentRows);
+
+        $parentTableName = $this->parentMapping->getTableName();
+        $childTableName = $this->getRelatedTableMapping()->getTableName();
+        $parentPrimaryKeyColumns = $this->parentMapping->getPrimaryKeyColumnNames();
+        $childPrimaryKeyColumns = $this->getRelatedTableMapping()->getPrimaryKeyColumnNames();
+
+        $linkRowsToDelete = [];
+        $rowsToDelete = [];
+        foreach ($parentRows as $parentRow) {
+            if (isset($parentRow[$this->mappedMember]) && is_array($parentRow[$this->mappedMember]) && sizeof($parentRow[$this->mappedMember])) {
+                $children = isset($parentRow[$this->mappedMember][0]) ? $parentRow[$this->mappedMember] : [$parentRow[$this->mappedMember]];
+
+                foreach ($children as $child) {
+
+
+                    $linkRow = [];
+                    foreach ($parentPrimaryKeyColumns as $parentPrimaryKeyColumn) {
+                        $columnName = $parentTableName . "_" . $parentPrimaryKeyColumn;
+                        $linkRow[$columnName] = $parentRow[$parentPrimaryKeyColumn] ?? "";
+                    }
+
+                    foreach ($childPrimaryKeyColumns as $childPrimaryKeyColumn) {
+                        $columnName = $childTableName . "_" . $childPrimaryKeyColumn;
+                        $linkRow[$columnName] = $child[$childPrimaryKeyColumn] ?? "";
+                    }
+                    $linkRowsToDelete[] = $linkRow;
+                }
+
+                $rowsToDelete = array_merge($rowsToDelete, $children);
+            }
+        }
+
+
+        if (sizeof($linkRowsToDelete) > 0) {
+            $linkTableMapping = $this->getLinkTableMapping();
+            $persistenceEngine = new TablePersistenceEngine();
+            $persistenceEngine->deleteRows($linkTableMapping, $linkRowsToDelete);
+        }
+
+        if ($this->deleteCascade) {
+            $this->tablePersistenceEngine->deleteRows($this->relatedTableMapping, $rowsToDelete);
+        }
+
     }
+
+
+    // Get the link table mapping
+    private function getLinkTableMapping() {
+
+        $parentTableName = $this->parentMapping->getTableName();
+        $childTableName = $this->relatedTableMapping->getTableName();
+
+        $linkTablePkColumns = [];
+        foreach ($this->parentMapping->getPrimaryKeyColumnNames() as $columnName) {
+            $linkTablePkColumns[] = $parentTableName . "_" . $columnName;
+        }
+        foreach ($this->relatedTableMapping->getPrimaryKeyColumnNames() as $columnName) {
+            $linkTablePkColumns[] = $childTableName . "_" . $columnName;
+        }
+
+        return new TableMapping($this->linkTableName, [], $this->relatedTableMapping->getDatabaseConnection(), $linkTablePkColumns);
+
+    }
+
+
 }

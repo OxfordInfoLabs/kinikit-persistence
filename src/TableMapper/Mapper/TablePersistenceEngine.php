@@ -56,11 +56,6 @@ class TablePersistenceEngine {
         }
 
 
-        // Delete the rows
-        $bulkDataManager = $tableMapping->getDatabaseConnection()->getBulkDataManager();
-        $bulkDataManager->delete($tableMapping->getTableName(), $rows);
-
-
         // Gather objects for use below.
         $relationships = $tableMapping->getRelationships();
 
@@ -70,6 +65,11 @@ class TablePersistenceEngine {
                 $relationship->unrelateChildren($rows);
             }
         }
+
+
+        // Delete the rows
+        $bulkDataManager = $tableMapping->getDatabaseConnection()->getBulkDataManager();
+        $bulkDataManager->delete($tableMapping->getTableName(), $rows, $tableMapping->getPrimaryKeyColumnNames());
 
 
     }

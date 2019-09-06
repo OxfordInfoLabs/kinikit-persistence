@@ -70,7 +70,74 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      * @return array|void
      */
     public function retrieveChildData(&$parentRows) {
-        // TODO: Implement retrieveChildData() method.
+
+        // Calculate which rows we need to fetch based upon parent rows with missing data.
+        $fetchChildren = [];
+        $fetchParents = [];
+        $parentQueryValues = [];
+        $parentQueryClauses = [];
+        $childQueryValues = [];
+        $childQueryClauses = [];
+        foreach ($parentRows as $index => $parentRow) {
+            if (!isset($parentRow[$this->mappedMember])) {
+
+                $joinValues = [];
+                foreach ($this->parentJoinColumnNames as $columnName) {
+                    if (isset($parentRow[$columnName])) {
+                        $joinValues[] = $parentRow[$columnName];
+                        $childQueryValues[] = $parentRow[$columnName];
+                    }
+                }
+
+
+                // If we have the required data in the parent object but need to pull the child, add it to our list of clauses for pulling.
+                if (sizeof($joinValues) == sizeof($this->parentJoinColumnNames)) {
+                    $fetchChildren[join("||", $joinValues)] = $index;
+
+                    $queryClause = [];
+                    foreach ($this->relatedTableMapping->getPrimaryKeyColumnNames() as $childPkColumn) {
+                        $queryClause[] = $childPkColumn . "=?";
+                    }
+                    $childQueryClauses[] = "(" . join(" AND ", $queryClause) . ")";
+
+                    $parentRows[$index][$this->mappedMember] = [];
+                } else {
+                    $pks = $this->parentMapping->getPrimaryKeyValues($parentRow);
+
+                    $queryClause = [];
+                    foreach ($pks as $pkColumn => $pkValue) {
+                        $queryClause[] = $pkColumn . "=?";
+                        $parentQueryValues[] = $pkValue;
+                    }
+                    $parentQueryClauses[] = "(" . join(" AND ", $queryClause) . ")";
+
+                    $fetchParents[join("||", $pks)] = $index;
+                }
+
+            }
+        }
+
+        if (sizeof($fetchParents) > 0) {
+            $parents = $this->tableQueryEngine->query($this->parentMapping, "WHERE " . join(" OR ", $parentQueryClauses), $parentQueryValues);
+            foreach ($parents as $key => $parent) {
+                if (isset($fetchParents[$key])) {
+                    foreach ($parent as $itemKey => $value) {
+                        $parentRows[$fetchParents[$key]][$itemKey] = $value;
+                    }
+                }
+            }
+        }
+
+        if (sizeof($fetchChildren) > 0) {
+            $children = $this->tableQueryEngine->query($this->relatedTableMapping, "WHERE " . join(" OR ", $childQueryClauses), $childQueryValues);
+            foreach ($children as $key => $child) {
+                if (isset($fetchChildren[$key])) {
+                    $parentRows[$fetchChildren[$key]][$this->mappedMember] = $child;
+                }
+            }
+        }
+
+
     }
 
 
@@ -92,19 +159,24 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      */
     public function unrelateChildren($parentRows, $childRows = null) {
 
-        $childPKColumns = $this->relatedTableMapping->getPrimaryKeyColumnNames();
+        $rowsToDelete = $childRows ? $childRows : [];
 
-        $childPks = [];
-        foreach ($parentRows as $parentRow) {
-            $childPk = [];
-            foreach ($this->parentJoinColumnNames as $index => $parentJoinColumnName) {
-                $childPk[$childPKColumns[$index]] = $parentRow[$parentJoinColumnName];
+        if (sizeof($rowsToDelete) == 0) {
+
+            // Retrieve and fill in child data for each parent row.
+            $this->retrieveChildData($parentRows);
+
+            foreach ($parentRows as $parentRow) {
+                if (isset($parentRow[$this->mappedMember]) && is_array($parentRow[$this->mappedMember]) && sizeof($parentRow[$this->mappedMember])) {
+                    $children = isset($parentRow[$this->mappedMember][0]) ? $parentRow[$this->mappedMember] : [$parentRow[$this->mappedMember]];
+                    $rowsToDelete = array_merge($rowsToDelete, $children);
+                }
             }
-            $childPks[] = $childPk;
         }
 
+
         if ($this->deleteCascade) {
-            $this->tablePersistenceEngine->deleteRows($this->relatedTableMapping, $childPks);
+            $this->tablePersistenceEngine->deleteRows($this->relatedTableMapping, $rowsToDelete);
         }
 
     }

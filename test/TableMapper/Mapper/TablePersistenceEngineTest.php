@@ -516,6 +516,43 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testOneToOneRelatedEntitiesAreDeletedOrUnrelatedOnDeleteWhenShallowParentSuppliedToDelete() {
+
+        $childMapping = new TableMapping("example_child_with_parent_key");
+
+        // Create a mapper with a one to one table relationship with another child.
+        $tableMapping = new TableMapping("example_parent",
+            [new OneToOneTableRelationship($childMapping,
+                "child1", "parent_id")]);
+
+
+        // Check delete works including related entity when delete cascade is set.
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 1")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 2")));
+        $this->persistenceEngine->deleteRows($tableMapping, ["id" => 1]);
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 1")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 2")));
+
+
+        // Switch off delete cascade
+        $tableMapping = new TableMapping("example_parent",
+            [new OneToOneTableRelationship($childMapping,
+                "child1", "parent_id", false, false)]);
+
+        // Check unrelation only when delete cascade is disabled.
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 2")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 3")));
+
+        $this->persistenceEngine->deleteRows($tableMapping, ["id" => 2]);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 2")));
+        $childRows = $this->queryEngine->query($childMapping, "WHERE id = 3");
+        $this->assertEquals(1, sizeof($childRows));
+        $this->assertNull($childRows[3]["parent_id"]);
+
+    }
+
+
     public function testOneToManyRelatedEntitiesAreDeletedOnDeleteIfDeleteCascadeSet() {
 
         $childMapping = new TableMapping("example_child_with_parent_key");
@@ -570,6 +607,28 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testOneToManyRelatedEntitiesAreDeletedOnDeleteWhenShallowParentSuppliedToDelete() {
+
+        $childMapping = new TableMapping("example_child_with_parent_key");
+
+        // Create a mapper with a one to one table relationship with another child.
+        $tableMapping = new TableMapping("example_parent",
+            [new OneToManyTableRelationship($childMapping,
+                "child1", "parent_id")]);
+
+
+        // Check delete works including related entity when delete cascade is set.
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 3")));
+        $this->assertEquals(3, sizeof($this->queryEngine->query($childMapping, "WHERE parent_id = 3")));
+        $this->persistenceEngine->deleteRows($tableMapping, ["id" => 3]);
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 3")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE parent_id = 3")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id IN (4,5,6)")));
+
+
+    }
+
+
     public function testManyToOneRelationshipEntitiesAreDeletedOnDeleteIfDeleteCascadeSet() {
 
         $childMapping = new TableMapping("example_child");
@@ -619,4 +678,116 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+    public function testManyToOneRelationshipEntitiesAreDeletedOnDeleteWhenShallowParentSupplied() {
+
+        $childMapping = new TableMapping("example_child");
+
+        // Create a mapper with a one to one table relationship with another child.
+        $tableMapping = new TableMapping("example_parent",
+            [new ManyToOneTableRelationship($childMapping,
+                "child1", "child_id", false, true)]);
+
+
+        // Check delete works including related entity when delete cascade is set.
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 2 AND child_id = 1")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 1")));
+
+        $this->persistenceEngine->deleteRows($tableMapping, ["id" => 2]);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 2 AND child_id = 1")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 1")));
+
+
+    }
+
+
+    public function testManyToOneRelationshipEntitiesAreDeletedOnDeleteWhenShallowParentSuppliedWithChildKey() {
+
+        $childMapping = new TableMapping("example_child");
+
+        // Create a mapper with a one to one table relationship with another child.
+        $tableMapping = new TableMapping("example_parent",
+            [new ManyToOneTableRelationship($childMapping,
+                "child1", "child_id", false, true)]);
+
+
+        // Check delete works including related entity when delete cascade is set.
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 2 AND child_id = 1")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 1")));
+
+        $this->persistenceEngine->deleteRows($tableMapping, ["id" => 2, "child_id" => 1]);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 2 AND child_id = 1")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 1")));
+
+
+    }
+
+
+    public function testManyToManyRelationshipEntitiesAreDeletedOnDeleteIfDeleteCascadeSet() {
+
+        $childMapping = new TableMapping("example_child2");
+
+        $tableMapping = new TableMapping("example_parent",
+            [new ManyToManyTableRelationship($childMapping, "manytomany", "example_many_to_many_link", false, true)]);
+
+
+        // Get the full row.
+        $data = $this->queryEngine->query($tableMapping, "WHERE id = 1");
+
+        // Check delete works including related entity when delete cascade is set.
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 1")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 1")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 2")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 3")));
+
+        $results = $this->databaseConnection->query("SELECT COUNT(*) total FROM example_many_to_many_link WHERE example_parent_id = 1");
+        $this->assertEquals(3, $results->nextRow()["total"]);
+
+
+        $this->persistenceEngine->deleteRows($tableMapping, $data[1]);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 1")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 1")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 2")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 3")));
+
+        $results = $this->databaseConnection->query("SELECT COUNT(*) total FROM example_many_to_many_link WHERE example_parent_id = 1");
+        $this->assertEquals(0, $results->nextRow()["total"]);
+
+
+    }
+
+
+    public function testManyToManyRelationshipEntitiesAreDeletedOnDeleteIfDeleteCascadeWhenShallowParentSupplied() {
+
+        $childMapping = new TableMapping("example_child2");
+
+        $tableMapping = new TableMapping("example_parent",
+            [new ManyToManyTableRelationship($childMapping, "manytomany", "example_many_to_many_link", false, true)]);
+
+
+        // Check delete works including related entity when delete cascade is set.
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 1")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 1")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 2")));
+        $this->assertEquals(1, sizeof($this->queryEngine->query($childMapping, "WHERE id = 3")));
+
+        $results = $this->databaseConnection->query("SELECT COUNT(*) total FROM example_many_to_many_link WHERE example_parent_id = 1");
+        $this->assertEquals(3, $results->nextRow()["total"]);
+
+
+        $this->persistenceEngine->deleteRows($tableMapping, ["id" => 1]);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE id = 1")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 1")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 2")));
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 3")));
+
+        $results = $this->databaseConnection->query("SELECT COUNT(*) total FROM example_many_to_many_link WHERE example_parent_id = 1");
+        $this->assertEquals(0, $results->nextRow()["total"]);
+
+    }
+
 }
