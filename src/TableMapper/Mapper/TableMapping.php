@@ -131,7 +131,8 @@ class TableMapping {
     public function getPrimaryKeyValues($dataRow) {
         $pkValues = [];
         foreach ($this->getPrimaryKeyColumnNames() as $columnName) {
-            $pkValues[$columnName] = $dataRow[$columnName];
+            if (isset($dataRow[$columnName]))
+                $pkValues[$columnName] = $dataRow[$columnName];
         }
 
         return $pkValues;

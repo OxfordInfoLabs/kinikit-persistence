@@ -167,10 +167,16 @@ abstract class BaseTableRelationship implements TableRelationship {
 
         // Synchronise child fields for all parent items.
         foreach ($relationshipData["relatedItemsByParent"] as $index => $relatedItems) {
-            foreach ($relatedItems["items"] as $itemIndex => $item) {
+            if (sizeof($relatedItems["items"]) > 0) {
+                foreach ($relatedItems["items"] as $itemIndex => $item) {
+                    foreach ($parentFields as $fieldIndex => $parentField) {
+                        $childField = $childFields[$fieldIndex];
+                        $relationshipData["relatedItemsByParent"][$index]["parentRow"][$parentField] = $item[$childField];
+                    }
+                }
+            } else {
                 foreach ($parentFields as $fieldIndex => $parentField) {
-                    $childField = $childFields[$fieldIndex];
-                    $relationshipData["relatedItemsByParent"][$index]["parentRow"][$parentField] = $item[$childField];
+                    $relationshipData["relatedItemsByParent"][$index]["parentRow"][$parentField] = null;
                 }
             }
         }
@@ -204,10 +210,22 @@ abstract class BaseTableRelationship implements TableRelationship {
      * @param $saveType
      * @param $rowData
      */
-    protected function performSaveOperationOnChild($saveType, &$relationshipData) {
+    protected function performSaveOperationOnChildren($saveType, &$relationshipData) {
 
-        // Get the global persistence engine instance and save the child.
-        $this->tablePersistenceEngine->__saveRows($this->relatedTableMapping, $relationshipData["allRelatedItems"], $saveType);
+        // If saving, ensure that we also clean up any no longer required items.
+        if ($saveType == TablePersistenceEngine::SAVE_OPERATION_SAVE) {
+
+            $removeObjects = $relationshipData["removeObjects"] ?? [];
+
+            if ($removeObjects) {
+                $this->unrelateChildren($removeObjects);
+            }
+        }
+
+
+        // Get the global persistence engine instance and save the children if they exist
+        if (sizeof($relationshipData["allRelatedItems"]))
+            $this->tablePersistenceEngine->__saveRows($this->relatedTableMapping, $relationshipData["allRelatedItems"], $saveType);
 
     }
 

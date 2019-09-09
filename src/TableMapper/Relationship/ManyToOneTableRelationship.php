@@ -89,7 +89,6 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
                     }
                 }
 
-
                 // If we have the required data in the parent object but need to pull the child, add it to our list of clauses for pulling.
                 if (sizeof($joinValues) == sizeof($this->parentJoinColumnNames)) {
                     $fetchChildren[join("||", $joinValues)] = $index;
@@ -144,7 +143,7 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
     public function preParentSaveOperation($saveType, &$relationshipData) {
 
         // Save the child first
-        $this->performSaveOperationOnChild($saveType, $relationshipData);
+        $this->performSaveOperationOnChildren($saveType, $relationshipData);
 
         // Synchronise parent columns.
         $this->synchroniseParentFieldsFromChild($this->relatedTableMapping->getPrimaryKeyColumnNames(), $this->parentJoinColumnNames, $relationshipData);
@@ -157,20 +156,17 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      * @param array $parentRows
      * @param null $childRows
      */
-    public function unrelateChildren($parentRows, $childRows = null) {
+    public function unrelateChildren($parentRows) {
 
-        $rowsToDelete = $childRows ? $childRows : [];
+        $rowsToDelete = [];
 
-        if (sizeof($rowsToDelete) == 0) {
+        // Retrieve and fill in child data for each parent row.
+        $this->retrieveChildData($parentRows);
 
-            // Retrieve and fill in child data for each parent row.
-            $this->retrieveChildData($parentRows);
-
-            foreach ($parentRows as $parentRow) {
-                if (isset($parentRow[$this->mappedMember]) && is_array($parentRow[$this->mappedMember]) && sizeof($parentRow[$this->mappedMember])) {
-                    $children = isset($parentRow[$this->mappedMember][0]) ? $parentRow[$this->mappedMember] : [$parentRow[$this->mappedMember]];
-                    $rowsToDelete = array_merge($rowsToDelete, $children);
-                }
+        foreach ($parentRows as $parentRow) {
+            if (isset($parentRow[$this->mappedMember]) && is_array($parentRow[$this->mappedMember]) && sizeof($parentRow[$this->mappedMember])) {
+                $children = isset($parentRow[$this->mappedMember][0]) ? $parentRow[$this->mappedMember] : [$parentRow[$this->mappedMember]];
+                $rowsToDelete = array_merge($rowsToDelete, $children);
             }
         }
 

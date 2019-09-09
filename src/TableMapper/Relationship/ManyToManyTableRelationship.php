@@ -163,7 +163,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
     public function postParentSaveOperation($saveType, &$relationshipData) {
 
         // Perform a save operation using the child rows.
-        $this->performSaveOperationOnChild($saveType, $relationshipData);
+        $this->performSaveOperationOnChildren($saveType, $relationshipData);
 
         $parentTableName = $this->parentMapping->getTableName();
         $childTableName = $this->getRelatedTableMapping()->getTableName();
@@ -202,7 +202,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
      * @param array $parentRows
      * @param array $childRows
      */
-    public function unrelateChildren($parentRows, $childRows = null) {
+    public function unrelateChildren($parentRows) {
 
         if (sizeof($parentRows) == 0)
             return;

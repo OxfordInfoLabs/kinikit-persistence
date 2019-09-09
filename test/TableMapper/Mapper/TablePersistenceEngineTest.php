@@ -400,8 +400,10 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanSaveOneToOneRelationships() {
 
+        $childMapping = new TableMapping("example_child_with_parent_key");
+
         $tableMapping = new TableMapping("example_parent", [
-            new OneToOneTableRelationship("example_child_with_parent_key",
+            new OneToOneTableRelationship($childMapping,
                 "child", "parent_id")
         ]);
 
@@ -432,7 +434,220 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
         // Do an unlink (set child to null)
         $reData[5]["child"] = null;
 
-//        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE name = 'Pickle'");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle", "child_id" => null]], $reData);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id = 8")));
+
+
+    }
+
+
+    public function testCanSaveOneToManyRelationships() {
+
+        $childMapping = new TableMapping("example_child_with_parent_key");
+
+        $tableMapping = new TableMapping("example_parent", [
+            new OneToManyTableRelationship($childMapping,
+                "child", "parent_id")
+        ]);
+
+
+        // Do a create
+        $data = [
+            "name" => "Pickle",
+            "child" => [
+                [
+                    "description" => "Pineapple Farming"
+                ],
+                [
+                    "description" => "Wind Surfing"
+                ],
+                [
+                    "description" => "Archery"
+                ]
+            ]
+        ];
+
+        $result = $this->persistenceEngine->saveRows($tableMapping, $data);
+
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "child" => [
+                ["id" => 8, "parent_id" => 5, "description" => "Pineapple Farming"],
+                ["id" => 9, "parent_id" => 5, "description" => "Wind Surfing"],
+                ["id" => 10, "parent_id" => 5, "description" => "Archery"]
+            ],
+
+            "child_id" => null]], $reData);
+
+
+        // Do an update
+        $reData[5]["child"][1]["description"] = "Finger Chopping";
+        $reData[5]["child"][2]["description"] = "Jogging";
+
+
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "child" => [
+                ["id" => 8, "parent_id" => 5, "description" => "Pineapple Farming"],
+                ["id" => 9, "parent_id" => 5, "description" => "Finger Chopping"],
+                ["id" => 10, "parent_id" => 5, "description" => "Jogging"]
+            ],
+
+            "child_id" => null]], $reData);
+
+
+        // Remove one from the stack
+        array_splice($reData[5]["child"], 1, 1);
+
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "child" => [
+                ["id" => 8, "parent_id" => 5, "description" => "Pineapple Farming"],
+                ["id" => 10, "parent_id" => 5, "description" => "Jogging"]
+            ],
+
+            "child_id" => null]], $reData);
+
+
+        // Do an unlink (set child to null)
+        $reData[5]["child"] = null;
+
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE name = 'Pickle'");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle", "child_id" => null]], $reData);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id IN (8,9,10)")));
+
+
+    }
+
+
+    public function testCanSaveManyToOneRelationships() {
+
+        $childMapping = new TableMapping("example_child");
+
+        // Create a mapper with a one to one table relationship with another child.
+        $tableMapping = new TableMapping("example_parent",
+            [new ManyToOneTableRelationship($childMapping,
+                "child", "child_id", false, true)]);
+
+
+        $data = [
+            "name" => "Bonzo",
+            "child" => [
+                "description" => "Dog Catching"
+            ]
+        ];
+
+        $result = $this->persistenceEngine->saveRows($tableMapping, $data);
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Bonzo",
+            "child" =>
+                ["id" => 8, "description" => "Dog Catching", "child2_id" => null],
+            "child_id" => 8]], $reData);
+
+
+        $reData[5]["child"]["description"] = "Cat Stroking";
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Bonzo",
+            "child" =>
+                ["id" => 8, "description" => "Cat Stroking", "child2_id" => null],
+            "child_id" => 8]], $reData);
+
+
+        $reData[5]["child"] = null;
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Bonzo",
+            "child_id" => null]], $reData);
+
+
+    }
+
+
+    public function testCanSaveManyToManyRelationships() {
+
+        $childMapping = new TableMapping("example_child2");
+        $tableMapping = new TableMapping("example_parent", [new ManyToManyTableRelationship($childMapping, "children", "example_many_to_many_link")]);
+
+
+        // Do a create
+        $data = [
+            "name" => "Pickle",
+            "children" => [
+                [
+                    "profession" => "Pineapple Farming"
+                ],
+                [
+                    "profession" => "Wind Surfing"
+                ],
+                [
+                    "profession" => "Archery"
+                ]
+            ]
+        ];
+
+
+        $this->persistenceEngine->saveRows($tableMapping, $data);
+
+
+        // Check update worked and order remains the same.
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "children" =>
+                [
+                    ["id" => 6, "profession" => "Pineapple Farming"],
+                    ["id" => 7, "profession" => "Wind Surfing"],
+                    ["id" => 8, "profession" => "Archery"],
+                ],
+            "child_id" => null]], $reData);
+
+
+        $reData[5]["children"][1] = [
+            "profession" => "Chatting"
+        ];
+
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "children" =>
+                [
+                    ["id" => 6, "profession" => "Pineapple Farming"],
+                    ["id" => 9, "profession" => "Chatting"],
+                    ["id" => 8, "profession" => "Archery"],
+                ],
+            "child_id" => null]], $reData);
+
+
+        // Now remove an item and check update is removed correctly.
+        array_splice($reData[5]["children"], 1, 1);
+
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "children" =>
+                [
+                    ["id" => 6, "profession" => "Pineapple Farming"],
+                    ["id" => 8, "profession" => "Archery"],
+                ],
+            "child_id" => null]], $reData);
 
 
     }

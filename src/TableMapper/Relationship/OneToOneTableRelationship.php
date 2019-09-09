@@ -130,8 +130,9 @@ class OneToOneTableRelationship extends BaseTableRelationship {
         // Synchronise the child fields from the parent
         $this->synchroniseChildFieldsFromParent($this->parentMapping->getPrimaryKeyColumnNames(), $this->childJoinColumnNames, $relationshipData);
 
-        // Perform a save operation using the child rows.
-        $this->performSaveOperationOnChild($saveType, $relationshipData);
+        // Save the children
+        $this->performSaveOperationOnChildren($saveType, $relationshipData);
+
 
     }
 
@@ -143,22 +144,20 @@ class OneToOneTableRelationship extends BaseTableRelationship {
      * @param null $childRows
      * @return mixed|void
      */
-    public function unrelateChildren($parentRows, $childRows = null) {
+    public function unrelateChildren($parentRows) {
 
-        $rowsToDelete = $childRows ? $childRows : [];
+        $rowsToDelete = [];
 
-        if (sizeof($rowsToDelete) == 0) {
+        // Retrieve and fill in child data for each parent row.
+        $this->retrieveChildData($parentRows);
 
-            // Retrieve and fill in child data for each parent row.
-            $this->retrieveChildData($parentRows);
-
-            foreach ($parentRows as $parentRow) {
-                if (isset($parentRow[$this->mappedMember]) && is_array($parentRow[$this->mappedMember]) && sizeof($parentRow[$this->mappedMember])) {
-                    $children = isset($parentRow[$this->mappedMember][0]) ? $parentRow[$this->mappedMember] : [$parentRow[$this->mappedMember]];
-                    $rowsToDelete = array_merge($rowsToDelete, $children);
-                }
+        foreach ($parentRows as $parentRow) {
+            if (isset($parentRow[$this->mappedMember]) && is_array($parentRow[$this->mappedMember]) && sizeof($parentRow[$this->mappedMember])) {
+                $children = isset($parentRow[$this->mappedMember][0]) ? $parentRow[$this->mappedMember] : [$parentRow[$this->mappedMember]];
+                $rowsToDelete = array_merge($rowsToDelete, $children);
             }
         }
+
 
         // If delete cascade, delete all child rows.  Otherwise, update to null
         if ($this->deleteCascade) {

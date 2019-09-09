@@ -84,6 +84,14 @@ class TablePersistenceEngine {
      */
     public function __saveRows($tableMapping, &$rows, $saveOperation) {
 
+        // Pull a reference copy of these rows for change detection purposes if doing a save operation.
+        if ($saveOperation == self::SAVE_OPERATION_SAVE) {
+            $storedRows = $this->getStoredRows($tableMapping, $rows);
+        } else {
+            $storedRows = [];
+        }
+
+
         // Gather objects for use below.
         $relationships = $tableMapping->getRelationships();
 
@@ -94,7 +102,7 @@ class TablePersistenceEngine {
             $relationalData = [];
 
             // Get relational save data
-            $this->populateRelationalData($relationships, $rows, $relationalData);
+            $this->populateRelationalData($relationships, $rows, $relationalData, $storedRows);
 
 
             // Run pre-save operations where certain relationship types require it.
@@ -125,30 +133,73 @@ class TablePersistenceEngine {
 
 
     // Fill the save data with a relational structure from the save row array.
-    private function populateRelationalData($relationships, &$saveRows, &$relationalData) {
+    private function populateRelationalData($relationships, &$saveRows, &$relationalData, $storedRows) {
 
         foreach ($relationships as $index => $relationship) {
-            $relationalData[$index] = ["allRelatedItems" => [], "relatedItemsByParent" => []];
+            $relationalData[$index] = ["allRelatedItems" => [], "allRelatedItemsByPk" => [], "relatedItemsByParent" => [], "removeObjects" => []];
             $mappedMember = $relationship->getMappedMember();
+            $relatedMapping = $relationship->getRelatedTableMapping();
             foreach ($saveRows as $rowIndex => $saveRow) {
 
                 $relationalData[$index]["relatedItemsByParent"][$rowIndex] = ["parentRow" => &$saveRows[$rowIndex], "items" => []];
 
                 // If we have relational data, add it in with a parent indicator
                 if (isset($saveRow[$mappedMember])) {
+
                     if (isset($saveRow[$mappedMember][0])) {
                         for ($i = 0; $i < sizeof($saveRow[$mappedMember]); $i++) {
+                            $pk = join("||", $relatedMapping->getPrimaryKeyValues($saveRow[$mappedMember][0]));
+                            if ($pk) {
+                                $relationalData[$index]["allRelatedItemsByPk"][$pk] = &$saveRows[$rowIndex][$mappedMember][$i];
+                            }
                             $relationalData[$index]["allRelatedItems"][] = &$saveRows[$rowIndex][$mappedMember][$i];
                             $relationalData[$index]["relatedItemsByParent"][$rowIndex]["items"][] = &$saveRows[$rowIndex][$mappedMember][$i];
                         }
                     } else {
+                        $pk = join("||", $relatedMapping->getPrimaryKeyValues($saveRow[$mappedMember]));
+                        if ($pk) {
+                            $relationalData[$index]["allRelatedItemsByPk"][$pk] = &$saveRows[$rowIndex][$mappedMember];
+                        }
                         $relationalData[$index]["allRelatedItems"][] = &$saveRows[$rowIndex][$mappedMember];
                         $relationalData[$index]["relatedItemsByParent"][$rowIndex]["items"][] = &$saveRows[$rowIndex][$mappedMember];
                     }
                 }
 
             }
+
+            // If we have an array of stored rows passed as well (for save mode) ensure that these get passed into the structure as well.
+            if ($storedRows) {
+                foreach ($storedRows as $rowIndex => $storedRow) {
+                    if (isset($storedRow[$mappedMember])) {
+
+                        // Set up a remove object
+                        $removeObject = $storedRow;
+                        $removeObject[$mappedMember] = [];
+
+                        $storedItems = isset($storedRow[$mappedMember][0]) ? $storedRow[$mappedMember] : [$storedRow[$mappedMember]];
+                        foreach ($storedItems as $storedItem) {
+                            $pk = join("||", $relatedMapping->getPrimaryKeyValues($storedItem));
+
+                            if (!isset($relationalData[$index]["allRelatedItemsByPk"][$pk])) {
+                                $removeObject[$mappedMember][] = $storedItem;
+                            }
+
+                        }
+
+                        // If at least one child to remove, add the parent row to the stack.
+                        if (sizeof($removeObject[$mappedMember]))
+                            $relationalData[$index]["removeObjects"][] = $removeObject;
+
+                    }
+                }
+            }
+
+
+
+
         }
+
+
     }
 
 
@@ -191,6 +242,41 @@ class TablePersistenceEngine {
                 $bulkDataManager->replace($tableMapping->getTableName(), $data, $saveColumns);
                 break;
         }
+
+    }
+
+
+    /**
+     * Get stored copy of the supplied rows using the table mapping.
+     *
+     * @param TableMapping $tableMapping
+     * @param array $rows
+     */
+    private function getStoredRows($tableMapping, $rows) {
+
+        $pkValues = [];
+        $pkClauses = [];
+        $rowMappings = [];
+        foreach ($rows as $index => $row) {
+            $pk = $tableMapping->getPrimaryKeyValues($row);
+            if (sizeof($pk) == sizeof($tableMapping->getPrimaryKeyColumnNames())) {
+                $clause = [];
+                foreach ($pk as $key => $value) {
+                    $pkValues[] = $value;
+                    $clause[] = "$key=?";
+                }
+                $pkClauses[] = "(" . join(" AND ", $clause) . ")";
+                $rowMappings[join("||", $pkValues)] = $index;
+            }
+        }
+
+        if (sizeof($pkClauses) > 0) {
+            $queryEngine = new TableQueryEngine();
+            return $queryEngine->query($tableMapping, "WHERE " . join(" OR ", $pkClauses), $pkValues);
+        } else {
+            return [];
+        }
+
 
     }
 

@@ -82,13 +82,13 @@ interface TableRelationship {
 
 
     /**
-     * Unrelate children from parent.  If explicit set of child rows passed
-     * these are unrelated otherwise it is assumed that all child rows from the
-     * parent are to be processed.
+     * Unrelate children from parent.  This will effectively unrelate
+     * all attached children for each parent row passed.  If no child entries exist
+     * all entries will be loaded from the db and removed for the delete scenario.
      *
      * @param array $parentRows
      * @param array $childRows
      */
-    public function unrelateChildren($parentRows, $childRows = null);
+    public function unrelateChildren($parentRows);
 
 }
