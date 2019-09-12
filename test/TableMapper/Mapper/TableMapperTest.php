@@ -121,29 +121,29 @@ class TableMapperTest extends TestCase {
 
         // Single id syntax
         $this->assertEquals([
-            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
-            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
+            1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+            3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
         ], $this->tableMapper->multiFetch($tableMapping, [1, 3]));
 
 
         // Order preservation
         $this->assertEquals([
-            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"],
-            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+            3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"],
+            1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
         ], $this->tableMapper->multiFetch($tableMapping, [3, 1]));
 
 
         // Array syntax.
         $this->assertEquals([
-            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
-            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
+            1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+            3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
         ], $this->tableMapper->multiFetch($tableMapping, [[1], [3]]));
 
 
         // Tolerate missing values
         $this->assertEquals([
-            ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"],
-            ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+            3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"],
+            1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
         ], $this->tableMapper->multiFetch($tableMapping, [5, 3, 1, 4], true));
 
 
@@ -236,6 +236,22 @@ class TableMapperTest extends TestCase {
         $this->tableMapper->save($tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]]);
 
         $this->assertTrue($this->persistenceEngine->methodWasCalled("saveRows", [$tableMapping, [["name" => "Stephen"], ["name" => "Willis"], ["name" => "Pedro"]], TablePersistenceEngine::SAVE_OPERATION_SAVE]));
+
+    }
+
+
+    public function testDeleteCorrectlyCallsPersistenceEngine() {
+
+        $tableMapping = new TableMapping("example");
+
+        $this->tableMapper->delete($tableMapping, ["id" => 3]);
+
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("deleteRows", [$tableMapping, ["id" => 3]]));
+
+        $this->tableMapper->delete($tableMapping, [["id" => 3], ["id" => 5]]);
+
+        $this->assertTrue($this->persistenceEngine->methodWasCalled("deleteRows", [$tableMapping, [["id" => 3], ["id" => 5]]]));
+
 
     }
 

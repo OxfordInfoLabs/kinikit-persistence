@@ -14,7 +14,9 @@ use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
 
 
 /**
- * Main
+ * Main Table mapper
+ *
+ * @noProxy
  *
  * Class TableMapper
  */
@@ -142,7 +144,7 @@ class TableMapper {
         $orderedResults = [];
         foreach ($serialisedPks as $serialisedPk) {
             if (isset($results[$serialisedPk]))
-                $orderedResults[] = $results[$serialisedPk];
+                $orderedResults[$serialisedPk] = $results[$serialisedPk];
             else if (!$ignoreMissingObjects)
                 throw new PrimaryKeyRowNotFoundException($tableName, $primaryKeyValues, true);
         }
@@ -166,6 +168,9 @@ class TableMapper {
         if (is_string($tableMapping)) {
             $tableMapping = new TableMapping($tableMapping);
         }
+
+        if (sizeof($placeholderValues) == 1 && is_array($placeholderValues[0]))
+            $placeholderValues = $placeholderValues[0];
 
         $tableName = $tableMapping->getTableName();
 
@@ -192,6 +197,10 @@ class TableMapper {
         if (is_string($tableMapping)) {
             $tableMapping = new TableMapping($tableMapping);
         }
+
+        if (sizeof($placeholderValues) == 1 && is_array($placeholderValues[0]))
+            $placeholderValues = $placeholderValues[0];
+
 
         $valuesOnly = !is_array($expressions);
         if ($valuesOnly) {
@@ -286,8 +295,27 @@ class TableMapper {
             $tableMapping = new TableMapping($tableMapping);
         }
 
-        // Save the rows using insert operation.
-        $this->persistenceEngine->saveRows($tableMapping, $data, TablePersistenceEngine::SAVE_OPERATION_SAVE);
+        // Save the rows using insert operation.  Return the result
+        return $this->persistenceEngine->saveRows($tableMapping, $data, TablePersistenceEngine::SAVE_OPERATION_SAVE);
+
+    }
+
+
+    /**
+     * Delete rows using the supplied table mapper.
+     *
+     * @param $tableMapping
+     * @param $data
+     */
+    public function delete($tableMapping, $data) {
+
+        // Ensure we have a table mapping object
+        if (is_string($tableMapping)) {
+            $tableMapping = new TableMapping($tableMapping);
+        }
+
+        // Delete rows
+        $this->persistenceEngine->deleteRows($tableMapping, $data);
     }
 
 

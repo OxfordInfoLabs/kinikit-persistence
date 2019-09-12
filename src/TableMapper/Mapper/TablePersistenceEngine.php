@@ -3,6 +3,12 @@
 
 namespace Kinikit\Persistence\TableMapper\Mapper;
 
+/**
+ * @noProxy
+ *
+ * Class TablePersistenceEngine
+ * @package Kinikit\Persistence\TableMapper\Mapper
+ */
 class TablePersistenceEngine {
 
 
@@ -129,6 +135,7 @@ class TablePersistenceEngine {
             $this->saveRowData($tableMapping, $saveOperation, $rows, $saveColumns);
         }
 
+
     }
 
 
@@ -212,8 +219,9 @@ class TablePersistenceEngine {
         if ($saveOperation != self::SAVE_OPERATION_UPDATE && $autoIncrementPk) {
             foreach ($data as $index => $item) {
                 $this->saveRowDataForOperation($tableMapping, $saveOperation, $data[$index], $saveColumns);
-                if (!isset($data[$index][$autoIncrementPk]))
+                if (!isset($data[$index][$autoIncrementPk]) || !$data[$index][$autoIncrementPk]) {
                     $data[$index][$autoIncrementPk] = $tableMapping->getDatabaseConnection()->getLastAutoIncrementId();
+                }
             }
         } else {
             $this->saveRowDataForOperation($tableMapping, $saveOperation, $data, $saveColumns);

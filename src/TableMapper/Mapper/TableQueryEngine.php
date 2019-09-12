@@ -13,6 +13,8 @@ use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
 /**
  * Query engine for a given table configured optionally with relationships and a database connection
  *
+ * @noProxy
+ *
  * Class TableQueryEngine
  * @package Kinikit\Persistence\TableMapper\Query
  */

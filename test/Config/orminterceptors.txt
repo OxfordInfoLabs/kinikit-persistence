@@ -1,0 +1,2 @@
+* = Kinikit\Persistence\ORM\Interceptor\GlobalORMInterceptor
+*Address = Kinikit\Persistence\ORM\Interceptor\ConfigFileORMInterceptor
