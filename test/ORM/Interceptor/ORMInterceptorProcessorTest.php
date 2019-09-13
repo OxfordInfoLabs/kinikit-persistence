@@ -144,7 +144,7 @@ class ORMInterceptorProcessorTest extends TestCase {
         $this->inlineORMInterceptor->returnValue("postMap", true);
 
         $results = $this->interceptorProcessor->processPostMapInterceptors(AltAddress::class, $this->altAddresses);
-        $this->assertEquals([$this->altAddresses[0], $this->altAddresses[2]], $results);
+        $this->assertEquals([0 => $this->altAddresses[0], 2=> $this->altAddresses[2]], $results);
 
         $this->assertTrue($this->globalORMInterceptor->methodWasCalled("postMap", [$this->altAddresses[0]]));
         $this->assertTrue($this->globalORMInterceptor->methodWasCalled("postMap", [$this->altAddresses[1]]));
@@ -298,4 +298,19 @@ class ORMInterceptorProcessorTest extends TestCase {
 
 
     }
+
+
+    public function testCanAddInterceptorManually() {
+
+        $this->interceptorProcessor->addInterceptor("*", InlineORMInterceptor::class);
+
+        $this->interceptorProcessor->processPostDeleteInterceptors(Address::class, $this->addresses);
+
+        $this->assertTrue($this->inlineORMInterceptor->methodWasCalled("postDelete", [$this->addresses[0]]));
+        $this->assertTrue($this->inlineORMInterceptor->methodWasCalled("postDelete", [$this->addresses[1]]));
+        $this->assertTrue($this->inlineORMInterceptor->methodWasCalled("postDelete", [$this->addresses[2]]));
+
+
+    }
+
 }

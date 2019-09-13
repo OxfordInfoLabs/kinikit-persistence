@@ -55,7 +55,7 @@ class ORMInterceptorProcessor {
         $interceptors = $this->getInterceptorsForClass($className);
 
         $returnObjects = [];
-        foreach ($objects as $object) {
+        foreach ($objects as $key => $object) {
             $map = true;
             foreach ($interceptors as $interceptor) {
                 if (!$interceptor->postMap($object)) {
@@ -64,10 +64,9 @@ class ORMInterceptorProcessor {
                 }
             }
 
-            if ($map) $returnObjects[] = $object;
+            if ($map) $returnObjects[$key] = $object;
 
         }
-
 
         return $returnObjects;
 
@@ -138,6 +137,21 @@ class ORMInterceptorProcessor {
     }
 
 
+    /**
+     * Add another interceptor matching a class pattern for an interceptor name.
+     *
+     * @param $classPattern
+     * @param $interceptorClassName
+     */
+    public function addInterceptor($classPattern, $interceptorClassName) {
+        if (!isset($this->interceptorsByClassNamePattern[$classPattern]))
+            $this->interceptorsByClassNamePattern[$classPattern] = [];
+        else if (!is_array($this->interceptorsByClassNamePattern[$classPattern]))
+            $this->interceptorsByClassNamePattern[$classPattern] = [$this->interceptorsByClassNamePattern[$classPattern]];
+        $this->interceptorsByClassNamePattern[$classPattern][] = $interceptorClassName;
+    }
+
+
     // Get all interceptors defined for the passed class.
     private function getInterceptorsForClass($className) {
 
@@ -145,10 +159,15 @@ class ORMInterceptorProcessor {
             $interceptors = [];
 
             // Grab the global configured ones
-            foreach ($this->interceptorsByClassNamePattern as $pattern => $interceptorClass) {
-                $classPattern = str_replace(["*", "/"], [".*?", "\\/"], ltrim($pattern, "/"));
-                if (preg_match("/^" . $classPattern . "$/", $className)) {
-                    $interceptors[] = Container::instance()->get($interceptorClass);
+            foreach ($this->interceptorsByClassNamePattern as $pattern => $interceptorClasses) {
+
+                if (!is_array($interceptorClasses)) $interceptorClasses = [$interceptorClasses];
+
+                foreach ($interceptorClasses as $interceptorClass) {
+                    $classPattern = str_replace(["*", "/"], [".*?", "\\/"], ltrim($pattern, "/"));
+                    if (preg_match("/^" . $classPattern . "$/", $className)) {
+                        $interceptors[] = Container::instance()->get($interceptorClass);
+                    }
                 }
             }
 

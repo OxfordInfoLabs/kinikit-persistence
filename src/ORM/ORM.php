@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\ORM;
 
 use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\ORM\Mapping\ORMMapping;
 use Kinikit\Persistence\TableMapper\Exception\PrimaryKeyRowNotFoundException;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
@@ -20,11 +21,6 @@ class ORM {
      * @var TableMapper
      */
     private $tableMapper;
-
-    /**
-     * @var ORMMapping[string]
-     */
-    private $ormMappings = [];
 
 
     /**
@@ -46,10 +42,18 @@ class ORM {
      * @return mixed
      */
     public function fetch($className, $primaryKeyValue) {
-        $mapping = $this->getORMMapping($className);
+        $mapping = ORMMapping::get($className);
         try {
             $results = $this->tableMapper->fetch($mapping->getTableMapping(), $primaryKeyValue);
-            return $mapping->mapRowsToObjects($results, true);
+            $results = $mapping->mapRowsToObjects($results, true);
+
+            // If this has been vetoed by an interceptor also throw.
+            if (!$results) {
+                throw new ObjectNotFoundException($className, $primaryKeyValue);
+            }
+
+            return $results;
+
         } catch (PrimaryKeyRowNotFoundException $e) {
             throw new ObjectNotFoundException($className, $primaryKeyValue);
         }
@@ -65,7 +69,7 @@ class ORM {
      * @param bool $ignoreMissingObjects
      */
     public function multiFetch($className, $primaryKeyValues, $ignoreMissingObjects = false) {
-        $mapping = $this->getORMMapping($className);
+        $mapping = ORMMapping::get($className);
         try {
             $results = $this->tableMapper->multiFetch($mapping->getTableMapping(), $primaryKeyValues, $ignoreMissingObjects);
             return $mapping->mapRowsToObjects($results);
@@ -86,7 +90,7 @@ class ORM {
      * @param mixed ...$placeholderValues
      */
     public function filter($className, $whereClause = "", ...$placeholderValues) {
-        $mapping = $this->getORMMapping($className);
+        $mapping = ORMMapping::get($className);
         $whereClause = $mapping->replaceMembersWithColumns($whereClause);
         $results = $this->tableMapper->filter($mapping->getTableMapping(), $whereClause, $placeholderValues);
         return $mapping->mapRowsToObjects($results);
@@ -104,7 +108,7 @@ class ORM {
      * @param mixed ...$placeholderValues
      */
     public function values($className, $expressions, $whereClause = "", ...$placeholderValues) {
-        $mapping = $this->getORMMapping($className);
+        $mapping = ORMMapping::get($className);
         if (is_string($expressions)) {
             $expressions = $mapping->replaceMembersWithColumns($expressions);
         } else {
@@ -153,7 +157,7 @@ class ORM {
 
         // Now save in batches by class.
         foreach ($saveItems as $class => $classItems) {
-            $mapping = $this->getORMMapping($class);
+            $mapping = ORMMapping::get($class);
             $saveRows = $mapping->mapObjectsToRows($classItems);
             $saveRows = $this->tableMapper->save($mapping->getTableMapping(), $saveRows);
             $mapping->mapRowsToObjects($saveRows, false, $classItems);
@@ -187,23 +191,13 @@ class ORM {
 
         // Now save in batches by class.
         foreach ($deleteItems as $class => $classItems) {
-            $mapping = $this->getORMMapping($class);
-            $deleteRows = $mapping->mapObjectsToRows($classItems);
+            $mapping = ORMMapping::get($class);
+            $deleteRows = $mapping->mapObjectsToRows($classItems, "DELETE");
             $this->tableMapper->delete($mapping->getTableMapping(), $deleteRows);
+            $mapping->processPostDelete($classItems);
         }
 
     }
 
-    /**
-     * Get an ORM Mapping by class name - maintains an array for efficiency.
-     *
-     * @param $className
-     * @return ORMMapping
-     */
-    private function getORMMapping($className) {
-        if (!isset($this->ormMappings[$className])) {
-            $this->ormMappings[$className] = new ORMMapping($className);
-        }
-        return $this->ormMappings[$className];
-    }
+
 }
