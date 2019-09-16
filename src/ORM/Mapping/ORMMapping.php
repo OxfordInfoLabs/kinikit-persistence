@@ -6,11 +6,13 @@ namespace Kinikit\Persistence\ORM\Mapping;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspector;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
+use Kinikit\Core\Reflection\Property;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Relationship\ManyToManyTableRelationship;
 use Kinikit\Persistence\TableMapper\Relationship\ManyToOneTableRelationship;
 use Kinikit\Persistence\TableMapper\Relationship\OneToManyTableRelationship;
+use Kinikit\Persistence\TableMapper\Relationship\OneToOneTableRelationship;
 
 class ORMMapping {
 
@@ -154,43 +156,56 @@ class ORMMapping {
 
 
     /**
-     * Map row data to objects  Pass an indicator as to whether or not this is a single item or multiple.
+     * Map row data to objects
      *
      * @param $rowData
      * @param bool $singleItem
      */
-    public function mapRowsToObjects($rowData, $singleItem = false, $existingObjects = null) {
-
-        $rows = $singleItem ? [$rowData] : $rowData;
+    public function mapRowsToObjects($rowData, $existingObjects = null) {
 
         // Loop through each row and map it.
         $returnObjects = [];
-        foreach ($rows as $pk => $row) {
+        foreach ($rowData as $pk => $row) {
 
             $populateObject = isset($existingObjects[sizeof($returnObjects)]) ? $existingObjects[sizeof($returnObjects)] : $this->classInspector->createInstance([]);
 
             foreach ($this->classInspector->getProperties() as $propertyName => $property) {
 
+                $isArray = strpos($property->getType(), "[");
+
                 if (isset($this->relatedEntities[$propertyName])) {
                     $relatedClassName = $this->relatedEntities[$propertyName];
                     if (isset($row[$propertyName]) && $row[$propertyName]) {
+
                         // Work out if single item.
-                        $singleSubItem = !isset($rowData[$propertyName][0]);
                         $mapper = self::get($relatedClassName);
-                        $existingRelatedObjects = $property->get($populateObject);
-                        $property->set($populateObject, $mapper->mapRowsToObjects($rowData[$propertyName], $singleSubItem, $existingRelatedObjects));
+
+                        $populateProperty = $property->get($populateObject);
+                        $existingObjects = $populateProperty ? ($isArray ? $populateProperty : [$populateProperty]) : null;
+
+                        $propertyResults = $mapper->mapRowsToObjects($isArray ? $row[$propertyName] : [$row[$propertyName]], $existingObjects);
+
+                        $propertyValue = null;
+                        if ($propertyResults) {
+                            $propertyValue = $isArray ? $propertyResults : array_pop($propertyResults);
+                        } else {
+                            if ($isArray) $propertyValue = [];
+                        }
+
+                        $property->set($populateObject, $propertyValue);
 
                     }
                 } else {
                     $columnName = $this->getColumnNameForProperty($property->getPropertyName());
                     if (isset($row[$columnName])) {
-                        $property->set($populateObject, $row[$columnName]);
+                        $this->mapColumnValueToProperty($row[$columnName], $property, $populateObject);
                     }
                 }
             }
 
             $returnObjects[$pk] = $populateObject;
         }
+
 
         // If exisiting objects, we are following a save operation so run post save interceptors.
         // Otherwise run post map interceptors.
@@ -200,9 +215,6 @@ class ORMMapping {
             $returnObjects = $this->ormInterceptorProcessor->processPostMapInterceptors($this->className, $returnObjects);
         }
 
-        if ($singleItem) {
-            $returnObjects = sizeof($returnObjects) ? array_values($returnObjects)[0] : null;
-        }
 
         return $returnObjects;
 
@@ -226,15 +238,58 @@ class ORMMapping {
 
             $row = [];
 
-            foreach ($this->classInspector->getProperties() as $property) {
-                $columnName = $this->getColumnNameForProperty($property->getPropertyName());
-                $row[$columnName] = $property->get($object);
+            foreach ($this->classInspector->getProperties() as $propertyName => $property) {
+
+                $propertyValue = $property->get($object);
+                $isArray = strpos($property->getType(), "[");
+
+                if (isset($this->relatedEntities[$propertyName])) {
+                    $relatedClassName = $this->relatedEntities[$propertyName];
+                    $relatedMapper = self::get($relatedClassName);
+                    if ($isArray) {
+                        $items = is_array($propertyValue) ? $propertyValue : [];
+                        $rowData = [];
+                        foreach ($items as $item) {
+                            $rowData[] = $relatedMapper->mapObjectsToRows([$item], $operationType);
+                        }
+                        $row[$propertyName] = $rowData;
+                    } else {
+                        if ($propertyValue) {
+                            $row[$propertyName] = $relatedMapper->mapObjectsToRows([$propertyValue], $operationType);
+                        } else {
+                            $row[$propertyName] = null;
+                        }
+                    }
+                } else {
+
+                    $columnName = $this->getColumnNameForProperty($property->getPropertyName());
+                    $row[$columnName] = $propertyValue;
+                }
             }
 
             $rows[] = $row;
         }
 
         return $rows;
+    }
+
+
+    /**
+     * Map a column value to a property.
+     *
+     * @param string $columnValue
+     * @param Property $property
+     * @param mixed $targetObject
+     */
+    private function mapColumnValueToProperty($columnValue, $property, $targetObject) {
+
+        $propertyValue = $columnValue;
+        if (trim($property->getType(), "\\") == \DateTime::class) {
+            $propertyValue = \DateTime::createFromFormat("Y-m-d", $columnValue);
+            if (!$propertyValue) $propertyValue = \DateTime::createFromFormat("Y-m-d H:i:s", $columnValue);
+        }
+
+        $property->set($targetObject, $propertyValue);
     }
 
 
@@ -275,11 +330,11 @@ class ORMMapping {
             $this->relatedEntities[$field] = $relatedType;
         }
 
-        // ONE TO MANY
-        $oneToManyFields = $classAnnotations->getFieldAnnotationsContainingMatchingTag("oneToMany");
-        foreach ($oneToManyFields as $field => $annotations) {
+        // ONE TO MANY / ONE TO ONE
+        $toOneFields = $classAnnotations->getFieldAnnotationsContainingMatchingTag("oneToMany");
+        $toOneFields = array_merge($toOneFields, $classAnnotations->getFieldAnnotationsContainingMatchingTag("oneToOne"));
+        foreach ($toOneFields as $field => $annotations) {
             $relatedType = trim($properties[$field]->getType(), "[]");
-            $relatedMapping = self::get($relatedType);
 
             $relatedColumns = [];
             if (isset($annotations["childJoinColumns"][0])) {
@@ -291,7 +346,11 @@ class ORMMapping {
                 }
             }
 
-            $relationships[] = new OneToManyTableRelationship(self::get($relatedType)->getTableMapping(), $field, $relatedColumns);
+            if (isset($annotations["oneToMany"]))
+                $relationships[] = new OneToManyTableRelationship(self::get($relatedType)->getTableMapping(), $field, $relatedColumns);
+            else
+                $relationships[] = new OneToOneTableRelationship(self::get($relatedType)->getTableMapping(), $field, $relatedColumns);
+
             $this->relatedEntities[$field] = $relatedType;
         }
 

@@ -45,14 +45,15 @@ class ORM {
         $mapping = ORMMapping::get($className);
         try {
             $results = $this->tableMapper->fetch($mapping->getTableMapping(), $primaryKeyValue);
-            $results = $mapping->mapRowsToObjects($results, true);
+            $results = $mapping->mapRowsToObjects([$results]);
+            $result = sizeof($results) ? array_pop($results) : null;
 
             // If this has been vetoed by an interceptor also throw.
-            if (!$results) {
+            if (!$result) {
                 throw new ObjectNotFoundException($className, $primaryKeyValue);
             }
 
-            return $results;
+            return $result;
 
         } catch (PrimaryKeyRowNotFoundException $e) {
             throw new ObjectNotFoundException($className, $primaryKeyValue);
@@ -160,7 +161,7 @@ class ORM {
             $mapping = ORMMapping::get($class);
             $saveRows = $mapping->mapObjectsToRows($classItems);
             $saveRows = $this->tableMapper->save($mapping->getTableMapping(), $saveRows);
-            $mapping->mapRowsToObjects($saveRows, false, $classItems);
+            $mapping->mapRowsToObjects($saveRows, $classItems);
         }
 
     }

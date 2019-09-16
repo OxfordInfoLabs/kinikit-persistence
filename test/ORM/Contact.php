@@ -50,6 +50,22 @@ class Contact {
      */
     private $phoneNumbers;
 
+    /**
+     * Contact constructor.
+     * @param string $name
+     * @param Address $primaryAddress
+     * @param Address[] $otherAddresses
+     * @param Profile $profile
+     * @param PhoneNumber[] $phoneNumbers
+     */
+    public function __construct($name = null, $primaryAddress = null, $otherAddresses = null, $profile = null, $phoneNumbers = null) {
+        $this->name = $name;
+        $this->primaryAddress = $primaryAddress;
+        $this->otherAddresses = $otherAddresses;
+        $this->profile = $profile;
+        $this->phoneNumbers = $phoneNumbers;
+    }
+
 
     /**
      * @return int

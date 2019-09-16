@@ -85,6 +85,17 @@ class ORMTest extends TestCase {
     }
 
 
+    public function testDateFieldsAreCorrectlyMappedToDateObjects() {
+
+        $profile = $this->orm->fetch(Profile::class, 1);
+        $this->assertEquals(1, $profile->getId());
+        $this->assertEquals("1977-12-06", $profile->getDateOfBirth()->format("Y-m-d"));
+        $this->assertEquals("2019-01-01 14:33:22", $profile->getInstantiated()->format("Y-m-d H:i:s"));
+
+
+    }
+
+
     public function testCanFetchMultipleSimpleObjectsByPrimaryKey() {
 
         $matches = $this->orm->multiFetch(Address::class, [2, 1]);
@@ -189,7 +200,6 @@ class ORMTest extends TestCase {
         $orm = new ORM(new TableMapper(new TableQueryEngine(), new TablePersistenceEngine()));
 
 
-
         // Test for a vetoing interceptor.
         $interceptorProcessor->returnValue("processPostMapInterceptors", []);
         try {
@@ -249,9 +259,27 @@ class ORMTest extends TestCase {
         $contact = $this->orm->fetch(Contact::class, 1);
 
         $this->assertEquals("Mark", $contact->getName());
+        $this->assertEquals($this->orm->fetch(Address::class, 1), $contact->getPrimaryAddress());
+        $this->assertEquals(array_values($this->orm->multiFetch(Address::class, [2, 3])), $contact->getOtherAddresses());
+        $this->assertEquals($this->orm->fetch(Profile::class, 1), $contact->getProfile());
+        $this->assertEquals($this->orm->fetch(Address::class, 1), $contact->getPrimaryAddress());
+        $this->assertEquals(array_values($this->orm->multiFetch(PhoneNumber::class, [2, 1])), $contact->getPhoneNumbers());
 
-        var_dump($contact);
+    }
 
+
+    public function testEntitiesWithRelationshipsAreRecursivelyAssociatedAndSavedWithDefaultRules() {
+
+        $primaryAddress = new Address(null, "Oxford Swimming", "3 The Lane", "Notown", "07565 898989", "GB");
+
+        // Create a new contact with one to one address and save
+        $newContact = new Contact("Bobby Brown", $primaryAddress);
+        $this->orm->save($newContact);
+        $this->assertNotNull($newContact->getId());
+        $this->assertNotNull($newContact->getPrimaryAddress()->getId());
+
+        $reContact = $this->orm->fetch(Contact::class, $newContact->getId());
+        var_dump($reContact);
 
     }
 
