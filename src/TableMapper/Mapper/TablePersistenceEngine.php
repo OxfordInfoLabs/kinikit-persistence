@@ -61,7 +61,6 @@ class TablePersistenceEngine {
             $rows = [$rows];
         }
 
-
         // Gather objects for use below.
         $relationships = $tableMapping->getRelationships();
 
@@ -90,6 +89,7 @@ class TablePersistenceEngine {
      */
     public function __saveRows($tableMapping, &$rows, $saveOperation) {
 
+
         // Pull a reference copy of these rows for change detection purposes if doing a save operation.
         if ($saveOperation == self::SAVE_OPERATION_SAVE) {
             $storedRows = $this->getStoredRows($tableMapping, $rows);
@@ -110,7 +110,6 @@ class TablePersistenceEngine {
             // Get relational save data
             $this->populateRelationalData($relationships, $rows, $relationalData, $storedRows);
 
-
             // Run pre-save operations where certain relationship types require it.
             $relationshipColumns = [];
             foreach ($relationships as $index => $relationship) {
@@ -118,11 +117,13 @@ class TablePersistenceEngine {
                 $relationshipColumns[] = $relationship->getMappedMember();
             }
 
+
             // Gather the save columns by removing relationship columns as required.
             $saveColumns = array_diff(array_keys($rows[0]), $relationshipColumns);
 
             // Save the main row.
             $this->saveRowData($tableMapping, $saveOperation, $rows, $saveColumns);
+
 
             // Run post-save operations where certain relationship types require it.
             foreach ($relationships as $index => $relationship) {
@@ -131,6 +132,7 @@ class TablePersistenceEngine {
 
 
         } else {
+
             $saveColumns = array_keys($rows[0]);
             $this->saveRowData($tableMapping, $saveOperation, $rows, $saveColumns);
         }
@@ -153,8 +155,8 @@ class TablePersistenceEngine {
                 // If we have relational data, add it in with a parent indicator
                 if (isset($saveRow[$mappedMember])) {
 
-                    if (isset($saveRow[$mappedMember][0])) {
-                        for ($i = 0; $i < sizeof($saveRow[$mappedMember]); $i++) {
+                    if ($relationship->isMultiple()) {
+                        for ($i = 0; $i < sizeof($saveRow[$mappedMember] ?? []); $i++) {
                             $pk = join("||", $relatedMapping->getPrimaryKeyValues($saveRow[$mappedMember][0]));
                             if ($pk) {
                                 $relationalData[$index]["allRelatedItemsByPk"][$pk] = &$saveRows[$rowIndex][$mappedMember][$i];
@@ -162,7 +164,7 @@ class TablePersistenceEngine {
                             $relationalData[$index]["allRelatedItems"][] = &$saveRows[$rowIndex][$mappedMember][$i];
                             $relationalData[$index]["relatedItemsByParent"][$rowIndex]["items"][] = &$saveRows[$rowIndex][$mappedMember][$i];
                         }
-                    } else {
+                    } else if (is_array($saveRow[$mappedMember])) {
                         $pk = join("||", $relatedMapping->getPrimaryKeyValues($saveRow[$mappedMember]));
                         if ($pk) {
                             $relationalData[$index]["allRelatedItemsByPk"][$pk] = &$saveRows[$rowIndex][$mappedMember];
@@ -202,13 +204,11 @@ class TablePersistenceEngine {
             }
 
 
-
-
         }
 
 
-    }
 
+    }
 
     // Save row data, taking account of any
     private function saveRowData($tableMapping, $saveOperation, &$data, $saveColumns) {

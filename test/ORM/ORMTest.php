@@ -27,6 +27,11 @@ class ORMTest extends TestCase {
      */
     private $orm;
 
+    /**
+     * @var DatabaseConnection
+     */
+    private $databaseConnection;
+
 
     public function setUp(): void {
         parent::setUp();
@@ -42,8 +47,8 @@ class ORMTest extends TestCase {
 
         $this->orm = Container::instance()->get(ORM::class);
 
-        $databaseConnection = Container::instance()->get(DatabaseConnection::class);
-        $databaseConnection->executeScript(file_get_contents(__DIR__ . "/orm.sql"));
+        $this->databaseConnection = Container::instance()->get(DatabaseConnection::class);
+        $this->databaseConnection->executeScript(file_get_contents(__DIR__ . "/orm.sql"));
 
 
     }
@@ -278,10 +283,164 @@ class ORMTest extends TestCase {
         $this->assertNotNull($newContact->getId());
         $this->assertNotNull($newContact->getPrimaryAddress()->getId());
 
+        $this->assertNull($newContact->getProfile());
+        $this->assertEquals([], $newContact->getOtherAddresses());
+        $this->assertEquals([], $newContact->getPhoneNumbers());
+
         $reContact = $this->orm->fetch(Contact::class, $newContact->getId());
-        var_dump($reContact);
+
+
+        $this->assertEquals("Bobby Brown", $reContact->getName());
+        $this->assertEquals($this->orm->fetch(Address::class, $primaryAddress->getId()), $reContact->getPrimaryAddress());
+        $this->assertEquals([], $reContact->getPhoneNumbers());
+        $this->assertEquals([], $reContact->getOtherAddresses());
+        $this->assertNull($reContact->getProfile());
+
+
+        $reContact->setProfile(new Profile(null, date_create_from_format("d/m/Y", "06/12/1977"), new \DateTime()));
+        $this->orm->save($reContact);
+        $this->assertNotNull($reContact->getProfile()->getId());
+
+        $reContact = $this->orm->fetch(Contact::class, $newContact->getId());
+
+
+        $this->assertEquals("Bobby Brown", $reContact->getName());
+        $this->assertEquals($this->orm->fetch(Address::class, $primaryAddress->getId()), $reContact->getPrimaryAddress());
+        $this->assertEquals($this->orm->fetch(Profile::class, $reContact->getProfile()->getId()), $reContact->getProfile());
+        $this->assertEquals([], $reContact->getPhoneNumbers());
+        $this->assertEquals([], $reContact->getOtherAddresses());
+
+
+        $phoneNumbers = [new PhoneNumber(null, "Business", "07548 989898"), new PhoneNumber(null, "Home", "07434 232434")];
+        $reContact->setPhoneNumbers($phoneNumbers);
+
+        $this->orm->save($reContact);
+        $this->assertNotNull($reContact->getPhoneNumbers()[0]->getId());
+        $this->assertNotNull($reContact->getPhoneNumbers()[1]->getId());
+
+
+        $reContact = $this->orm->fetch(Contact::class, $newContact->getId());
+        $this->assertEquals("Bobby Brown", $reContact->getName());
+        $this->assertEquals($this->orm->fetch(Address::class, $primaryAddress->getId()), $reContact->getPrimaryAddress());
+        $this->assertEquals($this->orm->fetch(Profile::class, $reContact->getProfile()->getId()), $reContact->getProfile());
+        $this->assertEquals([$this->orm->fetch(PhoneNumber::class, $reContact->getPhoneNumbers()[0]->getId()),
+            $this->orm->fetch(PhoneNumber::class, $reContact->getPhoneNumbers()[1]->getId())], $reContact->getPhoneNumbers());
+        $this->assertEquals([], $reContact->getOtherAddresses());
+
+
+        $otherAddresses = [$this->orm->fetch(Address::class, 3), $this->orm->fetch(Address::class, 2)];
+        $reContact->setOtherAddresses($otherAddresses);
+        $this->orm->save($reContact);
+
+        $reContact = $this->orm->fetch(Contact::class, $newContact->getId());
+        $this->assertEquals("Bobby Brown", $reContact->getName());
+        $this->assertEquals($this->orm->fetch(Address::class, $primaryAddress->getId()), $reContact->getPrimaryAddress());
+        $this->assertEquals($this->orm->fetch(Profile::class, $reContact->getProfile()->getId()), $reContact->getProfile());
+        $this->assertEquals([$this->orm->fetch(PhoneNumber::class, $reContact->getPhoneNumbers()[0]->getId()),
+            $this->orm->fetch(PhoneNumber::class, $reContact->getPhoneNumbers()[1]->getId())], $reContact->getPhoneNumbers());
+        $this->assertEquals([$this->orm->fetch(Address::class, 3), $this->orm->fetch(Address::class, 2)], $reContact->getOtherAddresses());
 
     }
 
+
+    public function testEntitiesWithDefaultRelationshipsAreUnrelatedAndDeletedAppropriatelyOnSave() {
+
+        $contact = $this->orm->fetch(Contact::class, 1);
+        $this->assertEquals(array_values($this->orm->multiFetch(Address::class, [2, 3])), $contact->getOtherAddresses());
+        $this->assertEquals($this->orm->fetch(Profile::class, 1), $contact->getProfile());
+        $this->assertEquals($this->orm->fetch(Address::class, 1), $contact->getPrimaryAddress());
+        $this->assertEquals(array_values($this->orm->multiFetch(PhoneNumber::class, [2, 1])), $contact->getPhoneNumbers());
+
+        // Check nulling many to one
+        $contact->setPrimaryAddress(null);
+        $this->orm->save($contact);
+
+        // Address should still exist (many to one).
+        $this->orm->fetch(Address::class, 1);
+
+        // Check unrelated correctly.
+        $contact = $this->orm->fetch(Contact::class, 1);
+        $this->assertNull($contact->getPrimaryAddress());
+
+
+        // Check nulling one to one.
+        $contact->setProfile(null);
+        $this->orm->save($contact);
+
+        $contact = $this->orm->fetch(Contact::class, 1);
+        $this->assertNull($contact->getProfile());
+
+        // This should be deleted.
+        try {
+            $this->orm->fetch(Profile::class, 1);
+            $this->fail("Should have thrown here");
+        } catch (ObjectNotFoundException $e) {
+            // Success
+        }
+
+
+        // Check blanking phone numbers (one to many).
+        $contact->setPhoneNumbers([]);
+        $this->orm->save($contact);
+
+        $contact = $this->orm->fetch(Contact::class, 1);
+        $this->assertEquals([], $contact->getPhoneNumbers());
+
+        // Check deleted.
+        $this->assertEquals([], $this->orm->multiFetch(PhoneNumber::class, [2, 1], true));
+
+
+        // Check removing many to many
+        $contact->setOtherAddresses([]);
+        $this->orm->save($contact);
+
+        // Check that this has been unrelated but addresses still exist.
+        $contact = $this->orm->fetch(Contact::class, 1);
+        $this->assertEquals([], $contact->getOtherAddresses());
+        $this->assertEquals(2, sizeof($this->orm->multiFetch(Address::class, [2, 3])));
+
+
+    }
+
+
+    public function testEntitiesWithDefaultRelationshipsAreDeletedOrUnrelatedCorrectlyOnDelete() {
+
+
+        $contact = $this->orm->fetch(Contact::class, 1);
+        $this->orm->delete($contact);
+
+
+        try {
+            $this->orm->fetch(Contact::class, 1);
+            $this->fail("Should be deleted here");
+        } catch (ObjectNotFoundException $e) {
+            // Success
+        }
+
+
+        // Address should still exist (many to one).
+        $this->orm->fetch(Address::class, 1);
+
+        // Profile should be deleted (one to one)
+        try {
+            $this->orm->fetch(Profile::class, 1);
+            $this->fail("Should have thrown here");
+        } catch (ObjectNotFoundException $e) {
+            // Success
+        }
+
+
+        // Phone numbers should be deleted (one to many)
+        $this->assertEquals([], $this->orm->multiFetch(PhoneNumber::class, [2, 1], true));
+
+
+        // Other Addresses should still exist (many to many)
+        $this->assertEquals(2, sizeof($this->orm->multiFetch(Address::class, [2, 3])));
+
+        // Link entries should not exist.
+        $this->assertEquals(0, $this->databaseConnection->query("SELECT COUNT(*) total FROM contact_other_addresses WHERE contact_id = 1")->nextRow()["total"]);
+
+
+    }
 
 }

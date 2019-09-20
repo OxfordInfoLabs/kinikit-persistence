@@ -650,6 +650,17 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
             "child_id" => null]], $reData);
 
 
+
+        $reData[5]["children"] = [];
+
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "child_id" => null]], $reData);
+
+
+
     }
 
 

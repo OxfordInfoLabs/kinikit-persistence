@@ -212,6 +212,7 @@ abstract class BaseTableRelationship implements TableRelationship {
      */
     protected function performSaveOperationOnChildren($saveType, &$relationshipData) {
 
+
         // If saving, ensure that we also clean up any no longer required items.
         if ($saveType == TablePersistenceEngine::SAVE_OPERATION_SAVE) {
 
@@ -223,9 +224,13 @@ abstract class BaseTableRelationship implements TableRelationship {
         }
 
 
+
+
         // Get the global persistence engine instance and save the children if they exist
         if (sizeof($relationshipData["allRelatedItems"]))
             $this->tablePersistenceEngine->__saveRows($this->relatedTableMapping, $relationshipData["allRelatedItems"], $saveType);
+
+
 
     }
 

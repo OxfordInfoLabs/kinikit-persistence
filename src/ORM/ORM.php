@@ -160,9 +160,12 @@ class ORM {
         foreach ($saveItems as $class => $classItems) {
             $mapping = ORMMapping::get($class);
             $saveRows = $mapping->mapObjectsToRows($classItems);
+
             $saveRows = $this->tableMapper->save($mapping->getTableMapping(), $saveRows);
+
             $mapping->mapRowsToObjects($saveRows, $classItems);
         }
+
 
     }
 

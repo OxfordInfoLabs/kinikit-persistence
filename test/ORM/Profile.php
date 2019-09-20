@@ -27,6 +27,19 @@ class Profile {
     private $instantiated;
 
     /**
+     * Profile constructor.
+     * @param int $id
+     * @param \DateTime $dateOfBirth
+     * @param \DateTime $instantiated
+     */
+    public function __construct($id, $dateOfBirth, $instantiated) {
+        $this->id = $id;
+        $this->dateOfBirth = $dateOfBirth;
+        $this->instantiated = $instantiated;
+    }
+
+
+    /**
      * @return int
      */
     public function getId(): int {
@@ -67,9 +80,6 @@ class Profile {
     public function setInstantiated(\DateTime $instantiated): void {
         $this->instantiated = $instantiated;
     }
-
-
-
 
 
 }

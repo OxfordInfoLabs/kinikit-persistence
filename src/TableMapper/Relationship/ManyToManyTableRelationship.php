@@ -4,6 +4,7 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Mapper\TablePersistenceEngine;
 
@@ -189,7 +190,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
         }
 
         $linkTableMapper = $this->getLinkTableMapping();
-        $persistenceEngine = new TablePersistenceEngine();
+        $persistenceEngine = Container::instance()->get(TablePersistenceEngine::class);
         $persistenceEngine->saveRows($linkTableMapper, $insertData, $saveType);
     }
 
@@ -206,6 +207,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
 
         if (sizeof($parentRows) == 0)
             return;
+
 
         // Ensure we have loaded data for parent rows.
         $this->retrieveChildData($parentRows);
@@ -244,7 +246,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
 
         if (sizeof($linkRowsToDelete) > 0) {
             $linkTableMapping = $this->getLinkTableMapping();
-            $persistenceEngine = new TablePersistenceEngine();
+            $persistenceEngine = Container::instance()->get(TablePersistenceEngine::class);
             $persistenceEngine->deleteRows($linkTableMapping, $linkRowsToDelete);
         }
 
@@ -269,7 +271,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
             $linkTablePkColumns[] = $childTableName . "_" . $columnName;
         }
 
-        return new TableMapping($this->linkTableName, [], $this->relatedTableMapping->getDatabaseConnection(), $linkTablePkColumns);
+        return new TableMapping($this->linkTableName, [], $this->parentMapping->getDatabaseConnection(), $linkTablePkColumns);
 
     }
 

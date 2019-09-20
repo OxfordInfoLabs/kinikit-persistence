@@ -175,7 +175,7 @@ class ORMMapping {
 
                 if (isset($this->relatedEntities[$propertyName])) {
                     $relatedClassName = $this->relatedEntities[$propertyName];
-                    if (isset($row[$propertyName]) && $row[$propertyName]) {
+                    if (isset($row[$propertyName])) {
 
                         // Work out if single item.
                         $mapper = self::get($relatedClassName);
@@ -194,6 +194,8 @@ class ORMMapping {
 
                         $property->set($populateObject, $propertyValue);
 
+                    } else if ($isArray) {
+                        $property->set($populateObject, []);
                     }
                 } else {
                     $columnName = $this->getColumnNameForProperty($property->getPropertyName());
@@ -248,14 +250,11 @@ class ORMMapping {
                     $relatedMapper = self::get($relatedClassName);
                     if ($isArray) {
                         $items = is_array($propertyValue) ? $propertyValue : [];
-                        $rowData = [];
-                        foreach ($items as $item) {
-                            $rowData[] = $relatedMapper->mapObjectsToRows([$item], $operationType);
-                        }
-                        $row[$propertyName] = $rowData;
+                        $row[$propertyName] = $relatedMapper->mapObjectsToRows($items, $operationType);
                     } else {
                         if ($propertyValue) {
-                            $row[$propertyName] = $relatedMapper->mapObjectsToRows([$propertyValue], $operationType);
+                            $mappedRows = $relatedMapper->mapObjectsToRows([$propertyValue], $operationType);
+                            $row[$propertyName] = $mappedRows[0];
                         } else {
                             $row[$propertyName] = null;
                         }
@@ -263,7 +262,7 @@ class ORMMapping {
                 } else {
 
                     $columnName = $this->getColumnNameForProperty($property->getPropertyName());
-                    $row[$columnName] = $propertyValue;
+                    $row[$columnName] = $this->mapPropertyToColumnValue($propertyValue);
                 }
             }
 
@@ -290,6 +289,16 @@ class ORMMapping {
         }
 
         $property->set($targetObject, $propertyValue);
+    }
+
+
+    private function mapPropertyToColumnValue($propertyValue) {
+        $columnValue = $propertyValue;
+        if ($propertyValue instanceof \DateTime) {
+            $columnValue = $propertyValue->format("Y-m-d H:i:s");
+        }
+
+        return $columnValue;
     }
 
 

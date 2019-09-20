@@ -105,7 +105,7 @@ class Contact {
     /**
      * @param Address $primaryAddress
      */
-    public function setPrimaryAddress(Address $primaryAddress) {
+    public function setPrimaryAddress( $primaryAddress) {
         $this->primaryAddress = $primaryAddress;
     }
 
@@ -126,21 +126,21 @@ class Contact {
     /**
      * @return Profile
      */
-    public function getProfile(): Profile {
+    public function getProfile() {
         return $this->profile;
     }
 
     /**
      * @param Profile $profile
      */
-    public function setProfile(Profile $profile): void {
+    public function setProfile( $profile): void {
         $this->profile = $profile;
     }
 
     /**
      * @return PhoneNumber[]
      */
-    public function getPhoneNumbers(): array {
+    public function getPhoneNumbers() {
         return $this->phoneNumbers;
     }
 
