@@ -26,6 +26,13 @@ class Profile {
      */
     private $instantiated;
 
+
+    /**
+     * @json
+     * @var array
+     */
+    private $data;
+
     /**
      * Profile constructor.
      * @param int $id
@@ -79,6 +86,20 @@ class Profile {
      */
     public function setInstantiated(\DateTime $instantiated): void {
         $this->instantiated = $instantiated;
+    }
+
+    /**
+     * @return array
+     */
+    public function getData() {
+        return $this->data;
+    }
+
+    /**
+     * @param array $data
+     */
+    public function setData($data) {
+        $this->data = $data;
     }
 
 

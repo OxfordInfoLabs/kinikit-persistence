@@ -72,6 +72,7 @@ class TablePersistenceEngine {
         }
 
 
+       
         // Delete the rows
         $bulkDataManager = $tableMapping->getDatabaseConnection()->getBulkDataManager();
         $bulkDataManager->delete($tableMapping->getTableName(), $rows, $tableMapping->getPrimaryKeyColumnNames());

@@ -262,7 +262,7 @@ class ORMMapping {
                 } else {
 
                     $columnName = $this->getColumnNameForProperty($property->getPropertyName());
-                    $row[$columnName] = $this->mapPropertyToColumnValue($propertyValue);
+                    $row[$columnName] = $this->mapPropertyToColumnValue($propertyValue, $property);
                 }
             }
 
@@ -286,16 +286,20 @@ class ORMMapping {
         if (trim($property->getType(), "\\") == \DateTime::class) {
             $propertyValue = \DateTime::createFromFormat("Y-m-d", $columnValue);
             if (!$propertyValue) $propertyValue = \DateTime::createFromFormat("Y-m-d H:i:s", $columnValue);
+        } else if (isset($property->getPropertyAnnotations()["json"])) {
+            $propertyValue = json_decode($columnValue, true);
         }
 
         $property->set($targetObject, $propertyValue);
     }
 
 
-    private function mapPropertyToColumnValue($propertyValue) {
+    private function mapPropertyToColumnValue($propertyValue, $property) {
         $columnValue = $propertyValue;
         if ($propertyValue instanceof \DateTime) {
             $columnValue = $propertyValue->format("Y-m-d H:i:s");
+        } else if (isset($property->getPropertyAnnotations()["json"])) {
+            $columnValue = json_encode($propertyValue);
         }
 
         return $columnValue;

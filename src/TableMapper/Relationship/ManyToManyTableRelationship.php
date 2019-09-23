@@ -243,7 +243,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
             }
         }
 
-
+        
         if (sizeof($linkRowsToDelete) > 0) {
             $linkTableMapping = $this->getLinkTableMapping();
             $persistenceEngine = Container::instance()->get(TablePersistenceEngine::class);

@@ -21,7 +21,7 @@ VALUES ('Mark', 1), ('Luke', 2), ('John', 3);
 
 
 DROP TABLE IF EXISTS contact_other_addresses;
-CREATE TABLE contact_other_addresses (contact_id, address_id);
+CREATE TABLE contact_other_addresses (contact_id INTEGER, address_id INTEGER);
 
 INSERT INTO contact_other_addresses VALUES (1, 2),(1,3),(2,3),(3,1);
 
@@ -38,8 +38,8 @@ VALUES ('Mobile', '07777 999999', 1),('Home', '01865 222222', 1),
 
 DROP TABLE IF EXISTS profile;
 
-CREATE TABLE profile (id integer PRIMARY KEY AUTOINCREMENT,  date_of_birth DATE, instantiated DATETIME, contact_id INTEGER);
+CREATE TABLE profile (id integer PRIMARY KEY AUTOINCREMENT,  date_of_birth DATE, instantiated DATETIME, data TEXT, contact_id INTEGER);
 
-INSERT INTO profile (date_of_birth, instantiated, contact_id)
-VALUES ('1977-12-06', '2019-01-01 14:33:22', 1),
-('1986-01-13', '2019-01-01 19:36:01', 3);
+INSERT INTO profile (date_of_birth, instantiated, data, contact_id)
+VALUES ('1977-12-06', '2019-01-01 14:33:22', '{"test": "Mark", "live": "Luke"}', 1),
+('1986-01-13', '2019-01-01 19:36:01', '[1,2,3,4,5]', 3);

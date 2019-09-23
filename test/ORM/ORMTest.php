@@ -90,17 +90,6 @@ class ORMTest extends TestCase {
     }
 
 
-    public function testDateFieldsAreCorrectlyMappedToDateObjects() {
-
-        $profile = $this->orm->fetch(Profile::class, 1);
-        $this->assertEquals(1, $profile->getId());
-        $this->assertEquals("1977-12-06", $profile->getDateOfBirth()->format("Y-m-d"));
-        $this->assertEquals("2019-01-01 14:33:22", $profile->getInstantiated()->format("Y-m-d H:i:s"));
-
-
-    }
-
-
     public function testCanFetchMultipleSimpleObjectsByPrimaryKey() {
 
         $matches = $this->orm->multiFetch(Address::class, [2, 1]);
@@ -440,6 +429,49 @@ class ORMTest extends TestCase {
         // Link entries should not exist.
         $this->assertEquals(0, $this->databaseConnection->query("SELECT COUNT(*) total FROM contact_other_addresses WHERE contact_id = 1")->nextRow()["total"]);
 
+
+    }
+
+
+    public function testDateFieldsAreCorrectlyMappedToDateObjects() {
+
+        $profile = $this->orm->fetch(Profile::class, 1);
+        $this->assertEquals(1, $profile->getId());
+        $this->assertEquals("1977-12-06", $profile->getDateOfBirth()->format("Y-m-d"));
+        $this->assertEquals("2019-01-01 14:33:22", $profile->getInstantiated()->format("Y-m-d H:i:s"));
+
+
+        // Save back
+        $profile->setDateOfBirth(date_create_from_format("d/m/Y", "01/01/1988"));
+
+        $this->orm->save($profile);
+
+        $profile = $this->orm->fetch(Profile::class, 1);
+        $this->assertEquals("1988-01-01", $profile->getDateOfBirth()->format("Y-m-d"));
+
+
+    }
+
+    public function testJSONFieldsAreCorrectlyMapped() {
+
+        $profile = $this->orm->fetch(Profile::class, 1);
+        $this->assertEquals(1, $profile->getId());
+        $this->assertEquals(["test" => "Mark", "live" => "Luke"],
+            $profile->getData());
+
+        $profile = $this->orm->fetch(Profile::class, 2);
+        $this->assertEquals(2, $profile->getId());
+        $this->assertEquals([1, 2, 3, 4, 5],
+            $profile->getData());
+
+
+    }
+
+
+    public function testProxyObjectsAreMappedInsteadIfAnyLazyLoadedProperties() {
+
+//        $contact = $this->orm->fetch(LazyContact::class, 1);
+//        $this->assertEquals("Kinikit\Persistence\ORM\LazyContactProxy", get_class($contact));
 
     }
 
