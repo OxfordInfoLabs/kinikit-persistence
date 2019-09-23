@@ -468,11 +468,11 @@ class ORMTest extends TestCase {
     }
 
 
-    public function testProxyObjectsAreMappedInsteadIfAnyLazyLoadedProperties() {
-
-//        $contact = $this->orm->fetch(LazyContact::class, 1);
-//        $this->assertEquals("Kinikit\Persistence\ORM\LazyContactProxy", get_class($contact));
-
-    }
+//    public function testProxyObjectsAreMappedInsteadIfAnyLazyLoadedProperties() {
+//
+////        $contact = $this->orm->fetch(LazyContact::class, 1);
+////        $this->assertEquals("Kinikit\Persistence\ORM\LazyContactProxy", get_class($contact));
+//
+//    }
 
 }
