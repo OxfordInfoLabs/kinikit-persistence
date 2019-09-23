@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kinikit\Persistence\ORM;
+namespace Kinikit\Persistence\Objects;
 
 class Address {
 
@@ -12,23 +12,22 @@ class Address {
     protected $id;
 
     /**
-     *
-     * @required
-     * @maxLength 50
      * @var string
+     * @maxLength 50
+     * @required
      */
     private $name;
 
     /**
+     * @var string
      * @required
      * @maxLength 100
-     * @var string
      */
     private $street1;
 
     /**
-     * @maxLength 80
      * @var string
+     * @maxLength 100
      */
     private $street2;
 
@@ -42,12 +41,6 @@ class Address {
      */
     private $countryCode;
 
-
-    /**
-     * @unmapped
-     * @var string
-     */
-    private $unmappedProperty;
 
     /**
      * Create new address object
@@ -138,20 +131,6 @@ class Address {
      */
     public function setCountryCode(string $countryCode): void {
         $this->countryCode = $countryCode;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUnmappedProperty() {
-        return $this->unmappedProperty;
-    }
-
-    /**
-     * @param string $unmappedProperty
-     */
-    public function setUnmappedProperty($unmappedProperty) {
-        $this->unmappedProperty = $unmappedProperty;
     }
 
 

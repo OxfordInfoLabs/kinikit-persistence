@@ -1,3 +1,5 @@
+application.namespace = Kinikit\Persistence
+
 # Default connection
 db.provider = sqlite3
 db.filename = DB/application.db

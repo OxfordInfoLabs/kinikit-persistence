@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kinikit\Persistence\ORM;
+namespace Kinikit\Persistence\Objects\Subordinates;
 
 /**
  * Profile class

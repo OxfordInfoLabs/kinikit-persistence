@@ -7,6 +7,8 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspector;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Core\Reflection\Property;
+use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Relationship\ManyToManyTableRelationship;
@@ -261,8 +263,10 @@ class ORMMapping {
                     }
                 } else {
 
-                    $columnName = $this->getColumnNameForProperty($property->getPropertyName());
-                    $row[$columnName] = $this->mapPropertyToColumnValue($propertyValue, $property);
+                    if (!isset($property->getPropertyAnnotations()["unmapped"])) {
+                        $columnName = $this->getColumnNameForProperty($property->getPropertyName());
+                        $row[$columnName] = $this->mapPropertyToColumnValue($propertyValue, $property);
+                    }
                 }
             }
 
@@ -272,6 +276,114 @@ class ORMMapping {
         return $rows;
     }
 
+
+    /**
+     * Process post delete logic
+     *
+     * @param array $deleteRows
+     */
+    public function processPostDelete($deleteRows) {
+
+        $this->ormInterceptorProcessor->processPostDeleteInterceptors($this->className, $deleteRows);
+
+    }
+
+
+    /**
+     * Generate table meta data based upon the defined properties for e.g.
+     * schema generation.  This returns an array of Table Meta Data objects
+     * indexed by table name.  This is to allow multiple items to be returned in
+     * e.g. Many to Many relationships where a link table needs to be created in
+     * addition to the primary table.
+     *
+     * @return TableMetaData[string]
+     */
+    public function generateTableMetaData() {
+
+        $returnedData = [];
+
+        $properties = $this->classInspector->getProperties();
+
+        // Loop through each property.
+        $columns = [];
+        $hasPk = false;
+        foreach ($properties as $propertyName => $property) {
+            if (!isset($this->relatedEntities[$propertyName])) {
+
+                $annotations = $property->getPropertyAnnotations();
+                if (!isset($annotations["unmapped"])) {
+
+                    // Gather column metrics.
+                    $columnName = $this->getColumnNameForProperty($propertyName);
+
+                    $primaryKey = isset($annotations["primaryKey"]);
+                    if ($primaryKey) $hasPk = true;
+                    $autoIncrement = isset($annotations["autoIncrement"]);
+                    $required = isset($annotations["required"]);
+                    $columnPrecision = null;
+
+                    if (isset($annotations["sqlType"])) {
+
+                        $sqlType = $annotations["sqlType"][0]->getValue();
+                        $explodedType = explode("(", $sqlType);
+                        $columnType = $explodedType[0];
+                        $columnLength = null;
+                        if (sizeof($explodedType) > 1) {
+                            $params = explode(")", $explodedType[1])[0];
+                            $explodedParams = explode(",", $params);
+                            $columnLength = trim($explodedParams[0]);
+                            if (sizeof($explodedParams) > 1)
+                                $columnPrecision = trim($explodedParams[1]);
+                        }
+
+                    } else {
+                        $columnType = TableColumn::SQL_VARCHAR;
+                        $columnLength = isset($annotations["maxLength"]) ? (int)$annotations["maxLength"][0]->getValue() : null;
+
+
+                        switch ($property->getType()) {
+                            case "integer":
+                            case "int":
+                                $columnType = TableColumn::SQL_INT;
+                                break;
+                            case "float":
+                            case "double":
+                                $columnType = TableColumn::SQL_FLOAT;
+                                break;
+                            case "bool":
+                            case "boolean":
+                                $columnType = TableColumn::SQL_TINYINT;
+                                break;
+                            case "\\" . \DateTime::class:
+                                $columnType = TableColumn::SQL_DATE_TIME;
+                                break;
+                        }
+                    }
+                    $columns[$columnName] = new TableColumn($columnName, $columnType, $columnLength, $columnPrecision, null, $primaryKey, $autoIncrement, $required);
+                }
+
+            }
+        }
+        if (!$hasPk && isset($columns["id"])) {
+            $columns["id"] = new TableColumn("id", TableColumn::SQL_INT, null, null, null, true, true, true);
+        }
+
+        // Now, process any relationship data.
+        foreach ($this->tableMapping->getRelationships() as $relationship) {
+            $relatedMetaData = self::get($this->relatedEntities[$relationship->getMappedMember()])->generateTableMetaData();
+            
+            if ($relationship instanceof ManyToOneTableRelationship) {
+                
+            }
+        }
+
+
+        $tableName = $this->tableMapping->getTableName();
+        $returnedData[$tableName] = new TableMetaData($tableName, $columns);
+
+        return $returnedData;
+
+    }
 
     /**
      * Map a column value to a property.
@@ -303,18 +415,6 @@ class ORMMapping {
         }
 
         return $columnValue;
-    }
-
-
-    /**
-     * Process post delete logic
-     *
-     * @param array $deleteRows
-     */
-    public function processPostDelete($deleteRows) {
-
-        $this->ormInterceptorProcessor->processPostDeleteInterceptors($this->className, $deleteRows);
-
     }
 
 
