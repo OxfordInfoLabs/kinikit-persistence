@@ -7,6 +7,13 @@ namespace Kinikit\Persistence\Objects;
 use Kinikit\Persistence\Objects\Subordinates\PhoneNumber;
 use Kinikit\Persistence\Objects\Subordinates\Profile;
 
+/**
+ *
+ * @table new_contact
+ *
+ * Class Contact
+ * @package Kinikit\Persistence\Objects
+ */
 class Contact {
 
     /**
@@ -17,7 +24,7 @@ class Contact {
     /**
      * @var string
      * @required
-     * @maxlength 50
+     * @maxLength 50
      */
     private $name;
 
@@ -33,7 +40,7 @@ class Contact {
 
     /**
      * @manyToMany
-     * @linkTable contact_other_addresses
+     * @linkTable new_contact_other_addresses
      *
      * @var Address[]
      */

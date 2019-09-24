@@ -5,6 +5,7 @@ namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Mapper\TablePersistenceEngine;
 
@@ -39,6 +40,14 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
         return true;
     }
 
+    /**
+     * @return string
+     */
+    public function getLinkTableName() {
+        return $this->linkTableName;
+    }
+
+    
     /**
      * Get the select join clause for this relationship
      *
@@ -243,7 +252,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
             }
         }
 
-        
+
         if (sizeof($linkRowsToDelete) > 0) {
             $linkTableMapping = $this->getLinkTableMapping();
             $persistenceEngine = Container::instance()->get(TablePersistenceEngine::class);

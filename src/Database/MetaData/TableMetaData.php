@@ -16,7 +16,7 @@ class TableMetaData {
      *
      * @var TableColumn[string]
      */
-    private $tableColumns = [];
+    protected $tableColumns = [];
 
 
     /**
@@ -33,9 +33,7 @@ class TableMetaData {
         $this->tableName = $tableName;
 
         foreach ($tableColumns as $tableColumn) {
-            $this->tableColumns[$tableColumn->getName()] = $tableColumn;
-            if ($tableColumn->isPrimaryKey())
-                $this->pkColumns[$tableColumn->getName()] = $tableColumn;
+            $this->addColumn($tableColumn);
         }
     }
 
@@ -58,6 +56,18 @@ class TableMetaData {
      */
     public function getPrimaryKeyColumns() {
         return $this->pkColumns;
+    }
+
+
+    /**
+     * Add a table column
+     *
+     * @param $tableColumn
+     */
+    protected function addColumn($tableColumn) {
+        $this->tableColumns[$tableColumn->getName()] = $tableColumn;
+        if ($tableColumn->isPrimaryKey())
+            $this->pkColumns[$tableColumn->getName()] = $tableColumn;
     }
 
 }

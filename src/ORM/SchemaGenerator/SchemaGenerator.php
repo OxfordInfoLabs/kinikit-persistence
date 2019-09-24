@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\ORM\SchemaGenerator;
 
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\ORM\Mapping\ORMMapping;
 
@@ -18,50 +19,21 @@ class SchemaGenerator {
      */
     private $classInspectorProvider;
 
+    /**
+     * @var DatabaseConnection
+     */
+    private $databaseConnection;
+
 
     /**
      * SchemaGenerator constructor.
      *
      * @param ClassInspectorProvider $classInspectorProvider
+     * @param DatabaseConnection $databaseConnection
      */
-    public function __construct($classInspectorProvider) {
+    public function __construct($classInspectorProvider, $databaseConnection) {
         $this->classInspectorProvider = $classInspectorProvider;
-    }
-
-    /**
-     * Generate the schema as an array of table meta data objects for insert (indexed by
-     * table name)
-     *
-     * @param string $rootPath
-     * @param string $rootPathNamespace
-     *
-     * @return TableMetaData[string]
-     */
-    public function generateSchema($rootPath = "./Objects", $rootPathNamespace = null) {
-
-        // Grab the table definitions for all tables recursively (indexed by class name)
-        $matchedObjects = $this->getMatchingObjects($rootPath, $rootPathNamespace);
-
-
-        foreach ($matchedObjects as $key => $columns) {
-
-            echo "\nCreating table $key";
-
-//            // Drop unless flag supplied as false
-//            if ($dropTables) {
-//                try {
-//                    $this->databaseConnection->query("DROP TABLE {$definition->getTableName()}",);
-//                } catch (SQLException $e) {
-//                    // Continue as likely table doesn't exist.
-//                }
-//            }
-//
-//            // Create the table from the meta data definition.
-//            $this->databaseConnection->createTable($definition);
-
-        }
-
-
+        $this->databaseConnection = $databaseConnection;
     }
 
 
@@ -73,13 +45,13 @@ class SchemaGenerator {
      *
      * @return TableMetaData[]
      */
-    public function getMatchingObjects($rootPath = "./Objects", $rootPathNamespace = null) {
+    public function generateTableMetaData($rootPath = "./Objects", $rootPathNamespace = null) {
 
         if (!$rootPathNamespace) {
             $rootPathNamespace = Configuration::readParameter("application.namespace") . "\\Objects";
         }
 
-        $tableDefinitions = array();
+        $tableMetaData = array();
 
         if (file_exists($rootPath)) {
 
@@ -95,17 +67,21 @@ class SchemaGenerator {
                     if (class_exists($className)) {
 
                         // Read the table mapping
-                        $tableMapping = ORMMapping::get($className)->getTableMapping();
-                        
+                        $classInspector = $this->classInspectorProvider->getClassInspector($className);
+                        if (!isset($classInspector->getClassAnnotations()["noGenerate"])) {
+                            $mapper = ORMMapping::get($className);
+                            $tableMetaData = array_merge($tableMetaData, $mapper->generateTableMetaData());
+                        }
+
                     }
                 }
 
                 // If directory, run this recursively.
                 if ($item->isDir()) {
-                    $subDefs = $this->getMatchingObjects($rootPath . "/" . $item->getFilename(),
+                    $subDefs = $this->generateTableMetaData($rootPath . "/" . $item->getFilename(),
                         $rootPathNamespace . "\\" . $item->getFilename());
 
-                    $tableDefinitions = array_merge($tableDefinitions, $subDefs);
+                    $tableMetaData = array_merge($tableMetaData, $subDefs);
                 }
 
 
@@ -113,19 +89,63 @@ class SchemaGenerator {
 
         }
 
-        return $tableDefinitions;
+        return $tableMetaData;
 
     }
-
 
     /**
-     * Process any relationships, effectively augmenting the data as required.
+     * Create schema for objects starting at the root path and namespace.
      *
-     * @param $tableDefinitions
+     * @param string $rootPath
+     * @param null $rootPathNamespace
      */
-    public function processRelationships(&$tableDefinitions) {
+    public function createSchema($rootPath = "./Objects", $rootPathNamespace = null) {
+
+        // Get the generated meta data.
+        $generatedMetaData = $this->generateTableMetaData($rootPath, $rootPathNamespace);
+
+        // Now loop through and create the schema using the default database connection.
+        foreach ($generatedMetaData as $tableMetaData) {
+
+            $sql = "CREATE TABLE {$tableMetaData->getTableName()} (\n";
+
+            $columnLines = array();
+            $pks = array();
+            foreach ($tableMetaData->getColumns() as $column) {
+
+                $line = $column->getName() . " " . $column->getType();
+                if ($column->getLength()) {
+                    $line .= "(" . $column->getLength();
+                    if ($column->getPrecision()) {
+                        $line .= "," . $column->getPrecision();
+                    }
+                    $line .= ")";
+                }
+                if ($column->isNotNull()) $line .= " NOT NULL";
+                if ($column->isPrimaryKey()) {
+                    if ($column->isAutoIncrement())
+                        $line .= ' PRIMARY KEY';
+                    else
+                        $pks[] = $column->getName();
+                }
+                if ($column->isAutoIncrement()) $line .= ' AUTOINCREMENT';
+
+                $columnLines[] = $line;
+            }
+
+
+            $sql .= join(",\n", $columnLines);
+
+            if (sizeof($pks) > 0) {
+                $sql .= ",\nPRIMARY KEY (" . join(",", $pks) . ")";
+            }
+
+            $sql .= "\n)";
+            
+            $this->databaseConnection->executeScript($sql);
+
+        }
 
     }
-
 
 }

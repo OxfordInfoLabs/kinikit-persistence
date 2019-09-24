@@ -39,6 +39,14 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
     }
 
     /**
+     * @return array|bool
+     */
+    public function getParentJoinColumnNames() {
+        return $this->parentJoinColumnNames;
+    }
+
+
+    /**
      * Get the select join clause for this relationship
      *
      * @param string $parentAlias

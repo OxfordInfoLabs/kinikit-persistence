@@ -70,7 +70,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         // If we have a single pk, do a second check for auto increment
         if (sizeof($pkColumns) == 1) {
             $results = $this->query("SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='$tableName' AND sql LIKE '%AUTOINCREMENT%'")->fetchAll();
-            if (sizeof($results) >0)
+            if (sizeof($results) > 0)
                 $pkColumns[0]->setAutoIncrement(true);
         }
 

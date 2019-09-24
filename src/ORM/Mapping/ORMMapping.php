@@ -9,6 +9,7 @@ use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Core\Reflection\Property;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\Database\MetaData\UpdatableTableMetaData;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Relationship\ManyToManyTableRelationship;
@@ -50,6 +51,14 @@ class ORMMapping {
 
 
     /**
+     * Generated meta data, cached for performance and update.
+     *
+     * @var TableMetaData
+     */
+    private $generatedMetaData;
+
+
+    /**
      * @var ORMMapping[string]
      */
     private static $ormMappings = [];
@@ -78,6 +87,7 @@ class ORMMapping {
      * @return ORMMapping
      */
     public static function get($className) {
+        $className = trim($className, "\\");
         if (!isset(self::$ormMappings[$className])) {
             self::$ormMappings[$className] = new ORMMapping($className);
         }
@@ -300,88 +310,147 @@ class ORMMapping {
      */
     public function generateTableMetaData() {
 
-        $returnedData = [];
+        if (!$this->generatedMetaData) {
 
-        $properties = $this->classInspector->getProperties();
+            $this->generatedMetaData = [];
 
-        // Loop through each property.
-        $columns = [];
-        $hasPk = false;
-        foreach ($properties as $propertyName => $property) {
-            if (!isset($this->relatedEntities[$propertyName])) {
+            $properties = $this->classInspector->getProperties();
 
-                $annotations = $property->getPropertyAnnotations();
-                if (!isset($annotations["unmapped"])) {
+            $tableName = $this->tableMapping->getTableName();
 
-                    // Gather column metrics.
-                    $columnName = $this->getColumnNameForProperty($propertyName);
+            // Loop through each property.
+            $columns = [];
+            $pkColumns = [];
+            foreach ($properties as $propertyName => $property) {
+                if (!isset($this->relatedEntities[$propertyName])) {
 
-                    $primaryKey = isset($annotations["primaryKey"]);
-                    if ($primaryKey) $hasPk = true;
-                    $autoIncrement = isset($annotations["autoIncrement"]);
-                    $required = isset($annotations["required"]);
-                    $columnPrecision = null;
+                    $annotations = $property->getPropertyAnnotations();
+                    if (!isset($annotations["unmapped"])) {
 
-                    if (isset($annotations["sqlType"])) {
+                        // Gather column metrics.
+                        $columnName = $this->getColumnNameForProperty($propertyName);
 
-                        $sqlType = $annotations["sqlType"][0]->getValue();
-                        $explodedType = explode("(", $sqlType);
-                        $columnType = $explodedType[0];
-                        $columnLength = null;
-                        if (sizeof($explodedType) > 1) {
-                            $params = explode(")", $explodedType[1])[0];
-                            $explodedParams = explode(",", $params);
-                            $columnLength = trim($explodedParams[0]);
-                            if (sizeof($explodedParams) > 1)
-                                $columnPrecision = trim($explodedParams[1]);
+                        $primaryKey = isset($annotations["primaryKey"]);
+                        $autoIncrement = isset($annotations["autoIncrement"]);
+                        $required = isset($annotations["required"]);
+                        $columnPrecision = null;
+
+                        if (isset($annotations["sqlType"])) {
+
+                            $sqlType = $annotations["sqlType"][0]->getValue();
+                            $explodedType = explode("(", $sqlType);
+                            $columnType = $explodedType[0];
+                            $columnLength = null;
+                            if (sizeof($explodedType) > 1) {
+                                $params = explode(")", $explodedType[1])[0];
+                                $explodedParams = explode(",", $params);
+                                $columnLength = trim($explodedParams[0]);
+                                if (sizeof($explodedParams) > 1)
+                                    $columnPrecision = trim($explodedParams[1]);
+                            }
+
+                        } else {
+                            $columnType = TableColumn::SQL_VARCHAR;
+                            $columnLength = isset($annotations["maxLength"]) ? (int)$annotations["maxLength"][0]->getValue() : null;
+
+
+                            switch ($property->getType()) {
+                                case "integer":
+                                case "int":
+                                    $columnType = TableColumn::SQL_INTEGER;
+                                    break;
+                                case "float":
+                                case "double":
+                                    $columnType = TableColumn::SQL_FLOAT;
+                                    break;
+                                case "bool":
+                                case "boolean":
+                                    $columnType = TableColumn::SQL_TINYINT;
+                                    break;
+                                case "\\" . \DateTime::class:
+                                    $columnType = TableColumn::SQL_DATE_TIME;
+                                    break;
+                            }
                         }
+                        $columns[$columnName] = new TableColumn($columnName, $columnType, $columnLength, $columnPrecision, null, $primaryKey, $autoIncrement, $required);
 
-                    } else {
-                        $columnType = TableColumn::SQL_VARCHAR;
-                        $columnLength = isset($annotations["maxLength"]) ? (int)$annotations["maxLength"][0]->getValue() : null;
-
-
-                        switch ($property->getType()) {
-                            case "integer":
-                            case "int":
-                                $columnType = TableColumn::SQL_INT;
-                                break;
-                            case "float":
-                            case "double":
-                                $columnType = TableColumn::SQL_FLOAT;
-                                break;
-                            case "bool":
-                            case "boolean":
-                                $columnType = TableColumn::SQL_TINYINT;
-                                break;
-                            case "\\" . \DateTime::class:
-                                $columnType = TableColumn::SQL_DATE_TIME;
-                                break;
-                        }
+                        if ($primaryKey) {
+                            $pkColumns[] = $columns[$columnName];
+                        };
                     }
-                    $columns[$columnName] = new TableColumn($columnName, $columnType, $columnLength, $columnPrecision, null, $primaryKey, $autoIncrement, $required);
+
                 }
-
             }
-        }
-        if (!$hasPk && isset($columns["id"])) {
-            $columns["id"] = new TableColumn("id", TableColumn::SQL_INT, null, null, null, true, true, true);
-        }
-
-        // Now, process any relationship data.
-        foreach ($this->tableMapping->getRelationships() as $relationship) {
-            $relatedMetaData = self::get($this->relatedEntities[$relationship->getMappedMember()])->generateTableMetaData();
-            
-            if ($relationship instanceof ManyToOneTableRelationship) {
-                
+            if (!$pkColumns && isset($columns["id"])) {
+                $columns["id"] = new TableColumn("id", TableColumn::SQL_INTEGER, null, null, null, true, true, true);
+                $pkColumns[] = $columns["id"];
             }
+
+            // Now, process any relationship data.
+            foreach ($this->tableMapping->getRelationships() as $relationship) {
+                $relatedMetaData = self::get($this->relatedEntities[$relationship->getMappedMember()])->generateTableMetaData();
+                $relatedMetaData = array_pop($relatedMetaData);
+
+                // Add management columns to our set in many to one situations.
+                if ($relationship instanceof ManyToOneTableRelationship) {
+                    $parentJoinColumnNames = $relationship->getParentJoinColumnNames();
+
+                    $index = 0;
+                    foreach ($relatedMetaData->getPrimaryKeyColumns() as $primaryKeyColumn) {
+                        if (isset($parentJoinColumnNames[$index])) {
+                            $columnName = $parentJoinColumnNames[$index];
+                            $columns[$columnName] = new TableColumn($columnName, $primaryKeyColumn->getType(), $primaryKeyColumn->getLength(), $primaryKeyColumn->getPrecision(),
+                                $primaryKeyColumn->getDefaultValue(), false, false, false);
+                        }
+                        $index++;
+                    }
+                } // Inject management columns to the related type in OneTo* relationships.
+                else if ($relationship instanceof OneToOneTableRelationship ||
+                    $relationship instanceof OneToManyTableRelationship
+                ) {
+
+                    $childJoinColumnNames = $relationship->getChildJoinColumnNames();
+                    $index = 0;
+                    foreach ($pkColumns as $pkColumn) {
+                        if (isset($childJoinColumnNames[$index])) {
+                            $columnName = $childJoinColumnNames[$index];
+                            $relatedMetaData->addColumn(new TableColumn($columnName,
+                                $pkColumn->getType(), $pkColumn->getLength(), $pkColumn->getPrecision(),
+                                $pkColumn->getDefaultValue(), false, false, false));
+                        }
+                        $index++;
+                    }
+
+
+                } // Add a link table meta data if many to many.
+                else if ($relationship instanceof ManyToManyTableRelationship) {
+
+                    $linkColumns = [];
+
+                    // Create link columns for our pk
+                    foreach ($pkColumns as $pkColumn) {
+                        $linkColumns[] = new TableColumn($tableName . "_" . $pkColumn->getName(),
+                            $pkColumn->getType(), $pkColumn->getLength(), $pkColumn->getPrecision(), $pkColumn->getDefaultValue(), true, false, true);
+                    }
+
+                    // Create link columns for related pk
+                    foreach ($relatedMetaData->getPrimaryKeyColumns() as $pkColumn) {
+                        $linkColumns[] = new TableColumn($relatedMetaData->getTableName() . "_" . $pkColumn->getName(),
+                            $pkColumn->getType(), $pkColumn->getLength(), $pkColumn->getPrecision(), $pkColumn->getDefaultValue(), true, false, true);
+                    }
+
+                    $linkTableMetaData = new TableMetaData($relationship->getLinkTableName(), $linkColumns);
+                    $this->generatedMetaData[$relationship->getLinkTableName()] = $linkTableMetaData;
+
+                }
+            }
+
+
+            $this->generatedMetaData[$tableName] = new UpdatableTableMetaData($tableName, $columns);
+
+
         }
-
-
-        $tableName = $this->tableMapping->getTableName();
-        $returnedData[$tableName] = new TableMetaData($tableName, $columns);
-
-        return $returnedData;
+        return $this->generatedMetaData;
 
     }
 

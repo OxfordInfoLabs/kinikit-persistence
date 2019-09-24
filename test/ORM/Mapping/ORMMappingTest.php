@@ -5,6 +5,7 @@ namespace Kinikit\Persistence\ORM\Mapping;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\ORM\Contact;
+use Kinikit\Persistence\ORM\PhoneNumber;
 use Kinikit\Persistence\ORM\Profile;
 use Kinikit\Persistence\ORM\Address;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +35,7 @@ class ORMMappingTest extends TestCase {
 
         $columns = $addressMD->getColumns();
         $this->assertEquals(6, sizeof($columns));
-        $this->assertEquals(new TableColumn("id", TableColumn::SQL_INT, null, null, null, true, true, true), $columns["id"]);
+        $this->assertEquals(new TableColumn("id", TableColumn::SQL_INTEGER, null, null, null, true, true, true), $columns["id"]);
         $this->assertEquals(new TableColumn("name", TableColumn::SQL_VARCHAR, 50, null, null, false, false, true), $columns["name"]);
         $this->assertEquals(new TableColumn("street_1", TableColumn::SQL_VARCHAR, 100, null, null, false, false, true), $columns["street_1"]);
 
@@ -61,7 +62,7 @@ class ORMMappingTest extends TestCase {
 
         $columns = $profileMD->getColumns();
         $this->assertEquals(4, sizeof($columns));
-        $this->assertEquals(new TableColumn("id", TableColumn::SQL_INT, null, null, null, true, true, true), $columns["id"]);
+        $this->assertEquals(new TableColumn("id", TableColumn::SQL_INTEGER, null, null, null, true, true, true), $columns["id"]);
         $this->assertEquals(new TableColumn("date_of_birth", TableColumn::SQL_DATE), $columns["date_of_birth"]);
         $this->assertEquals(new TableColumn("instantiated", TableColumn::SQL_DATE_TIME), $columns["instantiated"]);
         $this->assertEquals(new TableColumn("data", TableColumn::SQL_VARCHAR, 500), $columns["data"]);
@@ -76,6 +77,8 @@ class ORMMappingTest extends TestCase {
 
         $this->assertEquals(2, sizeof($metaData));
 
+        // Check extra columns added for Many to One relationships.
+
         /**
          * @var TableMetaData $contactMD
          */
@@ -83,14 +86,32 @@ class ORMMappingTest extends TestCase {
         $this->assertEquals("contact", $contactMD->getTableName());
 
         $columns = $contactMD->getColumns();
-        $this->assertEquals(new TableColumn("id", TableColumn::SQL_INT, null, null, null, true, true, true), $columns["id"]);
+        $this->assertEquals(3, sizeof($columns));
+        $this->assertEquals(new TableColumn("id", TableColumn::SQL_INTEGER, null, null, null, true, true, true), $columns["id"]);
         $this->assertEquals(new TableColumn("name", TableColumn::SQL_VARCHAR), $columns["name"]);
+        $this->assertEquals(new TableColumn("primary_address_id", TableColumn::SQL_INTEGER), $columns["primary_address_id"]);
 
+
+        // Check link table created for Many to Many relationships.
 
         /**
          * @var TableMetaData $contactOtherAddressesMD
          */
         $contactOtherAddressesMD = $metaData["contact_other_addresses"];
+        $this->assertEquals("contact_other_addresses", $contactOtherAddressesMD->getTableName());
+        $columns = $contactOtherAddressesMD->getColumns();
+
+        $this->assertEquals(2, sizeof($columns));
+        $this->assertEquals(new TableColumn("contact_id", TableColumn::SQL_INTEGER, null, null, null, true, false, true), $columns["contact_id"]);
+
+
+        // Check child mapping updated for One to * relationships.
+        $phoneNumberMD = ORMMapping::get(PhoneNumber::class)->generateTableMetaData()["phone_number"];
+
+        $this->assertEquals(new TableColumn("contact_id", TableColumn::SQL_INTEGER, null, null, null, false, false, false), $phoneNumberMD->getColumns()["contact_id"]);
+
+        $profileMD = ORMMapping::get(Profile::class)->generateTableMetaData()["profile"];
+        $this->assertEquals(new TableColumn("contact_id", TableColumn::SQL_INTEGER, null, null, null, false, false, false), $profileMD->getColumns()["contact_id"]);
 
 
     }

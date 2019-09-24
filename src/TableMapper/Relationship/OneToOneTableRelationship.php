@@ -45,6 +45,14 @@ class OneToOneTableRelationship extends BaseTableRelationship {
     }
 
     /**
+     * @return \string[]
+     */
+    public function getChildJoinColumnNames() {
+        return $this->childJoinColumnNames;
+    }
+
+    
+    /**
      * Get the select join clause for this relationship
      *
      * @param string $parentAlias

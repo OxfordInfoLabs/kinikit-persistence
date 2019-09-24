@@ -2,7 +2,13 @@
 
 
 namespace Kinikit\Persistence\Objects;
-
+/**
+ *
+ * @table new_address
+ *
+ * Class Address
+ * @package Kinikit\Persistence\Objects
+ */
 class Address {
 
 
