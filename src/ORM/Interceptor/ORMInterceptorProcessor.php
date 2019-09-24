@@ -10,6 +10,7 @@ use Kinikit\Core\Reflection\ClassInspectorProvider;
  * Process ORM interceptors for a given class.
  *
  * Class ORMInterceptorProcessor
+ * @noProxy
  */
 class ORMInterceptorProcessor {
 

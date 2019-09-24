@@ -140,7 +140,7 @@ class ORM {
         }
         $whereClause = $mapping->replaceMembersWithColumns($whereClause);
         $results = $this->tableMapper->values($mapping->getTableMapping(), $expressions, $whereClause, $placeholderValues);
-
+        
         if (is_array($expressions)) {
             foreach ($results as $index => $result) {
                 $newResult = [];

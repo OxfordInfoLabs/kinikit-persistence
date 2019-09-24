@@ -11,6 +11,8 @@ use Kinikit\Persistence\ORM\Mapping\ORMMapping;
 /**
  * Schema Generator - attempts to generate schema for all objects found in the
  * passed directory (defaulting to the application Objects directory).
+ *
+ * @noProxy
  */
 class SchemaGenerator {
 
@@ -99,7 +101,7 @@ class SchemaGenerator {
      * @param string $rootPath
      * @param null $rootPathNamespace
      */
-    public function createSchema($rootPath = "./Objects", $rootPathNamespace = null) {
+    public function createSchema($rootPath = "./Objects", $rootPathNamespace = null, $dropIfExists = true) {
 
         // Get the generated meta data.
         $generatedMetaData = $this->generateTableMetaData($rootPath, $rootPathNamespace);
@@ -107,7 +109,12 @@ class SchemaGenerator {
         // Now loop through and create the schema using the default database connection.
         foreach ($generatedMetaData as $tableMetaData) {
 
-            $sql = "CREATE TABLE {$tableMetaData->getTableName()} (\n";
+            $sql = "";
+            if ($dropIfExists) {
+                $sql = "DROP TABLE IF EXISTS {$tableMetaData->getTableName()};";
+            }
+
+            $sql .= "CREATE TABLE {$tableMetaData->getTableName()} (\n";
 
             $columnLines = array();
             $pks = array();
@@ -141,7 +148,7 @@ class SchemaGenerator {
             }
 
             $sql .= "\n)";
-            
+
             $this->databaseConnection->executeScript($sql);
 
         }

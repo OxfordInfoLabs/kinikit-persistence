@@ -21,7 +21,7 @@ class ActiveRecord {
      * @return mixed
      */
     public static function fetch($primaryKey) {
-        return Container::get(ORM::class)->fetch(self::getClass(), $primaryKey);
+        return Container::instance()->get(ORM::class)->fetch(self::getClass(), $primaryKey);
     }
 
 
@@ -31,7 +31,7 @@ class ActiveRecord {
      * @param $primaryKeys
      */
     public static function multiFetch($primaryKeys, $ignoreMissingObjects = false) {
-        return Container::get(ORM::class)->multiFetch(self::getClass(), $primaryKeys, $ignoreMissingObjects);
+        return Container::instance()->get(ORM::class)->multiFetch(self::getClass(), $primaryKeys, $ignoreMissingObjects);
     }
 
 
@@ -41,7 +41,7 @@ class ActiveRecord {
      * @param $query
      */
     public static function filter($whereClause = "", ...$placeholderValues) {
-        return Container::get(ORM::class)->filter(self::getClass(), $whereClause, $placeholderValues);
+        return Container::instance()->get(ORM::class)->filter(self::getClass(), $whereClause, $placeholderValues);
     }
 
 
@@ -55,7 +55,7 @@ class ActiveRecord {
      * @param array ...$placeholderValues
      */
     public static function values($expressions, $whereClause = "", ...$placeholderValues) {
-        return Container::get(ORM::class)->values(self::getClass(), $expressions, $whereClause, $placeholderValues);
+        return Container::instance()->get(ORM::class)->values(self::getClass(), $expressions, $whereClause, $placeholderValues);
     }
 
 
@@ -63,7 +63,7 @@ class ActiveRecord {
      * Save ourself
      */
     public function save() {
-        Container::get(ORM::class)->save($this);
+        Container::instance()->get(ORM::class)->save($this);
     }
 
 
@@ -71,7 +71,7 @@ class ActiveRecord {
      * Remove ourself
      */
     public function remove() {
-        Container::get(ORM::class)->delete($this);
+        Container::instance()->get(ORM::class)->delete($this);
     }
 
 
