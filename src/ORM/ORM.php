@@ -3,6 +3,8 @@
 namespace Kinikit\Persistence\ORM;
 
 use Kinikit\Core\Exception\ItemNotFoundException;
+use Kinikit\Core\Validation\ValidationException;
+use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\ORM\Mapping\ORMMapping;
@@ -22,14 +24,21 @@ class ORM {
      */
     private $tableMapper;
 
+    /**
+     * @var Validator
+     */
+    private $validator;
+
 
     /**
      * ORM constructor.  Auto inject table mapper instance.
      *
      * @param TableMapper $tableMapper
+     * @param Validator $validator
      */
-    public function __construct($tableMapper) {
+    public function __construct($tableMapper, $validator) {
         $this->tableMapper = $tableMapper;
+        $this->validator = $validator;
     }
 
 
@@ -91,6 +100,12 @@ class ORM {
      * @param mixed ...$placeholderValues
      */
     public function filter($className, $whereClause = "", ...$placeholderValues) {
+
+        // If array passed instead of ... values handle this
+        if (isset($placeholderValues[0]) && is_array($placeholderValues[0])) {
+            $placeholderValues = $placeholderValues[0];
+        }
+
         $mapping = ORMMapping::get($className);
         $whereClause = $mapping->replaceMembersWithColumns($whereClause);
         $results = $this->tableMapper->filter($mapping->getTableMapping(), $whereClause, $placeholderValues);
@@ -109,6 +124,12 @@ class ORM {
      * @param mixed ...$placeholderValues
      */
     public function values($className, $expressions, $whereClause = "", ...$placeholderValues) {
+
+        // If array passed instead of ... values handle this
+        if (isset($placeholderValues[0]) && is_array($placeholderValues[0])) {
+            $placeholderValues = $placeholderValues[0];
+        }
+
         $mapping = ORMMapping::get($className);
         if (is_string($expressions)) {
             $expressions = $mapping->replaceMembersWithColumns($expressions);
@@ -141,12 +162,14 @@ class ORM {
      */
     public function save($items) {
 
-        if (!is_array($items)) {
+        $isArray = is_array($items);
+        if (!$isArray) {
             $items = [$items];
         }
 
         // Group items by class name first
         $saveItems = [];
+        $validations = [];
         foreach ($items as $item) {
             $itemClass = get_class($item);
 
@@ -154,6 +177,16 @@ class ORM {
                 $saveItems[$itemClass] = [];
 
             $saveItems[$itemClass][] = $item;
+
+            // Validate the object for errors
+            $validationErrors = $this->validator->validateObject($item);
+            if ($validationErrors) {
+                $validations[] = $validationErrors;
+            }
+        }
+
+        if (sizeof($validations)) {
+            throw new ValidationException($isArray ? $validations : $validations[0]);
         }
 
         // Now save in batches by class.

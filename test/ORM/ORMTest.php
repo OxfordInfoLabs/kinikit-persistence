@@ -6,6 +6,8 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Core\Validation\ValidationException;
+use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\ORM\Interceptor\ConfigFileORMInterceptor;
@@ -162,6 +164,63 @@ class ORMTest extends TestCase {
     }
 
 
+    public function testMemberValidationIsTriggeredBeforeSaveAndRecursively() {
+
+        $address = new Address();
+
+        try {
+            $this->orm->save($address);
+            $this->fail("Should have thrown validation errors here");
+        } catch (ValidationException $e) {
+
+            $errors = $e->getValidationErrors();
+
+            $this->assertEquals(2, sizeof($errors));
+            $this->assertTrue(isset($errors["name"]["required"]));
+            $this->assertTrue(isset($errors["street1"]["required"]));
+
+        }
+
+
+        $contact = new Contact("Mark", new Address());
+        try {
+            $this->orm->save($contact);
+            $this->fail("Should have thrown validation errors here");
+        } catch (ValidationException $e) {
+
+            $errors = $e->getValidationErrors();
+
+            $this->assertEquals(1, sizeof($errors));
+            $this->assertEquals(2, sizeof($errors["primaryAddress"]));
+            $this->assertTrue(isset($errors["primaryAddress"]["name"]["required"]));
+            $this->assertTrue(isset($errors["primaryAddress"]["street1"]["required"]));
+
+        }
+
+
+        $contact = new Contact("Mark", null, [new Address(), new Address()]);
+        try {
+            $this->orm->save($contact);
+            $this->fail("Should have thrown validation errors here");
+        } catch (ValidationException $e) {
+
+            $errors = $e->getValidationErrors();
+
+            $this->assertEquals(1, sizeof($errors));
+            $this->assertEquals(2, sizeof($errors["otherAddresses"]));
+            $this->assertEquals(2, sizeof($errors["otherAddresses"][0]));
+            $this->assertEquals(2, sizeof($errors["otherAddresses"][1]));
+
+            $this->assertTrue(isset($errors["otherAddresses"][0]["name"]["required"]));
+            $this->assertTrue(isset($errors["otherAddresses"][0]["street1"]["required"]));
+            $this->assertTrue(isset($errors["otherAddresses"][1]["name"]["required"]));
+            $this->assertTrue(isset($errors["otherAddresses"][1]["street1"]["required"]));
+
+        }
+
+    }
+
+
     public function testCanDeleteSimpleObjects() {
 
         $address = $this->orm->fetch(Address::class, 2);
@@ -191,7 +250,7 @@ class ORMTest extends TestCase {
         $interceptorProcessor = $mockObjectProvider->getMockInstance(ORMInterceptorProcessor::class);
         Container::instance()->set(ORMInterceptorProcessor::class, $interceptorProcessor);
 
-        $orm = new ORM(new TableMapper(new TableQueryEngine(), new TablePersistenceEngine()));
+        $orm = new ORM(new TableMapper(new TableQueryEngine(), new TablePersistenceEngine()), Container::instance()->get(Validator::class));
 
 
         // Test for a vetoing interceptor.
@@ -466,6 +525,9 @@ class ORMTest extends TestCase {
 
 
     }
+
+
+
 
 
 //    public function testProxyObjectsAreMappedInsteadIfAnyLazyLoadedProperties() {

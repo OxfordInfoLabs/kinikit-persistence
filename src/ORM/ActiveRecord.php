@@ -1,0 +1,82 @@
+<?php
+
+namespace Kinikit\Persistence\ORM;
+
+use Kinikit\Core\DependencyInjection\Container;
+
+
+/**
+ * Active record class.  This provides a convenience mechanism for implementing the Active Record pattern.
+ *
+ * Class ActiveRecord
+ * @package Kinikit\Persistence\UPF\Object
+ */
+class ActiveRecord {
+
+
+    /**
+     * Get object by primary key
+     *
+     * @param $primaryKey
+     * @return mixed
+     */
+    public static function fetch($primaryKey) {
+        return Container::get(ORM::class)->fetch(self::getClass(), $primaryKey);
+    }
+
+
+    /**
+     * Get multiple objects by primary key
+     *
+     * @param $primaryKeys
+     */
+    public static function multiFetch($primaryKeys, $ignoreMissingObjects = false) {
+        return Container::get(ORM::class)->multiFetch(self::getClass(), $primaryKeys, $ignoreMissingObjects);
+    }
+
+
+    /**
+     * Query for objects of this type.
+     *
+     * @param $query
+     */
+    public static function filter($whereClause = "", ...$placeholderValues) {
+        return Container::get(ORM::class)->filter(self::getClass(), $whereClause, $placeholderValues);
+    }
+
+
+    /**
+     * /**
+     * Return an array of values for one or more expressions (either column names or SQL expressions e.g. count, distinct etc)
+     * using items from this table or related entities thereof.
+     *
+     * @param $expressions
+     * @param string $whereClause
+     * @param array ...$placeholderValues
+     */
+    public static function values($expressions, $whereClause = "", ...$placeholderValues) {
+        return Container::get(ORM::class)->values(self::getClass(), $expressions, $whereClause, $placeholderValues);
+    }
+
+
+    /**
+     * Save ourself
+     */
+    public function save() {
+        Container::get(ORM::class)->save($this);
+    }
+
+
+    /**
+     * Remove ourself
+     */
+    public function remove() {
+        Container::get(ORM::class)->delete($this);
+    }
+
+
+    // Return the real class for the derived class.
+    private static function getClass() {
+        return get_class(new static());
+    }
+}
