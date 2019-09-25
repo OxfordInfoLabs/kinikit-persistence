@@ -527,6 +527,38 @@ class ORMTest extends TestCase {
     }
 
 
+    public function testReadOnlyFieldsAndRelationshipsAreRespectedForReadButNotWritten() {
+
+        /**
+         * @var ContactWithReadOnly $readOnlyContact
+         */
+        $readOnlyContact = $this->orm->fetch(ContactWithReadOnly::class, 1);
+
+        $this->assertEquals("Mark", $readOnlyContact->getName());
+        $this->assertTrue($readOnlyContact->getPrimaryAddress() instanceof Address);
+        $this->assertEquals(2, sizeof($readOnlyContact->getOtherAddresses()));
+        $this->assertTrue($readOnlyContact->getProfile() instanceof Profile);
+        $this->assertEquals(2, sizeof($readOnlyContact->getPhoneNumbers()));
+
+        $readOnlyContact->setName("Biggles");
+        $readOnlyContact->setPrimaryAddress(null);
+        $readOnlyContact->setOtherAddresses([]);
+        $readOnlyContact->setProfile(null);
+        $readOnlyContact->setPhoneNumbers([]);
+
+        $this->orm->save($readOnlyContact);
+
+
+        // Refetch and check nothing has changed.
+        $readOnlyContact = $this->orm->fetch(ContactWithReadOnly::class, 1);
+
+        $this->assertEquals("Mark", $readOnlyContact->getName());
+        $this->assertTrue($readOnlyContact->getPrimaryAddress() instanceof Address);
+        $this->assertEquals(2, sizeof($readOnlyContact->getOtherAddresses()));
+        $this->assertTrue($readOnlyContact->getProfile() instanceof Profile);
+        $this->assertEquals(2, sizeof($readOnlyContact->getPhoneNumbers()));
+
+    }
 
 
 

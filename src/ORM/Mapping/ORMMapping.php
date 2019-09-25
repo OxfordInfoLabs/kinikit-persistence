@@ -254,6 +254,10 @@ class ORMMapping {
 
             foreach ($this->classInspector->getProperties() as $propertyName => $property) {
 
+                if ($property->isStatic())
+                    continue;
+
+              
                 $propertyValue = $property->get($object);
                 $isArray = strpos($property->getType(), "[");
 
@@ -322,6 +326,10 @@ class ORMMapping {
             $columns = [];
             $pkColumns = [];
             foreach ($properties as $propertyName => $property) {
+
+                if ($property->isStatic())
+                    continue;
+
                 if (!isset($this->relatedEntities[$propertyName])) {
 
                     $annotations = $property->getPropertyAnnotations();
