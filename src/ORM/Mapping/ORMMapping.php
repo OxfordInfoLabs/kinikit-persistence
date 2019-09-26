@@ -22,7 +22,12 @@ class ORMMapping {
     /**
      * @var TableMapping
      */
-    private $tableMapping;
+    private $writeTableMapping;
+
+    /**
+     * @var TableMapping
+     */
+    private $readTableMapping;
 
     /**
      * @var string
@@ -115,8 +120,18 @@ class ORMMapping {
      *
      * @return TableMapping
      */
-    public function getTableMapping() {
-        return $this->tableMapping;
+    public function getWriteTableMapping() {
+        return $this->writeTableMapping;
+    }
+
+
+    /**
+     * Get the read table mapping (falls back to the write mapping if none defined).
+     *
+     * @return TableMapping
+     */
+    public function getReadTableMapping() {
+        return $this->readTableMapping ?? $this->writeTableMapping;
     }
 
 
@@ -257,11 +272,16 @@ class ORMMapping {
                 if ($property->isStatic())
                     continue;
 
-              
+
                 $propertyValue = $property->get($object);
                 $isArray = strpos($property->getType(), "[");
 
                 if (isset($this->relatedEntities[$propertyName])) {
+
+                    // Continue if read only relationship.
+                    if (isset($property->getPropertyAnnotations()["readOnly"]))
+                        continue;
+
                     $relatedClassName = $this->relatedEntities[$propertyName];
                     $relatedMapper = self::get($relatedClassName);
                     if ($isArray) {
@@ -320,7 +340,7 @@ class ORMMapping {
 
             $properties = $this->classInspector->getProperties();
 
-            $tableName = $this->tableMapping->getTableName();
+            $tableName = $this->writeTableMapping->getTableName();
 
             // Loop through each property.
             $columns = [];
@@ -385,6 +405,7 @@ class ORMMapping {
                         if ($primaryKey) {
                             $pkColumns[] = $columns[$columnName];
                         };
+
                     }
 
                 }
@@ -395,7 +416,7 @@ class ORMMapping {
             }
 
             // Now, process any relationship data.
-            foreach ($this->tableMapping->getRelationships() as $relationship) {
+            foreach ($this->writeTableMapping->getRelationships() as $relationship) {
                 $relatedMetaData = self::get($this->relatedEntities[$relationship->getMappedMember()])->generateTableMetaData();
                 $relatedMetaData = array_pop($relatedMetaData);
 
@@ -407,8 +428,9 @@ class ORMMapping {
                     foreach ($relatedMetaData->getPrimaryKeyColumns() as $primaryKeyColumn) {
                         if (isset($parentJoinColumnNames[$index])) {
                             $columnName = $parentJoinColumnNames[$index];
-                            $columns[$columnName] = new TableColumn($columnName, $primaryKeyColumn->getType(), $primaryKeyColumn->getLength(), $primaryKeyColumn->getPrecision(),
-                                $primaryKeyColumn->getDefaultValue(), false, false, false);
+                            if (!isset($columns[$columnName]))
+                                $columns[$columnName] = new TableColumn($columnName, $primaryKeyColumn->getType(), $primaryKeyColumn->getLength(), $primaryKeyColumn->getPrecision(),
+                                    $primaryKeyColumn->getDefaultValue(), false, false, false);
                         }
                         $index++;
                     }
@@ -422,9 +444,10 @@ class ORMMapping {
                     foreach ($pkColumns as $pkColumn) {
                         if (isset($childJoinColumnNames[$index])) {
                             $columnName = $childJoinColumnNames[$index];
-                            $relatedMetaData->addColumn(new TableColumn($columnName,
-                                $pkColumn->getType(), $pkColumn->getLength(), $pkColumn->getPrecision(),
-                                $pkColumn->getDefaultValue(), false, false, false));
+                            if (!isset($relatedMetaData->getColumns()[$columnName]))
+                                $relatedMetaData->addColumn(new TableColumn($columnName,
+                                    $pkColumn->getType(), $pkColumn->getLength(), $pkColumn->getPrecision(),
+                                    $pkColumn->getDefaultValue(), false, false, false));
                         }
                         $index++;
                     }
@@ -509,14 +532,23 @@ class ORMMapping {
 
 
         // Resolve any relationships for each type
-        $relationships = [];
+        $writeRelationships = [];
+        $readRelationships = [];
 
         // MANY TO MANY
         $manyToManyFields = $classAnnotations->getFieldAnnotationsContainingMatchingTag("manyToMany");
         foreach ($manyToManyFields as $field => $annotations) {
+
+
             $relatedType = trim($properties[$field]->getType(), "[]");
             $linkTableName = isset($annotations["linkTable"][0]) ? $annotations["linkTable"][0]->getValue() : $this->camelCaseToUnderscore($this->className . $relatedType);
-            $relationships[] = new ManyToManyTableRelationship(self::get($relatedType)->getTableMapping(), $field, $linkTableName);
+
+            if (!isset($annotations["readOnly"])) {
+                $writeRelationships[] = new ManyToManyTableRelationship(self::get($relatedType)->getWriteTableMapping(), $field, $linkTableName);
+            }
+
+            $readRelationships[] = new ManyToManyTableRelationship(self::get($relatedType)->getReadTableMapping(), $field, $linkTableName);
+
             $this->relatedEntities[$field] = $relatedType;
         }
 
@@ -536,10 +568,20 @@ class ORMMapping {
                 }
             }
 
-            if (isset($annotations["oneToMany"]))
-                $relationships[] = new OneToManyTableRelationship(self::get($relatedType)->getTableMapping(), $field, $relatedColumns);
-            else
-                $relationships[] = new OneToOneTableRelationship(self::get($relatedType)->getTableMapping(), $field, $relatedColumns);
+            if (isset($annotations["oneToMany"])) {
+                if (!isset($annotations["readOnly"]))
+                    $writeRelationships[] = new OneToManyTableRelationship(self::get($relatedType)->getWriteTableMapping(), $field, $relatedColumns);
+
+                $readRelationships[] = new OneToManyTableRelationship(self::get($relatedType)->getReadTableMapping(), $field, $relatedColumns);
+            } else {
+
+                if (!isset($annotations["readOnly"]))
+                    $writeRelationships[] = new OneToOneTableRelationship(self::get($relatedType)->getWriteTableMapping(), $field, $relatedColumns);
+
+                $readRelationships[] = new OneToOneTableRelationship(self::get($relatedType)->getReadTableMapping(), $field, $relatedColumns);
+
+            }
+
 
             $this->relatedEntities[$field] = $relatedType;
         }
@@ -548,7 +590,7 @@ class ORMMapping {
         $manyToOneFields = $classAnnotations->getFieldAnnotationsContainingMatchingTag("manyToOne");
         foreach ($manyToOneFields as $field => $annotations) {
             $relatedType = trim($properties[$field]->getType(), "[]");
-            $relatedTableMapping = self::get($relatedType)->getTableMapping();
+            $relatedTableMapping = self::get($relatedType)->getWriteTableMapping();
             $relatedColumns = [];
             if (isset($annotations["parentJoinColumns"][0])) {
                 $relatedColumns = explode(",", str_replace(" ", "", $annotations["parentJoinColumns"][0]->getValue()));
@@ -559,18 +601,28 @@ class ORMMapping {
                     $relatedColumns[] = $relatedTableName . "_" . $name;
                 }
             }
-            $relationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns);
+
+            if (!isset($annotations["readOnly"])) {
+                $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns);
+
+            }
+
+            $readRelationships[] = new ManyToOneTableRelationship(self::get($relatedType)->getReadTableMapping(), $field, $relatedColumns);
+
+
             $this->relatedEntities[$field] = $relatedType;
         }
 
 
-        $this->tableMapping = new TableMapping($tableName, $relationships);
+        // Create read and write table mappings
+        $this->writeTableMapping = new TableMapping($tableName, $writeRelationships);
+        $this->readTableMapping = new TableMapping($tableName, $readRelationships);
 
 
     }
 
 
-    // Get a column name for a property for this class.
+// Get a column name for a property for this class.
     private function getColumnNameForProperty($propertyName) {
         $properties = $this->classInspector->getProperties();
         if (!isset($properties[$propertyName])) return null;
@@ -580,7 +632,7 @@ class ORMMapping {
     }
 
 
-    // Convert a camel case item to underscore.
+// Convert a camel case item to underscore.
     private function camelCaseToUnderscore($camelCase) {
         return strtolower(substr($camelCase, 0, 1) . preg_replace("/([A-Z0-9])/", "_$1", substr($camelCase, 1)));
     }

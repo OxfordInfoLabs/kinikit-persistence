@@ -14,7 +14,6 @@ class ContactWithReadOnly {
     private $id;
 
     /**
-     * @readOnly
      * @var string
      */
     private $name;

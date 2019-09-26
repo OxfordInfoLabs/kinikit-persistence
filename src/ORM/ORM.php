@@ -53,7 +53,7 @@ class ORM {
     public function fetch($className, $primaryKeyValue) {
         $mapping = ORMMapping::get($className);
         try {
-            $results = $this->tableMapper->fetch($mapping->getTableMapping(), $primaryKeyValue);
+            $results = $this->tableMapper->fetch($mapping->getReadTableMapping(), $primaryKeyValue);
             $results = $mapping->mapRowsToObjects([$results]);
             $result = sizeof($results) ? array_pop($results) : null;
 
@@ -81,7 +81,7 @@ class ORM {
     public function multiFetch($className, $primaryKeyValues, $ignoreMissingObjects = false) {
         $mapping = ORMMapping::get($className);
         try {
-            $results = $this->tableMapper->multiFetch($mapping->getTableMapping(), $primaryKeyValues, $ignoreMissingObjects);
+            $results = $this->tableMapper->multiFetch($mapping->getReadTableMapping(), $primaryKeyValues, $ignoreMissingObjects);
             return $mapping->mapRowsToObjects($results);
         } catch (PrimaryKeyRowNotFoundException $e) {
             throw new ObjectNotFoundException($className, $primaryKeyValues);
@@ -108,7 +108,7 @@ class ORM {
 
         $mapping = ORMMapping::get($className);
         $whereClause = $mapping->replaceMembersWithColumns($whereClause);
-        $results = $this->tableMapper->filter($mapping->getTableMapping(), $whereClause, $placeholderValues);
+        $results = $this->tableMapper->filter($mapping->getReadTableMapping(), $whereClause, $placeholderValues);
         return $mapping->mapRowsToObjects($results);
 
     }
@@ -139,7 +139,7 @@ class ORM {
             }
         }
         $whereClause = $mapping->replaceMembersWithColumns($whereClause);
-        $results = $this->tableMapper->values($mapping->getTableMapping(), $expressions, $whereClause, $placeholderValues);
+        $results = $this->tableMapper->values($mapping->getReadTableMapping(), $expressions, $whereClause, $placeholderValues);
 
         if (is_array($expressions)) {
             foreach ($results as $index => $result) {
@@ -195,7 +195,7 @@ class ORM {
             $saveRows = $mapping->mapObjectsToRows($classItems);
 
 
-            $saveRows = $this->tableMapper->save($mapping->getTableMapping(), $saveRows);
+            $saveRows = $this->tableMapper->save($mapping->getWriteTableMapping(), $saveRows);
 
             $mapping->mapRowsToObjects($saveRows, $classItems);
         }
@@ -231,7 +231,7 @@ class ORM {
         foreach ($deleteItems as $class => $classItems) {
             $mapping = ORMMapping::get($class);
             $deleteRows = $mapping->mapObjectsToRows($classItems, "DELETE");
-            $this->tableMapper->delete($mapping->getTableMapping(), $deleteRows);
+            $this->tableMapper->delete($mapping->getWriteTableMapping(), $deleteRows);
             $mapping->processPostDelete($classItems);
         }
 

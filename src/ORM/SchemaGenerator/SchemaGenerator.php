@@ -90,7 +90,7 @@ class SchemaGenerator {
             }
 
         }
-
+        
         return $tableMetaData;
 
     }
@@ -148,6 +148,7 @@ class SchemaGenerator {
             }
 
             $sql .= "\n)";
+
 
             $this->databaseConnection->executeScript($sql);
 

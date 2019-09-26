@@ -28,7 +28,7 @@ class TablePersistenceEngine {
      * SAVE: Used by persistence framework.  This will do a replace operation and remove any old relational data if required.
      *
      * @param TableMapping $tableMapping
-     * @param mixed[][string] $rows
+     * @param mixed [][string] $rows
      * @param string $saveOperation
      */
     public function saveRows($tableMapping, $rows, $saveOperation = self::SAVE_OPERATION_SAVE) {
@@ -72,7 +72,6 @@ class TablePersistenceEngine {
         }
 
 
-       
         // Delete the rows
         $bulkDataManager = $tableMapping->getDatabaseConnection()->getBulkDataManager();
         $bulkDataManager->delete($tableMapping->getTableName(), $rows, $tableMapping->getPrimaryKeyColumnNames());
@@ -123,7 +122,7 @@ class TablePersistenceEngine {
             $saveColumns = array_diff(array_keys($rows[0]), $relationshipColumns);
 
             // Save the main row.
-            $this->saveRowData($tableMapping, $saveOperation, $rows, $saveColumns);
+            $this->saveRowData($tableMapping, $saveOperation, $rows, $saveColumns, $storedRows);
 
 
             // Run post-save operations where certain relationship types require it.
@@ -135,7 +134,7 @@ class TablePersistenceEngine {
         } else {
 
             $saveColumns = array_keys($rows[0]);
-            $this->saveRowData($tableMapping, $saveOperation, $rows, $saveColumns);
+            $this->saveRowData($tableMapping, $saveOperation, $rows, $saveColumns, $storedRows);
         }
 
 
@@ -208,13 +207,33 @@ class TablePersistenceEngine {
         }
 
 
-
     }
 
-    // Save row data, taking account of any
-    private function saveRowData($tableMapping, $saveOperation, &$data, $saveColumns) {
+    // Save row data.
+    private function saveRowData($tableMapping, $saveOperation, &$data, $saveColumns, $storedRows) {
 
         $autoIncrementPk = $tableMapping->getAutoIncrementPk();
+
+        // If we are in a save scenario, ensure that any non supplied column data
+        // is left intact using the stored copy if available.  This allows us the benefit
+        // of optimised REPLACE workflow behaving like an update.
+        if ($storedRows) {
+            foreach ($data as $index => $item) {
+                $pk = join("||", $tableMapping->getPrimaryKeyValues($item));
+                if (isset($storedRows[$pk])) {
+                    foreach ($storedRows[$pk] as $key => $value) {
+                        if (!array_key_exists($key, $item)) {
+                            $data[$index][$key] = $value;
+
+                            if (!in_array($key, $saveColumns))
+                                $saveColumns[] = $key;
+                        }
+
+                    }
+                }
+            }
+        }
+
 
         // If an auto increment pk, need to insert / update each value
         if ($saveOperation != self::SAVE_OPERATION_UPDATE && $autoIncrementPk) {
