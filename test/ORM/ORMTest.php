@@ -318,6 +318,21 @@ class ORMTest extends TestCase {
         $this->assertEquals($this->orm->fetch(Address::class, 1), $contact->getPrimaryAddress());
         $this->assertEquals(array_values($this->orm->multiFetch(PhoneNumber::class, [2, 1])), $contact->getPhoneNumbers());
 
+
+        /**
+         * @var Document $document
+         */
+        $document = $this->orm->fetch(Document::class, 1);
+        $this->assertEquals("Test Document 1", $document->getContent());
+        $this->assertEquals([
+            $this->orm->fetch(Attachment::class, 1),
+            $this->orm->fetch(Attachment::class, 2)
+        ], $document->getNotes());
+        $this->assertEquals([
+            $this->orm->fetch(Attachment::class, 4)
+        ], $document->getComments());
+
+
     }
 
 
@@ -387,6 +402,27 @@ class ORMTest extends TestCase {
         $this->assertEquals([$this->orm->fetch(PhoneNumber::class, $reContact->getPhoneNumbers()[0]->getId()),
             $this->orm->fetch(PhoneNumber::class, $reContact->getPhoneNumbers()[1]->getId())], $reContact->getPhoneNumbers());
         $this->assertEquals([$this->orm->fetch(Address::class, 3), $this->orm->fetch(Address::class, 2)], $reContact->getOtherAddresses());
+
+
+        // Try a static one with attachments
+        $document = new Document();
+        $document->setContent("Hey Bingo");
+        $document->setNotes([new Attachment("Pineapple"), new Attachment("Orange")]);
+        $document->setComments([new Attachment("Fruit Lover"), new Attachment("Cocktail Waiter")]);
+
+        $this->orm->save($document);
+
+        $reDocument = $this->orm->fetch(Document::class, $document->getId());
+        $this->assertEquals("Hey Bingo", $reDocument->getContent());
+
+        $this->assertEquals(2, sizeof($reDocument->getNotes()));
+        $this->assertEquals("Pineapple", $reDocument->getNotes()[0]->getContent());
+        $this->assertEquals("Orange", $reDocument->getNotes()[1]->getContent());
+
+        $this->assertEquals(2, sizeof($reDocument->getComments()));
+        $this->assertEquals("Cocktail Waiter", $reDocument->getComments()[0]->getContent());
+        $this->assertEquals("Fruit Lover", $reDocument->getComments()[1]->getContent());
+
 
     }
 
@@ -489,6 +525,14 @@ class ORMTest extends TestCase {
         $this->assertEquals(0, $this->databaseConnection->query("SELECT COUNT(*) total FROM contact_other_addresses WHERE contact_id = 1")->nextRow()["total"]);
 
 
+        // Grab the first document
+        $document = $this->orm->fetch(Document::class, 1);
+        $this->orm->delete($document);
+
+        $this->assertEquals(1, sizeof($this->orm->filter(Document::class, "")));
+        $this->assertEquals(3, sizeof($this->orm->filter(Attachment::class, "")));
+
+
     }
 
 
@@ -561,6 +605,8 @@ class ORMTest extends TestCase {
         $this->assertEquals(2, sizeof($readOnlyContact->getPhoneNumbers()));
 
     }
+
+
 
 
 

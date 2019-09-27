@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS example_parent;
 DROP TABLE IF EXISTS example_child;
 DROP TABLE IF EXISTS example_child2;
 DROP TABLE IF EXISTS example_child_with_parent_key;
+DROP TABLE IF EXISTS example_child_with_parent_and_type;
 DROP TABLE IF EXISTS example_many_to_many_link;
 
 CREATE TABLE example_parent (id integer PRIMARY KEY AUTOINCREMENT, name VARCHAR(20), child_id INTEGER);
@@ -17,6 +18,7 @@ CREATE TABLE example_child (id integer PRIMARY KEY AUTOINCREMENT, description VA
 CREATE TABLE example_child2 (id integer PRIMARY KEY AUTOINCREMENT, profession VARCHAR(20));
 CREATE TABLE example_child_with_parent_key (id integer PRIMARY KEY AUTOINCREMENT, description VARCHAR(20), parent_id INTEGER);
 CREATE TABLE example_many_to_many_link (example_parent_id integer, example_child2_id integer);
+CREATE TABLE example_child_with_parent_and_type (id integer PRIMARY KEY AUTOINCREMENT, description VARCHAR(20), parent_id INTEGER, type VARCHAR(20) );
 
 
 -- Create some example parents
@@ -51,6 +53,14 @@ INSERT INTO example_child_with_parent_key (description, parent_id) VALUES ('Smil
 INSERT INTO example_child_with_parent_key (description, parent_id) VALUES ('Walking', 3);
 INSERT INTO example_child_with_parent_key (description, parent_id) VALUES ('Dancing', 4);
 
+-- Create some with parent key and type
+INSERT INTO example_child_with_parent_and_type (description, parent_id, type) VALUES ('Happy',1, 'NOTE');
+INSERT INTO example_child_with_parent_and_type (description, parent_id, type) VALUES ('Excited',1, 'NOTE');
+INSERT INTO example_child_with_parent_and_type (description, parent_id, type) VALUES ('Grumpy',2, 'NOTE');
+INSERT INTO example_child_with_parent_and_type (description, parent_id, type) VALUES ('Sad',2, 'NOTE');
+INSERT INTO example_child_with_parent_and_type (description, parent_id, type) VALUES ('Extrovert',1, 'COMMENT');
+INSERT INTO example_child_with_parent_and_type (description, parent_id, type) VALUES ('Musician',2, 'COMMENT');
+INSERT INTO example_child_with_parent_and_type (description, parent_id, type) VALUES ('Introvert',2, 'COMMENT');
 
 -- Create some many to many link relationships
 INSERT INTO example_many_to_many_link (example_parent_id, example_child2_id)

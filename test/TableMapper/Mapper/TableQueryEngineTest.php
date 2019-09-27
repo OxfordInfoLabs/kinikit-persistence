@@ -42,10 +42,6 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
         ], $queryEngine->query("example", "WHERE name = ? or name = ? ORDER by id", ["Mark", "Dave"]));
 
 
-
-
-
-
     }
 
 
@@ -198,6 +194,42 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testIfOneToManyRelationshipDefinedWithStaticMappedFieldsTheseAreQueriedAsWell() {
+
+        // Create a mapper with a one to one table relationship with another child.
+        $queryEngine = new TableQueryEngine();
+
+
+        // Create a mapper with a one to one table relationship with another child.
+        $tableMapping = new TableMapping("example_parent",
+            [new OneToManyTableRelationship(new TableMapping("example_child_with_parent_and_type"),
+                "notes", ["parent_id", "type=NOTE"]),
+                new OneToManyTableRelationship(new TableMapping("example_child_with_parent_and_type"),
+                    "comments", ["parent_id", "type=COMMENT"])
+            ]);
+
+
+        $this->assertEquals([["id" => 1, "name" => "Mary Jones", "child_id" => null,
+            "notes" => [["id" => 1, "description" => "Happy", "parent_id" => 1, "type" => "NOTE"], ["id" => 2, "description" => "Excited", "parent_id" => 1, "type" => "NOTE"]],
+            "comments" => [["id" => 5, "description" => "Extrovert", "parent_id" => 1, "type" => "COMMENT"]]
+        ]],
+            array_values($queryEngine->query($tableMapping, "WHERE id = 1")));
+
+
+        $this->assertEquals([["id" => 2, "name" => "Jane Walsh", "child_id" => 1,
+            "notes" => [["id" => 3, "description" => "Grumpy", "parent_id" => 2, "type" => "NOTE"],
+                ["id" => 4, "description" => "Sad", "parent_id" => 2, "type" => "NOTE"]],
+            "comments" => [
+                ["id" => 7, "description" => "Introvert", "parent_id" => 2, "type" => "COMMENT"],
+                ["id" => 6, "description" => "Musician", "parent_id" => 2, "type" => "COMMENT"]]
+        ]],
+            array_values($queryEngine->query($tableMapping, "WHERE id = 2")));
+
+
+    }
+
+
     public function testIfManyToManyRelationshipDefinedQueriesAlsoQueryRelatedEntities() {
 
         // Create a mapper with a one to one table relationship with another child.
@@ -244,7 +276,7 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
                 "child1", "parent_id")]);
 
         $this->assertEquals([["name" => "Mary Jones", "description" => "Swimming"], ["name" => "Jane Walsh", "description" => "Cooking"]],
-            $queryEngine->query($tableMapping,"SELECT name, child1.description FROM example_parent WHERE id IN (1, 2)"));
+            $queryEngine->query($tableMapping, "SELECT name, child1.description FROM example_parent WHERE id IN (1, 2)"));
 
 
     }

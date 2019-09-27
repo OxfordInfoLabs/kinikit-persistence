@@ -43,3 +43,16 @@ CREATE TABLE profile (id integer PRIMARY KEY AUTOINCREMENT,  date_of_birth DATE,
 INSERT INTO profile (date_of_birth, instantiated, data, contact_id)
 VALUES ('1977-12-06', '2019-01-01 14:33:22', '{"test": "Mark", "live": "Luke"}', 1),
 ('1986-01-13', '2019-01-01 19:36:01', '[1,2,3,4,5]', 3);
+
+
+DROP TABLE IF EXISTS document;
+CREATE TABLE document (id integer PRIMARY KEY AUTOINCREMENT, content VARCHAR(500));
+
+INSERT INTO document (content) VALUES ('Test Document 1'),('Test Document 2');
+
+DROP TABLE IF EXISTS attachment;
+CREATE TABLE attachment (id integer PRIMARY KEY AUTOINCREMENT, content VARCHAR(500), parent_id INTEGER, type VARCHAR(20));
+
+INSERT INTO attachment(content, parent_id, type)
+VALUES ('Note 1', 1, 'NOTE'), ('Note 2', 1, 'NOTE'), ('Note 3', 2, 'NOTE'),
+('Comment 1', 1, 'COMMENT'), ('Comment 2', 2, 'COMMENT'), ('Comment 3', 2, 'Comment');

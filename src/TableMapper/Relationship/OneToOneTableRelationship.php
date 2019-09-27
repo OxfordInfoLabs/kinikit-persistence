@@ -51,7 +51,7 @@ class OneToOneTableRelationship extends BaseTableRelationship {
         return $this->childJoinColumnNames;
     }
 
-    
+
     /**
      * Get the select join clause for this relationship
      *
@@ -69,7 +69,16 @@ class OneToOneTableRelationship extends BaseTableRelationship {
 
         $onClauses = [];
         foreach ($this->childJoinColumnNames as $index => $joinColumnName) {
-            $onClauses[] = "$parentAlias.{$parentPrimaryKeyColumns[$index]} = $myAlias.$joinColumnName";
+
+            // Handle static values
+            if (strpos($joinColumnName, "=")) {
+                $splitColumnName = explode("=", $joinColumnName);
+                $staticValue = trim($splitColumnName[1]);
+                if (!is_numeric($staticValue)) $staticValue = "'" . $staticValue . "'";
+                $onClauses[] = "$myAlias.$splitColumnName[0] = $staticValue";
+            } else {
+                $onClauses[] = "$parentAlias.{$parentPrimaryKeyColumns[$index]} = $myAlias.$joinColumnName";
+            }
         }
 
         $clause .= join(" AND ", $onClauses);

@@ -196,9 +196,17 @@ abstract class BaseTableRelationship implements TableRelationship {
         foreach ($relationshipData["relatedItemsByParent"] as $index => $relatedItems) {
             $parentRow = $relatedItems["parentRow"];
             foreach ($relatedItems["items"] as $itemIndex => $item) {
-                foreach ($parentFields as $fieldIndex => $parentField) {
-                    $childField = $childFields[$fieldIndex];
-                    $relationshipData["relatedItemsByParent"][$index]["items"][$itemIndex][$childField] = $parentRow[$parentField];
+                foreach ($childFields as $fieldIndex => $childField) {
+
+                    // Handle static child values
+                    if (strpos($childField, "=")) {
+                        $splitColumnName = explode("=", $childField);
+                        $staticValue = trim($splitColumnName[1]);
+                        $relationshipData["relatedItemsByParent"][$index]["items"][$itemIndex][trim($splitColumnName[0])] = $staticValue;
+                    } else {
+                        $parentField = $parentFields[$fieldIndex];
+                        $relationshipData["relatedItemsByParent"][$index]["items"][$itemIndex][$childField] = $parentRow[$parentField];
+                    }
                 }
             }
         }
@@ -224,12 +232,9 @@ abstract class BaseTableRelationship implements TableRelationship {
         }
 
 
-
-
         // Get the global persistence engine instance and save the children if they exist
         if (sizeof($relationshipData["allRelatedItems"]))
             $this->tablePersistenceEngine->__saveRows($this->relatedTableMapping, $relationshipData["allRelatedItems"], $saveType);
-
 
 
     }

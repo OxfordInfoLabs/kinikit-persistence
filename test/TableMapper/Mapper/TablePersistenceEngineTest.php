@@ -532,6 +532,123 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testCanSaveOneToManyRelationshipsWithStaticChildMappings() {
+
+        $childMapping = new TableMapping("example_child_with_parent_and_type");
+
+        $tableMapping = new TableMapping("example_parent", [
+            new OneToManyTableRelationship($childMapping,
+                "notes", ["parent_id", "type=NOTE"]),
+            new OneToManyTableRelationship($childMapping,
+                "comments", ["parent_id", "type=COMMENT"]),
+
+        ]);
+
+
+        // Do a create
+        $data = [
+            "name" => "Pickle",
+            "notes" => [
+                [
+                    "description" => "Brave"
+                ],
+                [
+                    "description" => "Courageous"
+                ],
+                [
+                    "description" => "Dynamic"
+                ]
+            ],
+            "comments" => [
+                [
+                    "description" => "Kick boxer"
+                ],
+                [
+                    "description" => "Martial arts expert"
+                ]
+            ]
+        ];
+
+        $result = $this->persistenceEngine->saveRows($tableMapping, $data);
+
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "notes" => [
+                ["id" => 8, "parent_id" => 5, "description" => "Brave", "type" => "NOTE"],
+                ["id" => 9, "parent_id" => 5, "description" => "Courageous", "type" => "NOTE"],
+                ["id" => 10, "parent_id" => 5, "description" => "Dynamic", "type" => "NOTE"]
+            ],
+            "comments" => [
+                ["id" => 11, "parent_id" => 5, "description" => "Kick boxer", "type" => "COMMENT"],
+                ["id" => 12, "parent_id" => 5, "description" => "Martial arts expert", "type" => "COMMENT"],
+            ],
+
+            "child_id" => null]], $reData);
+
+
+        // Do an update
+        $reData[5]["notes"][1]["description"] = "Strong";
+        $reData[5]["comments"][1]["description"] = "Karate Master";
+
+
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "notes" => [
+                ["id" => 8, "parent_id" => 5, "description" => "Brave", "type" => "NOTE"],
+                ["id" => 9, "parent_id" => 5, "description" => "Strong", "type" => "NOTE"],
+                ["id" => 10, "parent_id" => 5, "description" => "Dynamic", "type" => "NOTE"]
+            ],
+            "comments" => [
+                ["id" => 12, "parent_id" => 5, "description" => "Karate Master", "type" => "COMMENT"],
+                ["id" => 11, "parent_id" => 5, "description" => "Kick boxer", "type" => "COMMENT"]
+            ],
+
+            "child_id" => null]], $reData);
+
+
+        // Remove one from the stack
+        array_splice($reData[5]["notes"], 1, 1);
+        array_splice($reData[5]["comments"], 1, 1);
+
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
+
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "notes" => [
+                ["id" => 8, "parent_id" => 5, "description" => "Brave", "type" => "NOTE"],
+                ["id" => 10, "parent_id" => 5, "description" => "Dynamic", "type" => "NOTE"]
+            ],
+            "comments" => [
+                ["id" => 12, "parent_id" => 5, "description" => "Karate Master", "type" => "COMMENT"]
+            ],
+
+            "child_id" => null]], $reData);
+
+        // Do an unlink (set child to null)
+        $reData[5]["notes"] = null;
+
+        $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
+
+        $reData = $this->queryEngine->query($tableMapping, "WHERE name = 'Pickle'");
+
+        $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
+            "comments" => [
+                ["id" => 12, "parent_id" => 5, "description" => "Karate Master", "type" => "COMMENT"]
+            ],
+            "child_id" => null]], $reData);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id IN (8,9,10)")));
+
+
+
+    }
+
 
     public function testCanSaveManyToOneRelationships() {
 
@@ -650,7 +767,6 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
             "child_id" => null]], $reData);
 
 
-
         $reData[5]["children"] = [];
 
         $this->persistenceEngine->saveRows($tableMapping, array_values($reData));
@@ -658,7 +774,6 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
         $reData = $this->queryEngine->query($tableMapping, "WHERE id = 5");
         $this->assertEquals([5 => ["id" => 5, "name" => "Pickle",
             "child_id" => null]], $reData);
-
 
 
     }
