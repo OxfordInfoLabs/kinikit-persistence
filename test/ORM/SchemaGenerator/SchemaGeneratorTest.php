@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinikit\Persistence\ORM\SchemaGenerator;
+namespace Kinikit\Persistence\ORM\Tools;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
@@ -55,7 +55,7 @@ class SchemaGeneratorTest extends TestCase {
          * @var SchemaGenerator $schemaGenerator
          */
         $schemaGenerator = Container::instance()->get(SchemaGenerator::class);
-        $schemaGenerator->createSchema();
+        $schemaGenerator->createSchemaForPath();
 
 
         $contact = $databaseConnection->getTableMetaData("new_contact");

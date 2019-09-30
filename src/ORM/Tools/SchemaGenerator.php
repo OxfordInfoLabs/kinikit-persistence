@@ -1,8 +1,11 @@
 <?php
 
-namespace Kinikit\Persistence\ORM\SchemaGenerator;
+namespace Kinikit\Persistence\ORM\Tools;
 
+use DirectoryIterator;
+use Kiniauth\DB\DBInstaller;
 use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
@@ -28,30 +31,50 @@ class SchemaGenerator {
 
 
     /**
+     * @var FileResolver
+     */
+    private $fileResolver;
+
+
+    /**
      * SchemaGenerator constructor.
      *
      * @param ClassInspectorProvider $classInspectorProvider
      * @param DatabaseConnection $databaseConnection
+     * @param FileResolver $fileResolver
      */
-    public function __construct($classInspectorProvider, $databaseConnection) {
+    public function __construct($classInspectorProvider, $databaseConnection, $fileResolver) {
         $this->classInspectorProvider = $classInspectorProvider;
         $this->databaseConnection = $databaseConnection;
+        $this->fileResolver = $fileResolver;
     }
 
 
     /**
-     * Get all matching objects
+     * Generate schema for all objects using the file resolver.
+     */
+    public function createSchema($objectPaths = ["Objects"], $dropIfExists = true) {
+
+
+        foreach ($this->fileResolver->getSearchPaths() as $searchPath) {
+            foreach ($objectPaths as $objectPath) {
+                $this->createSchemaForPath($searchPath . "/" . $objectPath, $dropIfExists);
+            }
+        }
+
+    }
+
+
+    /**
+     * Generate table meta data for all objects found in the path using a defined root namespace.
      *
      * @param string $rootPath
      * @param string $rootPathNamespace
      *
      * @return TableMetaData[]
      */
-    public function generateTableMetaData($rootPath = "./Objects", $rootPathNamespace = null) {
+    public function generateTableMetaData($rootPath = "./Objects") {
 
-        if (!$rootPathNamespace) {
-            $rootPathNamespace = Configuration::readParameter("application.namespace") . "\\Objects";
-        }
 
         $tableMetaData = array();
 
@@ -65,8 +88,17 @@ class SchemaGenerator {
 
                 // if this is a class file, check it.
                 if ($item->getExtension() == "php") {
-                    $className = $rootPathNamespace . "\\" . $item->getBasename(".php");
+
+                    $fileContents = file_get_contents($item->getRealPath());
+                    preg_match("/namespace (.*?);/", $fileContents, $matches);
+
+                    $className = "";
+                    if (sizeof($matches) == 2)
+                        $className = trim($matches[1]) . "\\" . (explode(".", $item->getFilename())[0]);
+
+
                     if (class_exists($className)) {
+
 
                         // Read the table mapping
                         $classInspector = $this->classInspectorProvider->getClassInspector($className);
@@ -80,8 +112,7 @@ class SchemaGenerator {
 
                 // If directory, run this recursively.
                 if ($item->isDir()) {
-                    $subDefs = $this->generateTableMetaData($rootPath . "/" . $item->getFilename(),
-                        $rootPathNamespace . "\\" . $item->getFilename());
+                    $subDefs = $this->generateTableMetaData($rootPath . "/" . $item->getFilename());
 
                     $tableMetaData = array_merge($tableMetaData, $subDefs);
                 }
@@ -90,7 +121,7 @@ class SchemaGenerator {
             }
 
         }
-        
+
         return $tableMetaData;
 
     }
@@ -101,10 +132,10 @@ class SchemaGenerator {
      * @param string $rootPath
      * @param null $rootPathNamespace
      */
-    public function createSchema($rootPath = "./Objects", $rootPathNamespace = null, $dropIfExists = true) {
+    public function createSchemaForPath($rootPath = "./Objects", $dropIfExists = true) {
 
         // Get the generated meta data.
-        $generatedMetaData = $this->generateTableMetaData($rootPath, $rootPathNamespace);
+        $generatedMetaData = $this->generateTableMetaData($rootPath);
 
         // Now loop through and create the schema using the default database connection.
         foreach ($generatedMetaData as $tableMetaData) {
@@ -155,5 +186,6 @@ class SchemaGenerator {
         }
 
     }
+
 
 }
