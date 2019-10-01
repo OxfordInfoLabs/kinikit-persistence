@@ -77,6 +77,6 @@ class ActiveRecord {
 
     // Return the real class for the derived class.
     private static function getClass() {
-        return get_class(new static());
+        return static::class;
     }
 }
