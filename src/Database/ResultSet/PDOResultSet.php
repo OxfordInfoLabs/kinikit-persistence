@@ -47,12 +47,6 @@ class PDOResultSet extends BaseResultSet {
         $row = $this->statement->fetch(\PDO::FETCH_ASSOC);
 
         if ($row) {
-            foreach ($row as $key => $value) {
-                // Handle numerics correctly
-                if (is_numeric($value)) {
-                    $row[$key] = $value + 0;
-                }
-            }
             return $row;
         } else
             $this->close();

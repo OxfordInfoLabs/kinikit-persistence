@@ -536,6 +536,17 @@ class ORMTest extends TestCase {
     }
 
 
+    public function testStringFieldsAreCorrectlyRetainedAsStringsNotConvertedToNumbers() {
+
+        $phoneNumber = new PhoneNumber(null, "HOME", "01865784294");
+        $this->orm->save($phoneNumber);
+
+        $reNumber = $this->orm->fetch(PhoneNumber::class, $phoneNumber->getId());
+        $this->assertEquals("01865784294", $reNumber->getNumber());
+
+    }
+
+
     public function testDateFieldsAreCorrectlyMappedToDateObjects() {
 
         $profile = $this->orm->fetch(Profile::class, 1);
