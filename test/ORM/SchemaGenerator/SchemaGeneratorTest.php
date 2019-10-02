@@ -8,6 +8,7 @@ use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinikit\Persistence\Objects\Address;
 use Kinikit\Persistence\Objects\Contact;
+use Kinikit\Persistence\Objects\Note;
 use Kinikit\Persistence\Objects\Subordinates\PhoneNumber;
 use Kinikit\Persistence\Objects\Subordinates\Profile;
 use Kinikit\Persistence\ORM\Mapping\ORMMapping;
@@ -32,12 +33,13 @@ class SchemaGeneratorTest extends TestCase {
         $schemaGenerator = Container::instance()->get(SchemaGenerator::class);
         $generatedSchema = $schemaGenerator->generateTableMetaData();
 
-        $this->assertEquals(5, sizeof($generatedSchema));
+        $this->assertEquals(6, sizeof($generatedSchema));
         $this->assertEquals(ORMMapping::get(Contact::class)->generateTableMetaData()["new_contact"], $generatedSchema["new_contact"]);
         $this->assertEquals(ORMMapping::get(Contact::class)->generateTableMetaData()["new_contact_other_addresses"], $generatedSchema["new_contact_other_addresses"]);
         $this->assertEquals(ORMMapping::get(Address::class)->generateTableMetaData()["new_address"], $generatedSchema["new_address"]);
         $this->assertEquals(ORMMapping::get(Profile::class)->generateTableMetaData()["new_profile"], $generatedSchema["new_profile"]);
         $this->assertEquals(ORMMapping::get(PhoneNumber::class)->generateTableMetaData()["new_phone_number"], $generatedSchema["new_phone_number"]);
+        $this->assertEquals(ORMMapping::get(Note::class)->generateTableMetaData()["new_note"], $generatedSchema["new_note"]);
 
     }
 

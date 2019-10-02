@@ -28,4 +28,5 @@ class UpdatableTableMetaData extends TableMetaData {
         parent::addColumn($column);
     }
 
+
 }

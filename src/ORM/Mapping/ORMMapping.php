@@ -61,11 +61,11 @@ class ORMMapping {
      *
      * @var TableMetaData
      */
-    private $generatedMetaData;
+    private $generatedMetaData = null;
 
 
     /**
-     * @var ORMMapping[string]
+     * @var ORMMapping[]
      */
     private static $ormMappings = [];
 
@@ -335,7 +335,7 @@ class ORMMapping {
      */
     public function generateTableMetaData() {
 
-        if (!$this->generatedMetaData) {
+        if ($this->generatedMetaData === null) {
 
             $this->generatedMetaData = [];
 
@@ -416,6 +416,10 @@ class ORMMapping {
                 $pkColumns[] = $columns["id"];
             }
 
+            // Create meta data to prevent issues downstream in relationships.
+            $metaData = new UpdatableTableMetaData($tableName, $columns);
+            $this->generatedMetaData[$tableName] = $metaData;
+
             // Now, process any relationship data.
             foreach ($this->writeTableMapping->getRelationships() as $relationship) {
                 $relatedMetaData = self::get($this->relatedEntities[$relationship->getMappedMember()])->generateTableMetaData();
@@ -429,9 +433,11 @@ class ORMMapping {
                     foreach ($relatedMetaData->getPrimaryKeyColumns() as $primaryKeyColumn) {
                         if (isset($parentJoinColumnNames[$index])) {
                             $columnName = $parentJoinColumnNames[$index];
-                            if (!isset($columns[$columnName]))
+                            if (!isset($columns[$columnName])) {
                                 $columns[$columnName] = new TableColumn($columnName, $primaryKeyColumn->getType(), $primaryKeyColumn->getLength(), $primaryKeyColumn->getPrecision(),
                                     $primaryKeyColumn->getDefaultValue(), false, false, false);
+                                $metaData->addColumn($columns[$columnName]);
+                            }
                         }
                         $index++;
                     }
@@ -476,9 +482,6 @@ class ORMMapping {
 
                 }
             }
-
-
-            $this->generatedMetaData[$tableName] = new UpdatableTableMetaData($tableName, $columns);
 
 
         }
