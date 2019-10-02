@@ -56,3 +56,19 @@ CREATE TABLE attachment (id integer PRIMARY KEY AUTOINCREMENT, content VARCHAR(5
 INSERT INTO attachment(content, parent_id, type)
 VALUES ('Note 1', 1, 'NOTE'), ('Note 2', 1, 'NOTE'), ('Note 3', 2, 'NOTE'),
 ('Comment 1', 1, 'COMMENT'), ('Comment 2', 2, 'COMMENT'), ('Comment 3', 2, 'Comment');
+
+
+DROP TABLE IF EXISTS note;
+
+CREATE TABLE note (id integer PRIMARY KEY AUTOINCREMENT, note VARCHAR(500), parent_note_id INTEGER);
+
+INSERT INTO note(note, parent_note_id)
+VALUES ('Top Level Note', null),
+('First Level Note', 1),
+('Second Level Note', 2),
+('Third Level Note', 3),
+('Fourth Level Note', 4),
+('Fifth Level Note', 5),
+('Sixth Level Note', 6),
+('Seventh Level Note', 7);
+

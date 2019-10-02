@@ -12,6 +12,7 @@ use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableMetaData;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
+use Kinikit\Persistence\TableMapper\Mapper\TableQueryEngine;
 use Kinikit\Persistence\TableMapper\Relationship\ManyToManyTableRelationship;
 use Kinikit\Persistence\TableMapper\Relationship\ManyToOneTableRelationship;
 use Kinikit\Persistence\TableMapper\Relationship\OneToManyTableRelationship;
@@ -81,7 +82,6 @@ class ORMMapping {
         $classInspectorProvider = Container::instance()->get(ClassInspectorProvider::class);
         $this->classInspector = $classInspectorProvider->getClassInspector($className);
         $this->ormInterceptorProcessor = Container::instance()->get(ORMInterceptorProcessor::class);
-        $this->generateTableMapping();
     }
 
 
@@ -95,6 +95,7 @@ class ORMMapping {
         $className = trim($className, "\\");
         if (!isset(self::$ormMappings[$className])) {
             self::$ormMappings[$className] = new ORMMapping($className);
+            self::$ormMappings[$className]->generateTableMapping();
         }
         return self::$ormMappings[$className];
     }
@@ -528,7 +529,9 @@ class ORMMapping {
         // Calculate the table name and primary keys etc up front.
         $customTableName = $classAnnotations->getClassAnnotationForMatchingTag("table");
         $tableName = $customTableName ? $customTableName->getValue() : $this->camelCaseToUnderscore($this->classInspector->getShortClassName());
-        $tableMapping = new TableMapping($tableName);
+
+        $this->writeTableMapping = new TableMapping($tableName);
+        $this->readTableMapping = new TableMapping($tableName);
 
 
         // Resolve any relationships for each type
@@ -541,15 +544,21 @@ class ORMMapping {
 
 
             $relatedType = trim($properties[$field]->getType(), "[]");
-            $linkTableName = isset($annotations["linkTable"][0]) ? $annotations["linkTable"][0]->getValue() : $this->camelCaseToUnderscore($this->className . $relatedType);
 
-            if (!isset($annotations["readOnly"])) {
-                $writeRelationships[] = new ManyToManyTableRelationship(self::get($relatedType)->getWriteTableMapping(), $field, $linkTableName);
+            $relatedORM = self::get($relatedType);
+
+            if ($relatedORM) {
+
+                $linkTableName = isset($annotations["linkTable"][0]) ? $annotations["linkTable"][0]->getValue() : $this->camelCaseToUnderscore($this->className . $relatedType);
+
+                if (!isset($annotations["readOnly"])) {
+                    $writeRelationships[] = new ManyToManyTableRelationship($relatedORM->getWriteTableMapping(), $field, $linkTableName);
+                }
+
+                $readRelationships[] = new ManyToManyTableRelationship($relatedORM->getReadTableMapping(), $field, $linkTableName);
+
+                $this->relatedEntities[$field] = $relatedType;
             }
-
-            $readRelationships[] = new ManyToManyTableRelationship(self::get($relatedType)->getReadTableMapping(), $field, $linkTableName);
-
-            $this->relatedEntities[$field] = $relatedType;
         }
 
         // ONE TO MANY / ONE TO ONE
@@ -557,66 +566,75 @@ class ORMMapping {
         $toOneFields = array_merge($toOneFields, $classAnnotations->getFieldAnnotationsContainingMatchingTag("oneToOne"));
         foreach ($toOneFields as $field => $annotations) {
             $relatedType = trim($properties[$field]->getType(), "[]");
+            $relatedORM = self::get($relatedType);
 
-            $relatedColumns = [];
-            if (isset($annotations["childJoinColumns"][0])) {
-                $relatedColumns = explode(",", str_replace(" ", "", $annotations["childJoinColumns"][0]->getValue()));
-            } else {
-                $pkNames = $tableMapping->getPrimaryKeyColumnNames();
-                foreach ($pkNames as $name) {
-                    $relatedColumns[] = $tableName . "_" . $name;
+            if ($relatedORM) {
+
+                $relatedColumns = [];
+                if (isset($annotations["childJoinColumns"][0])) {
+                    $relatedColumns = explode(",", str_replace(" ", "", $annotations["childJoinColumns"][0]->getValue()));
+                } else {
+                    $pkNames = $this->writeTableMapping->getPrimaryKeyColumnNames();
+                    foreach ($pkNames as $name) {
+                        $relatedColumns[] = $tableName . "_" . $name;
+                    }
                 }
+
+                if (isset($annotations["oneToMany"])) {
+                    if (!isset($annotations["readOnly"]))
+                        $writeRelationships[] = new OneToManyTableRelationship($relatedORM->getWriteTableMapping(), $field, $relatedColumns);
+
+                    $readRelationships[] = new OneToManyTableRelationship($relatedORM->getReadTableMapping(), $field, $relatedColumns);
+                } else {
+
+                    if (!isset($annotations["readOnly"]))
+                        $writeRelationships[] = new OneToOneTableRelationship($relatedORM->getWriteTableMapping(), $field, $relatedColumns);
+
+                    $readRelationships[] = new OneToOneTableRelationship($relatedORM->getReadTableMapping(), $field, $relatedColumns);
+
+                }
+
+
+                $this->relatedEntities[$field] = $relatedType;
             }
-
-            if (isset($annotations["oneToMany"])) {
-                if (!isset($annotations["readOnly"]))
-                    $writeRelationships[] = new OneToManyTableRelationship(self::get($relatedType)->getWriteTableMapping(), $field, $relatedColumns);
-
-                $readRelationships[] = new OneToManyTableRelationship(self::get($relatedType)->getReadTableMapping(), $field, $relatedColumns);
-            } else {
-
-                if (!isset($annotations["readOnly"]))
-                    $writeRelationships[] = new OneToOneTableRelationship(self::get($relatedType)->getWriteTableMapping(), $field, $relatedColumns);
-
-                $readRelationships[] = new OneToOneTableRelationship(self::get($relatedType)->getReadTableMapping(), $field, $relatedColumns);
-
-            }
-
-
-            $this->relatedEntities[$field] = $relatedType;
         }
 
         // MANY TO ONE
         $manyToOneFields = $classAnnotations->getFieldAnnotationsContainingMatchingTag("manyToOne");
         foreach ($manyToOneFields as $field => $annotations) {
             $relatedType = trim($properties[$field]->getType(), "[]");
-            $relatedTableMapping = self::get($relatedType)->getWriteTableMapping();
-            $relatedColumns = [];
-            if (isset($annotations["parentJoinColumns"][0])) {
-                $relatedColumns = explode(",", str_replace(" ", "", $annotations["parentJoinColumns"][0]->getValue()));
-            } else {
-                $pkNames = $relatedTableMapping->getPrimaryKeyColumnNames();
-                $relatedTableName = $relatedTableMapping->getTableName();
-                foreach ($pkNames as $name) {
-                    $relatedColumns[] = $relatedTableName . "_" . $name;
+            $relatedORM = self::get($relatedType);
+
+            if ($relatedORM) {
+
+                $relatedTableMapping = $relatedORM->getWriteTableMapping();
+                $relatedColumns = [];
+                if (isset($annotations["parentJoinColumns"][0])) {
+                    $relatedColumns = explode(",", str_replace(" ", "", $annotations["parentJoinColumns"][0]->getValue()));
+                } else {
+                    $pkNames = $relatedTableMapping->getPrimaryKeyColumnNames();
+                    $relatedTableName = $relatedTableMapping->getTableName();
+                    foreach ($pkNames as $name) {
+                        $relatedColumns[] = $relatedTableName . "_" . $name;
+                    }
                 }
+
+                if (!isset($annotations["readOnly"])) {
+                    $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns);
+
+                }
+
+                $readRelationships[] = new ManyToOneTableRelationship($relatedORM->getReadTableMapping(), $field, $relatedColumns);
+
+
+                $this->relatedEntities[$field] = $relatedType;
             }
-
-            if (!isset($annotations["readOnly"])) {
-                $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns);
-
-            }
-
-            $readRelationships[] = new ManyToOneTableRelationship(self::get($relatedType)->getReadTableMapping(), $field, $relatedColumns);
-
-
-            $this->relatedEntities[$field] = $relatedType;
         }
 
 
         // Create read and write table mappings
-        $this->writeTableMapping = new TableMapping($tableName, $writeRelationships);
-        $this->readTableMapping = new TableMapping($tableName, $readRelationships);
+        $this->writeTableMapping->setRelationships($writeRelationships);
+        $this->readTableMapping->setRelationships($readRelationships);
 
 
     }

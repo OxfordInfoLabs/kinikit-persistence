@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS example_child2;
 DROP TABLE IF EXISTS example_child_with_parent_key;
 DROP TABLE IF EXISTS example_child_with_parent_and_type;
 DROP TABLE IF EXISTS example_many_to_many_link;
+DROP TABLE IF EXISTS example_recursive;
 
 CREATE TABLE example_parent (id integer PRIMARY KEY AUTOINCREMENT, name VARCHAR(20), child_id INTEGER);
 CREATE TABLE example_child (id integer PRIMARY KEY AUTOINCREMENT, description VARCHAR(20), child2_id INTEGER);
@@ -19,6 +20,7 @@ CREATE TABLE example_child2 (id integer PRIMARY KEY AUTOINCREMENT, profession VA
 CREATE TABLE example_child_with_parent_key (id integer PRIMARY KEY AUTOINCREMENT, description VARCHAR(20), parent_id INTEGER);
 CREATE TABLE example_many_to_many_link (example_parent_id integer, example_child2_id integer);
 CREATE TABLE example_child_with_parent_and_type (id integer PRIMARY KEY AUTOINCREMENT, description VARCHAR(20), parent_id INTEGER, type VARCHAR(20) );
+CREATE TABLE example_recursive (id integer PRIMARY KEY AUTOINCREMENT, note VARCHAR(255), parent_id);
 
 
 -- Create some example parents
@@ -67,4 +69,11 @@ INSERT INTO example_many_to_many_link (example_parent_id, example_child2_id)
 VALUES (1, 1), (1, 2), (1, 3), (2, 1), (2, 4), (2, 5), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7);
 
 
+INSERT INTO example_recursive (note, parent_id)
+VALUES ('Top level', null),
+ ('First level', 1),
+ ('Second level', 2),
+ ('Third level', 3),
+ ('Fourth level', 4),
+ ('Fifth level', 5);
 

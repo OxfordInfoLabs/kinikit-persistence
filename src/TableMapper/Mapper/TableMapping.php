@@ -56,13 +56,6 @@ class TableMapping {
     private $autoIncrementPkColumn;
 
     /**
-     * Array of relationship alias prefixes used by the table query engine.
-     *
-     * @var string[]
-     */
-    private $relationshipAliasPrefixes;
-
-    /**
      * TableMapping constructor.
      *
      * @param string $tableName
@@ -70,7 +63,6 @@ class TableMapping {
      */
     public function __construct($tableName, $relationships = [], $databaseConnection = null, $primaryKeyColumnNames = null) {
         $this->tableName = $tableName;
-        $this->relationships = $relationships;
 
         // Use built in database connection if none supplied.
         if (!$databaseConnection)
@@ -79,9 +71,7 @@ class TableMapping {
         $this->databaseConnection = $databaseConnection;
 
         if ($relationships) {
-            foreach ($relationships as $relationship) {
-                $relationship->setParentMapping($this);
-            }
+            $this->setRelationships($relationships);
         }
 
         $this->primaryKeyColumnNames = $primaryKeyColumnNames;
@@ -103,6 +93,20 @@ class TableMapping {
     public function getTableName() {
         return $this->tableName;
     }
+
+    /**
+     * @param TableRelationship[] $relationships
+     */
+    public function setRelationships($relationships) {
+        if ($relationships) {
+            foreach ($relationships as $relationship) {
+                $relationship->setParentMapping($this);
+            }
+        }
+
+        $this->relationships = $relationships;
+    }
+
 
     /**
      * @return TableRelationship[]
@@ -165,21 +169,6 @@ class TableMapping {
             $this->columnNames = array_keys($this->databaseConnection->getTableMetaData($this->tableName)->getColumns());
         }
         return $this->columnNames;
-    }
-
-
-    /**
-     * @return string[]
-     */
-    public function getRelationshipAliasPrefixes() {
-        return $this->relationshipAliasPrefixes;
-    }
-
-    /**
-     * @param string[] $relationshipAliasPrefixes
-     */
-    public function setRelationshipAliasPrefixes($relationshipAliasPrefixes) {
-        $this->relationshipAliasPrefixes = $relationshipAliasPrefixes;
     }
 
 

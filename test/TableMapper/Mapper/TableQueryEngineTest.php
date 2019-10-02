@@ -281,4 +281,49 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testRecursiveNestedRelatedEntitiesAreOnlyQueriedToMaxDepthOf5() {
+
+        $queryEngine = new TableQueryEngine();
+
+        $tableMapping = new TableMapping("example_recursive");
+        $tableMapping->setRelationships([new OneToManyTableRelationship($tableMapping, "children", ["parent_id"])]);
+
+        $result = $queryEngine->query($tableMapping, "WHERE id = 1");
+
+        $this->assertEquals([1 => [
+            "id" => 1,
+            "note" => "Top level",
+            "children" => [
+                [
+                    "id" => 2,
+                    "note" => "First level",
+                    "children" => [
+                        [
+                            "id" => 3,
+                            "note" => "Second level",
+                            "children" => [
+                                [
+                                    "id" => 4,
+                                    "note" => "Third level",
+                                    "children" => [
+                                        [
+                                            "id" => 5,
+                                            "note" => "Fourth level",
+                                            "parent_id" => 4
+                                        ]
+                                    ],
+                                    "parent_id" => 3
+                                ]
+                            ],
+                            "parent_id" => 2
+                        ]
+                    ],
+                    "parent_id" => 1
+                ]
+            ],
+            "parent_id" => null
+        ]], $result);
+    }
+
 }

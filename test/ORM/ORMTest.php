@@ -618,6 +618,48 @@ class ORMTest extends TestCase {
     }
 
 
+    public function testRecursivelyMappedObjectsAreReturnedUpTo5LevelsDeep() {
+
+        $note = $this->orm->fetch(Note::class, 1);
+
+        $expected = new Note(1, "Top Level Note", [
+            new Note(2, "First Level Note", [
+                new Note(3, "Second Level Note", [
+                    new Note(4, "Third Level Note", [
+                        new Note(5, "Fourth Level Note", [])
+                    ])
+                ])
+            ])
+        ]);
+
+
+        $this->assertEquals($expected, $note);
+
+
+        $note->getChildNotes()[0]->setNote("Updated Note");
+
+        $this->orm->save($note);
+
+
+        $reNote = $this->orm->fetch(Note::class, 1);
+
+        $expected = new Note(1, "Top Level Note", [
+            new Note(2, "Updated Note", [
+                new Note(3, "Second Level Note", [
+                    new Note(4, "Third Level Note", [
+                        new Note(5, "Fourth Level Note", [])
+                    ])
+                ])
+            ])
+        ]);
+
+        $this->assertEquals($expected, $reNote);
+
+
+
+
+    }
+
 
 
 

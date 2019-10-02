@@ -43,8 +43,9 @@ class TableQueryEngine {
 
         $doubleQueryRequired = strpos(strtoupper($query), "OFFSET") !== false || strpos(strtoupper($query), "LIMIT") !== false;
 
+
         // Substitute params for both select and WHERE clause for optimisation purposes below
-        $query = preg_replace_callback("/[0-9a-z_\.]+/", function ($matches) use ($fullPathAliases, $allColumns, &$doubleQueryRequired) {
+        $replacementFunction = function ($matches) use ($fullPathAliases, $allColumns, &$doubleQueryRequired) {
             if (isset($matches[0])) {
                 if (in_array($matches[0], $allColumns)) {
                     return "_X." . $matches[0];
@@ -60,7 +61,21 @@ class TableQueryEngine {
                 }
             }
             return $matches[0];
-        }, $query);
+        };
+
+
+        $explodedFrom = explode("FROM", $query);
+
+        if (sizeof($explodedFrom) > 1) {
+            $explodeWhere = explode("WHERE", $explodedFrom[1]);
+            $query = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodedFrom[0]);
+            $query .= "FROM" . $explodeWhere[0];
+            if (sizeof($explodeWhere) > 1) {
+                $query .= "WHERE" . preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodeWhere[1]);
+            }
+        } else {
+            $query = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $query);
+        }
 
 
         if (strpos($query, "SELECT") !== 0) {
@@ -122,7 +137,9 @@ class TableQueryEngine {
             $replacementClause .= "\n" . join("\n", $joinClauses);
         }
 
+
         $query = str_replace("FROM {$tableMapping->getTableName()}", $replacementClause, $query);
+
 
         $results = $tableMapping->getDatabaseConnection()->query($query, $placeholderValues)->fetchAll();
 
@@ -133,7 +150,7 @@ class TableQueryEngine {
              */
             $rows = [];
             foreach ($results as $result) {
-                $this->processQueryResult($tableMapping, $result, $rows, "_X__");
+                $this->processQueryResult($tableMapping, $result, $rows, "_X");
             }
 
 
@@ -156,15 +173,18 @@ class TableQueryEngine {
      * @param $results
      * @return array
      */
-    protected function processQueryResult($tableMapping, $result, &$rows, $myTableAlias) {
+    protected function processQueryResult($tableMapping, $result, &$rows, $myTableAlias, $depth = 0) {
 
 
         $primaryKeyColumns = $tableMapping->getPrimaryKeyColumnNames();
 
+
+        $columnPrefix = $myTableAlias . "__";
+
         // Index by PK for internal processing
         $pkValue = [];
         foreach ($primaryKeyColumns as $primaryKeyColumn) {
-            $pkValue[] = $result[$myTableAlias . $primaryKeyColumn];
+            $pkValue[] = $result[$columnPrefix . $primaryKeyColumn];
         }
 
         $pkString = join("||", $pkValue);
@@ -174,12 +194,14 @@ class TableQueryEngine {
 
             $newRow = [];
 
-            // Loop though processing data for my table alias.
+
+            // Loop though processing data for my table alias
+            //.
             $allNull = true;
             foreach ($result as $key => $value) {
 
-                if (substr($key, 0, strlen($myTableAlias)) == $myTableAlias) {
-                    $newRow[substr($key, strlen($myTableAlias))] = $value;
+                if (substr($key, 0, strlen($columnPrefix)) == $columnPrefix) {
+                    $newRow[substr($key, strlen($columnPrefix))] = $value;
 
                     if ($value != null) {
                         $allNull = false;
@@ -198,15 +220,27 @@ class TableQueryEngine {
 
 
         // Map any relationship data
-        $relationshipAliasPrefixes = $tableMapping->getRelationshipAliasPrefixes();
+        // $relationshipAliasPrefixes = $tableMapping->getRelationshipAliasPrefixes();
+
         foreach ($tableMapping->getRelationships() as $index => $relationship) {
-            $relationshipAlias = $relationshipAliasPrefixes[$index];
+
+            // Generate an alias for this relationship in the query
+            $relationshipAlias = $myTableAlias . chr(65 + $index);
+
+            // If the table mapping the same as the related table mapping, ensure we don't exceed a maximum depth of 5.
+            if ($relationship->getRelatedTableMapping() == $tableMapping) {
+                $depth++;
+                if ($depth == 5) {
+                    continue;
+                }
+            }
+
 
             if (isset($rows[$pkString][$relationship->getMappedMember()])) {
-                $this->processQueryResult($relationship->getRelatedTableMapping(), $result, $rows[$pkString][$relationship->getMappedMember()], $relationshipAlias);
+                $this->processQueryResult($relationship->getRelatedTableMapping(), $result, $rows[$pkString][$relationship->getMappedMember()], $relationshipAlias, $depth);
             } else {
                 $newRow = [];
-                $this->processQueryResult($relationship->getRelatedTableMapping(), $result, $newRow, $relationshipAlias);
+                $this->processQueryResult($relationship->getRelatedTableMapping(), $result, $newRow, $relationshipAlias, $depth);
                 if (sizeof($newRow) > 0) {
                     $rows[$pkString][$relationship->getMappedMember()] = $newRow;
                 }
@@ -252,11 +286,10 @@ class TableQueryEngine {
      * @param string $parentPath
      * @param string $parentAlias
      */
-    protected function processQueryPartsForRelationships($tableMapping, $parentPath, $parentAlias) {
+    protected function processQueryPartsForRelationships($tableMapping, $parentPath, $parentAlias, $depth = 0) {
         $selectJoinClauses = [];
         $additionalSelectColumns = [];
 
-        $relationshipAliasPrefixes = [];
         $fullPathAliases = [];
         foreach ($tableMapping->getRelationships() as $index => $relationship) {
 
@@ -277,21 +310,25 @@ class TableQueryEngine {
                 $additionalSelectColumns[] = $alias . "." . $column . " " . $relationshipAliasPrefix . $column;
             }
 
-            $relationshipAliasPrefixes[] = $relationshipAliasPrefix;
 
             $fullPathAliases[$parentPath . $relationship->getMappedMember()] = [$alias . ".", $relationship];
 
+            // If the table mapping the same as the related table mapping, ensure we don't exceed a maximum depth of 5.
+            if ($relatedTableMapping == $tableMapping) {
+                $depth++;
+                if ($depth == 5) {
+                    continue;
+                }
+            }
+
             // Call the related entity recursively to add other join data.
-            list ($relatedSelectColumns, $relatedJoinClauses, $relatedFullPathAliases) = $this->processQueryPartsForRelationships($relationship->getRelatedTableMapping(), $parentPath . $relationship->getMappedMember() . ".", $alias);
+            list ($relatedSelectColumns, $relatedJoinClauses, $relatedFullPathAliases) = $this->processQueryPartsForRelationships($relationship->getRelatedTableMapping(), $parentPath . $relationship->getMappedMember() . ".", $alias, $depth);
             $additionalSelectColumns = array_merge($additionalSelectColumns, $relatedSelectColumns);
             $selectJoinClauses = array_merge($selectJoinClauses, $relatedJoinClauses);
             $fullPathAliases = array_merge($fullPathAliases, $relatedFullPathAliases);
 
 
         }
-
-        // Set the relationship alias prefixes on the mapping
-        $tableMapping->setRelationshipAliasPrefixes($relationshipAliasPrefixes);
 
 
         return array($additionalSelectColumns, $selectJoinClauses, $fullPathAliases);
