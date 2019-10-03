@@ -147,7 +147,7 @@ class ORMMapping {
         foreach ($this->classInspector->getProperties() as $property) {
 
             $propertyName = $property->getPropertyName();
-            $string = preg_replace_callback("/(?<![\\S'])($propertyName)(?![\\S'])/", function () use ($propertyName) {
+            $string = preg_replace_callback("/(?<![\\w'])($propertyName)(?![\\w'])/", function () use ($propertyName) {
                 $columnName = $this->getColumnNameForProperty($propertyName);
                 return $columnName;
             }, $string);
@@ -172,7 +172,7 @@ class ORMMapping {
             $propertyName = $property->getPropertyName();
             $columnName = $this->getColumnNameForProperty($propertyName);
 
-            $string = preg_replace_callback("/(?<![\\S'])($columnName)(?![\\S'])/", function () use ($propertyName) {
+            $string = preg_replace_callback("/(?<![\\w'])($columnName)(?![\\w'])/", function () use ($propertyName) {
                 return $propertyName;
             }, $string);
 
