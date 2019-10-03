@@ -174,6 +174,7 @@ class TableMapper {
 
         $tableName = $tableMapping->getTableName();
 
+
         // If just a where clause, handle this otherwise assume full query.
         $results = $this->queryEngine->query($tableMapping, "SELECT * FROM {$tableName} " . $whereClause, $placeholderValues);
 

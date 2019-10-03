@@ -92,22 +92,28 @@ class TableQueryEngine {
                 // Select just distinct primary keys as a first query
                 $pks = $this->query($tableMapping, "SELECT DISTINCT " . join(", ", $tableMapping->getPrimaryKeyColumnNames()) . substr($query, 8), $placeholderValues);
 
-                // Create clauses
-                $clauses = [];
-                $pkPlaceholders = [];
-                foreach ($pks as $pkRow) {
-                    $pkClauses = [];
-                    foreach ($pkRow as $column => $value) {
-                        $pkClauses[] = "$column = ?";
-                        $pkPlaceholders[] = $value;
+                if (sizeof($pks)) {
+
+                    // Create clauses
+                    $clauses = [];
+                    $pkPlaceholders = [];
+                    foreach ($pks as $pkRow) {
+                        $pkClauses = [];
+                        foreach ($pkRow as $column => $value) {
+                            $pkClauses[] = "$column = ?";
+                            $pkPlaceholders[] = $value;
+                        }
+                        $clauses[] = "(" . join(" AND ", $pkClauses) . ")";
                     }
-                    $clauses[] = "(" . join(" AND ", $pkClauses) . ")";
+
+                    // No do a second query for just the pks
+                    $pkQuery = "WHERE " . join(" OR ", $clauses);
+
+                    return $this->query($tableMapping, $pkQuery, $pkPlaceholders);
+
+                } else {
+                    return [];
                 }
-
-                // No do a second query for just the pks
-                $pkQuery = "WHERE " . join(" OR ", $clauses);
-
-                return $this->query($tableMapping, $pkQuery, $pkPlaceholders);
 
             }
 

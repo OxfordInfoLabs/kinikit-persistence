@@ -107,8 +107,11 @@ class ORM {
             $placeholderValues = $placeholderValues[0];
         }
 
+
         $mapping = ORMMapping::get($className);
         $whereClause = $mapping->replaceMembersWithColumns($whereClause);
+
+
         $results = $this->tableMapper->filter($mapping->getReadTableMapping(), $whereClause, $placeholderValues);
         return $mapping->mapRowsToObjects($results);
 
