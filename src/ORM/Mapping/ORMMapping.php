@@ -191,6 +191,7 @@ class ORMMapping {
      */
     public function mapRowsToObjects($rowData, $existingObjects = null) {
 
+
         // Loop through each row and map it.
         $returnObjects = [];
         foreach ($rowData as $pk => $row) {
@@ -202,16 +203,19 @@ class ORMMapping {
                 $isArray = strpos($property->getType(), "[");
 
                 if (isset($this->relatedEntities[$propertyName])) {
+
                     $relatedClassName = $this->relatedEntities[$propertyName];
                     if (isset($row[$propertyName])) {
 
                         // Work out if single item.
                         $mapper = self::get($relatedClassName);
 
-                        $populateProperty = $property->get($populateObject);
-                        $existingObjects = $populateProperty ? ($isArray ? $populateProperty : [$populateProperty]) : null;
 
-                        $propertyResults = $mapper->mapRowsToObjects($isArray ? $row[$propertyName] : [$row[$propertyName]], $existingObjects);
+                        $populateProperty = $property->get($populateObject);
+
+                        $existingPropertyObjects = $populateProperty ? ($isArray ? $populateProperty : [$populateProperty]) : null;
+
+                        $propertyResults = $mapper->mapRowsToObjects($isArray ? $row[$propertyName] : [$row[$propertyName]], $existingPropertyObjects);
 
                         $propertyValue = null;
                         if ($propertyResults) {

@@ -198,6 +198,7 @@ class ORM {
 
             $saveRows = $this->tableMapper->save($mapping->getWriteTableMapping(), $saveRows);
 
+
             $mapping->mapRowsToObjects($saveRows, $classItems);
         }
 
