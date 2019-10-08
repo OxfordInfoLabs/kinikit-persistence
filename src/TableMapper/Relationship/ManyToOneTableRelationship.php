@@ -16,7 +16,7 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      * @param $mappedMember
      * @param $parentJoinColumnName
      */
-    public function __construct($relatedTableMapping, $mappedMember, $parentJoinColumnNames, $saveCascade = false, $deleteCascade = false) {
+    public function __construct($relatedTableMapping, $mappedMember, $parentJoinColumnNames, $saveCascade = true, $deleteCascade = false) {
         parent::__construct($relatedTableMapping, $mappedMember, $saveCascade, $deleteCascade);
 
         // Ensure we have an array of the right length for parent join columns.
@@ -151,7 +151,8 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
     public function preParentSaveOperation($saveType, &$relationshipData) {
 
         // Save the child first
-        $this->performSaveOperationOnChildren($saveType, $relationshipData);
+        if ($this->isSaveCascade())
+            $this->performSaveOperationOnChildren($saveType, $relationshipData);
 
         // Synchronise parent columns.
         $this->synchroniseParentFieldsFromChild($this->relatedTableMapping->getPrimaryKeyColumnNames(), $this->parentJoinColumnNames, $relationshipData);

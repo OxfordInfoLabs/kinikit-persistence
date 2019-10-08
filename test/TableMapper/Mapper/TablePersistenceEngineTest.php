@@ -657,7 +657,7 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
         // Create a mapper with a one to one table relationship with another child.
         $tableMapping = new TableMapping("example_parent",
             [new ManyToOneTableRelationship($childMapping,
-                "child", "child_id", false, true)]);
+                "child", "child_id", true, true)]);
 
 
         $data = [
