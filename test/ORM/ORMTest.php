@@ -618,7 +618,7 @@ class ORMTest extends TestCase {
     }
 
 
-    public function testRecursivelyMappedObjectsAreReturnedUpTo5LevelsDeep() {
+    public function testRecursivelyMappedObjectsAreReturnedUpTo5LevelsDeepByDefault() {
 
         $note = $this->orm->fetch(Note::class, 1);
 
@@ -656,8 +656,33 @@ class ORMTest extends TestCase {
         $this->assertEquals($expected, $reNote);
 
 
+    }
 
 
+    public function testIfMaxDepthAttributeSetMappedObjectsAreReturnedAccordingToDepth() {
+
+        $note = $this->orm->fetch(ShallowNote::class, 1);
+
+        $expected = new ShallowNote(1, "Top Level Note", [
+            new ShallowNote(2, "First Level Note", [])
+        ]);
+
+        $this->assertEquals($expected, $note);
+
+
+        $note->getChildNotes()[0]->setNote("Updated Note");
+
+        $this->orm->save($note);
+
+
+        $reNote = $this->orm->fetch(ShallowNote::class, 1);
+
+        $expected = new ShallowNote(1, "Top Level Note", [
+            new ShallowNote(2, "Updated Note", [])
+        ]);
+
+
+        $this->assertEquals($expected, $reNote);
     }
 
 

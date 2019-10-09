@@ -562,7 +562,12 @@ class ORMMapping {
                     $writeRelationships[] = new ManyToManyTableRelationship($relatedORM->getWriteTableMapping(), $field, $linkTableName);
                 }
 
-                $readRelationships[] = new ManyToManyTableRelationship($relatedORM->getReadTableMapping(), $field, $linkTableName);
+                $manyToManyTableRelationship = new ManyToManyTableRelationship($relatedORM->getReadTableMapping(), $field, $linkTableName);
+
+                // Ensure we set max depth if required.
+                if (isset($annotations["maxDepth"])) $manyToManyTableRelationship->setMaxDepth($annotations["maxDepth"][0]->getValue());
+
+                $readRelationships[] = $manyToManyTableRelationship;
 
                 $this->relatedEntities[$field] = $relatedType;
             }
@@ -591,13 +596,28 @@ class ORMMapping {
                     if (!isset($annotations["readOnly"]))
                         $writeRelationships[] = new OneToManyTableRelationship($relatedORM->getWriteTableMapping(), $field, $relatedColumns);
 
-                    $readRelationships[] = new OneToManyTableRelationship($relatedORM->getReadTableMapping(), $field, $relatedColumns);
+
+                    $oneToManyTableRelationship = new OneToManyTableRelationship($relatedORM->getReadTableMapping(), $field, $relatedColumns);
+
+                    // Ensure we set max depth if required.
+                    if (isset($annotations["maxDepth"])) {
+                        $oneToManyTableRelationship->setMaxDepth($annotations["maxDepth"][0]->getValue());
+                    }
+
+                    $readRelationships[] = $oneToManyTableRelationship;
                 } else {
 
                     if (!isset($annotations["readOnly"]))
                         $writeRelationships[] = new OneToOneTableRelationship($relatedORM->getWriteTableMapping(), $field, $relatedColumns);
 
-                    $readRelationships[] = new OneToOneTableRelationship($relatedORM->getReadTableMapping(), $field, $relatedColumns);
+
+                    $oneToOneTableRelationship = new OneToOneTableRelationship($relatedORM->getReadTableMapping(), $field, $relatedColumns);
+
+                    // Ensure we set max depth if required.
+                    if (isset($annotations["maxDepth"])) $oneToOneTableRelationship->setMaxDepth($annotations["maxDepth"][0]->getValue());
+
+
+                    $readRelationships[] = $oneToOneTableRelationship;
 
                 }
 
@@ -631,7 +651,15 @@ class ORMMapping {
 
                 }
 
-                $readRelationships[] = new ManyToOneTableRelationship($relatedORM->getReadTableMapping(), $field, $relatedColumns);
+
+                $manyToOneTableRelationship = new ManyToOneTableRelationship($relatedORM->getReadTableMapping(), $field, $relatedColumns);
+
+                // Ensure we set max depth if required.
+                if (isset($annotations["maxDepth"])) {
+                    $manyToOneTableRelationship->setMaxDepth($annotations["maxDepth"][0]->getValue());
+                }
+
+                $readRelationships[] = $manyToOneTableRelationship;
 
 
                 $this->relatedEntities[$field] = $relatedType;
@@ -642,7 +670,6 @@ class ORMMapping {
         // Create read and write table mappings
         $this->writeTableMapping->setRelationships($writeRelationships);
         $this->readTableMapping->setRelationships($readRelationships);
-
 
     }
 

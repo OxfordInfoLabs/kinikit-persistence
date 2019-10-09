@@ -48,6 +48,15 @@ abstract class BaseTableRelationship implements TableRelationship {
      */
     protected $deleteCascade;
 
+
+    /**
+     * Max depth for recursive relationships to own type objects (defaults to 5)
+     *
+     * @var integer
+     */
+    protected $maxDepth = 5;
+
+
     /**
      * @var TableQueryEngine
      */
@@ -120,6 +129,20 @@ abstract class BaseTableRelationship implements TableRelationship {
      */
     public function isDeleteCascade() {
         return $this->deleteCascade;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxDepth() {
+        return $this->maxDepth;
+    }
+
+    /**
+     * @param int $maxDepth
+     */
+    public function setMaxDepth($maxDepth) {
+        $this->maxDepth = $maxDepth;
     }
 
 

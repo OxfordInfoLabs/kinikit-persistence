@@ -282,7 +282,7 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testRecursiveNestedRelatedEntitiesAreOnlyQueriedToMaxDepthOf5() {
+    public function testRecursiveNestedRelatedEntitiesAreOnlyQueriedToMaxDepthOf5ByDefault() {
 
         $queryEngine = new TableQueryEngine();
 
@@ -319,6 +319,32 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
                             "parent_id" => 2
                         ]
                     ],
+                    "parent_id" => 1
+                ]
+            ],
+            "parent_id" => null
+        ]], $result);
+    }
+
+
+    public function testRecursiveNestedRelatedEntitiesAreOnlyQueriedToMaxDepthIfSetToOtherValue() {
+
+        $queryEngine = new TableQueryEngine();
+
+        $tableMapping = new TableMapping("example_recursive");
+        $oneToManyTableRelationship = new OneToManyTableRelationship($tableMapping, "children", ["parent_id"]);
+        $oneToManyTableRelationship->setMaxDepth(2);
+        $tableMapping->setRelationships([$oneToManyTableRelationship]);
+
+        $result = $queryEngine->query($tableMapping, "WHERE id = 1");
+
+        $this->assertEquals([1 => [
+            "id" => 1,
+            "note" => "Top level",
+            "children" => [
+                [
+                    "id" => 2,
+                    "note" => "First level",
                     "parent_id" => 1
                 ]
             ],

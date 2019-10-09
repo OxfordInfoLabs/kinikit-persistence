@@ -236,7 +236,7 @@ class TableQueryEngine {
             // If the table mapping the same as the related table mapping, ensure we don't exceed a maximum depth of 5.
             if ($relationship->getRelatedTableMapping() == $tableMapping) {
                 $depth++;
-                if ($depth == 5) {
+                if ($depth == $relationship->getMaxDepth()) {
                     continue;
                 }
             }
@@ -322,7 +322,7 @@ class TableQueryEngine {
             // If the table mapping the same as the related table mapping, ensure we don't exceed a maximum depth of 5.
             if ($relatedTableMapping == $tableMapping) {
                 $depth++;
-                if ($depth == 5) {
+                if ($depth == $relationship->getMaxDepth()) {
                     continue;
                 }
             }
