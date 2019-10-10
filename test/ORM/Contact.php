@@ -19,6 +19,7 @@ class Contact {
 
     /**
      * @manyToOne
+     * @saveCascade
      * @parentJoinColumns primary_address_id
      *
      * @var Address
@@ -28,6 +29,7 @@ class Contact {
 
     /**
      * @manyToMany
+     * @saveCascade
      * @linkTable contact_other_addresses
      *
      * @var Address[]
@@ -105,7 +107,7 @@ class Contact {
     /**
      * @param Address $primaryAddress
      */
-    public function setPrimaryAddress( $primaryAddress) {
+    public function setPrimaryAddress($primaryAddress) {
         $this->primaryAddress = $primaryAddress;
     }
 
@@ -133,7 +135,7 @@ class Contact {
     /**
      * @param Profile $profile
      */
-    public function setProfile( $profile): void {
+    public function setProfile($profile): void {
         $this->profile = $profile;
     }
 

@@ -110,8 +110,8 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
 
         // MANY TO ONE RELATIONSHIPS
         $child2Mapper = new TableMapping("example_child2");
-        $childMapper = new TableMapping("example_child", [new ManyToOneTableRelationship($child2Mapper, "child", "child2_id")]);
-        $tableMapper = new TableMapping("example_parent", [new ManyToOneTableRelationship($childMapper, "child", "child_id")]);
+        $childMapper = new TableMapping("example_child", [new ManyToOneTableRelationship($child2Mapper, "child", "child2_id",true)]);
+        $tableMapper = new TableMapping("example_parent", [new ManyToOneTableRelationship($childMapper, "child", "child_id",true)]);
 
         $insertData = [
             "name" => "Bonzo",

@@ -16,7 +16,7 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
      * @param $mappedMember
      * @param $parentJoinColumnName
      */
-    public function __construct($relatedTableMapping, $mappedMember, $parentJoinColumnNames, $saveCascade = true, $deleteCascade = false) {
+    public function __construct($relatedTableMapping, $mappedMember, $parentJoinColumnNames, $saveCascade = false, $deleteCascade = false) {
         parent::__construct($relatedTableMapping, $mappedMember, $saveCascade, $deleteCascade);
 
         // Ensure we have an array of the right length for parent join columns.

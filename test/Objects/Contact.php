@@ -31,6 +31,7 @@ class Contact {
 
     /**
      * @manyToOne
+     * @saveCascade
      * @parentJoinColumns primary_address_id
      *
      * @var Address
@@ -40,6 +41,7 @@ class Contact {
 
     /**
      * @manyToMany
+     * @saveCascade
      * @linkTable new_contact_other_addresses
      *
      * @var Address[]

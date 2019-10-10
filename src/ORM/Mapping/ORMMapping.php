@@ -3,6 +3,7 @@
 
 namespace Kinikit\Persistence\ORM\Mapping;
 
+use Kinicart\Objects\Account\Account;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspector;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
@@ -94,6 +95,10 @@ class ORMMapping {
     public static function get($className) {
         $className = trim($className, "\\");
         if (!isset(self::$ormMappings[$className])) {
+
+            // Handle mapped classes.
+            $className = Container::instance()->getClassMapping($className);
+
             self::$ormMappings[$className] = new ORMMapping($className);
             self::$ormMappings[$className]->generateTableMapping();
         }
@@ -196,7 +201,8 @@ class ORMMapping {
         $returnObjects = [];
         foreach ($rowData as $pk => $row) {
 
-            $populateObject = isset($existingObjects[sizeof($returnObjects)]) ? $existingObjects[sizeof($returnObjects)] : $this->classInspector->createInstance([]);
+            $className = trim($this->classInspector->getClassName(), "[]");
+            $populateObject = isset($existingObjects[sizeof($returnObjects)]) ? $existingObjects[sizeof($returnObjects)] : Container::instance()->new($className);
 
             foreach ($this->classInspector->getProperties() as $propertyName => $property) {
 
@@ -529,6 +535,7 @@ class ORMMapping {
     // Generate the underlying table mapping
     private function generateTableMapping() {
 
+
         // Gather common items for below.
         $classAnnotations = $this->classInspector->getClassAnnotationsObject();
         $properties = $this->classInspector->getProperties();
@@ -647,7 +654,7 @@ class ORMMapping {
                 }
 
                 if (!isset($annotations["readOnly"])) {
-                    $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns);
+                    $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns, isset($annotations["saveCascade"]));
 
                 }
 
@@ -670,6 +677,7 @@ class ORMMapping {
         // Create read and write table mappings
         $this->writeTableMapping->setRelationships($writeRelationships);
         $this->readTableMapping->setRelationships($readRelationships);
+
 
     }
 
