@@ -8,6 +8,7 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspector;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Core\Reflection\Property;
+use Kinikit\Core\Util\Primitive;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableMetaData;
@@ -514,6 +515,8 @@ class ORMMapping {
             if (!$propertyValue) $propertyValue = \DateTime::createFromFormat("Y-m-d H:i:s", $columnValue);
         } else if (isset($property->getPropertyAnnotations()["json"])) {
             $propertyValue = json_decode($columnValue, true);
+        } else {
+            $propertyValue = Primitive::convertToPrimitive($property->getType(), $propertyValue);
         }
 
         $property->set($targetObject, $propertyValue);
