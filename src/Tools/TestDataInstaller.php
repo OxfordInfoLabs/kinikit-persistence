@@ -74,7 +74,7 @@ class TestDataInstaller {
      *
      * If Install DB is passed this will also install the db first.
      */
-    public function run($installDB = true) {
+    public function run($installDB = true, $excludeTestDataPaths = []) {
 
         $cwd = getcwd();
 
@@ -87,6 +87,9 @@ class TestDataInstaller {
         $directories = $this->fileResolver->getSearchPaths();
 
         foreach ($directories as $directory) {
+
+            if (in_array($directory, $excludeTestDataPaths))
+                continue;
 
             if (file_exists($directory . "/../test/TestData"))
                 $this->processTestDataDirectory($directory . "/../test/TestData");
@@ -104,10 +107,13 @@ class TestDataInstaller {
             $event->getComposer()->getPackage()->getConfig()["source-directory"] : "src";
 
 
+        $excludeTestDataPaths = $event->getComposer()->getPackage()->getConfig()["exclude-test-data-paths"] ?? "";
+        $excludeTestDataPaths = explode(",", $excludeTestDataPaths);
+
         chdir($sourceDirectory);
 
         $installer = Container::instance()->get(TestDataInstaller::class);
-        $installer->run();
+        $installer->run(true, $excludeTestDataPaths);
 
     }
 
