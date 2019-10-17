@@ -153,10 +153,23 @@ class ORMMapping {
         foreach ($this->classInspector->getProperties() as $property) {
 
             $propertyName = $property->getPropertyName();
-            $string = preg_replace_callback("/(?<![\\w'])($propertyName)(?![\\w'])/", function () use ($propertyName) {
-                $columnName = $this->getColumnNameForProperty($propertyName);
-                return $columnName;
-            }, $string);
+
+            if (isset($this->relatedEntities[$propertyName]))
+                continue;
+
+            $offset = 0;
+
+            while (preg_match("/(?<![\\w'])($propertyName)(?![\\w'])/", $string, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+                if (isset($matches[0][1])) {
+                    $columnName = $this->getColumnNameForProperty($matches[0][0]);
+                    $position = $matches[0][1];
+                    if (substr($string, $position - 1, 1) != ".")
+                        $columnName = "_X." . $columnName;
+                    $string = substr($string, 0, $position) . $columnName . substr($string, $position + strlen($matches[0][0]));
+                }
+
+                $offset = $position + strlen($matches[0][0]);
+            }
 
         }
 
