@@ -5,6 +5,7 @@ namespace Kinikit\Persistence\ORM\Mapping;
 
 use Kinicart\Objects\Account\Account;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Reflection\ClassInspector;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Core\Reflection\Property;
@@ -296,7 +297,6 @@ class ORMMapping {
 
                 if ($property->isStatic())
                     continue;
-
 
                 $propertyValue = $property->get($object);
                 $isArray = strpos($property->getType(), "[");

@@ -5,6 +5,7 @@ namespace Kinikit\Persistence\Tools;
 use DirectoryIterator;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Bootstrapper;
 use Kinikit\Core\Init;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Tools\SchemaGenerator;
@@ -53,6 +54,9 @@ class DBInstaller {
      * objects in the supplied directories (default to objects).
      */
     public function run($objectPaths = ["Objects"]) {
+
+        // Ensure basic initialisation has occurred.
+        Container::instance()->get(Init::class);
 
         // Execute the create schema for both the core and application
         $this->schemaGenerator->createSchema($objectPaths);

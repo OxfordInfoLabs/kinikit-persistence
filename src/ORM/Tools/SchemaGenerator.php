@@ -57,6 +57,8 @@ class SchemaGenerator {
 
 
         foreach ($this->fileResolver->getSearchPaths() as $searchPath) {
+
+
             foreach ($objectPaths as $objectPath) {
                 $this->createSchemaForPath($searchPath . "/" . $objectPath, $dropIfExists);
             }
@@ -97,8 +99,8 @@ class SchemaGenerator {
                         $className = trim($matches[1]) . "\\" . (explode(".", $item->getFilename())[0]);
 
 
-                    if (class_exists($className)) {
 
+                    if (class_exists($className)) {
 
                         // Read the table mapping
                         $classInspector = $this->classInspectorProvider->getClassInspector($className);

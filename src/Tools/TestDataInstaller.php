@@ -10,7 +10,7 @@ use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Configuration\SearchNamespaces;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Init;
+use Kinikit\Core\Bootstrapper;
 use Kinikit\Persistence\ORM\ORM;
 
 /**
