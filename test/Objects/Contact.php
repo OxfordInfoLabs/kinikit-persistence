@@ -10,6 +10,7 @@ use Kinikit\Persistence\Objects\Subordinates\Profile;
 /**
  *
  * @table new_contact
+ * @generate
  *
  * Class Contact
  * @package Kinikit\Persistence\Objects

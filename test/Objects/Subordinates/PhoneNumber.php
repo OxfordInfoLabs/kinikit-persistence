@@ -5,9 +5,7 @@ namespace Kinikit\Persistence\Objects\Subordinates;
 
 /**
  * @table new_phone_number
- *
- * Class PhoneNumber
- * @package Kinikit\Persistence\Objects\Subordinates
+ * @generate
  */
 class PhoneNumber {
 

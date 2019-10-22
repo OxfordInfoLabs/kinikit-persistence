@@ -4,10 +4,8 @@
 namespace Kinikit\Persistence\Objects;
 
 /**
- * Class Note
- * @package Kinikit\Persistence\Objects
- *
  * @table new_note
+ * @generate
  */
 class Note {
 

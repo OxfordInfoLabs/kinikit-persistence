@@ -53,11 +53,10 @@ class SchemaGenerator {
     /**
      * Generate schema for all objects using the file resolver.
      */
-    public function createSchema($objectPaths = ["Objects"], $dropIfExists = true) {
+    public function createSchema($objectPaths = ["."], $dropIfExists = true) {
 
 
         foreach ($this->fileResolver->getSearchPaths() as $searchPath) {
-
 
             foreach ($objectPaths as $objectPath) {
                 $this->createSchemaForPath($searchPath . "/" . $objectPath, $dropIfExists);
@@ -75,8 +74,7 @@ class SchemaGenerator {
      *
      * @return TableMetaData[]
      */
-    public function generateTableMetaData($rootPath = "./Objects") {
-
+    public function generateTableMetaData($rootPath = ".") {
 
         $tableMetaData = array();
 
@@ -99,12 +97,11 @@ class SchemaGenerator {
                         $className = trim($matches[1]) . "\\" . (explode(".", $item->getFilename())[0]);
 
 
-
                     if (class_exists($className)) {
 
                         // Read the table mapping
                         $classInspector = $this->classInspectorProvider->getClassInspector($className);
-                        if (!isset($classInspector->getClassAnnotations()["noGenerate"])) {
+                        if (isset($classInspector->getClassAnnotations()["generate"])) {
                             $mapper = ORMMapping::get($className);
                             $tableMetaData = array_merge($tableMetaData, $mapper->generateTableMetaData());
                         }

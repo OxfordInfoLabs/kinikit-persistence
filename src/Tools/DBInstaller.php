@@ -53,7 +53,7 @@ class DBInstaller {
      * Run the db installer.  This will resolve all included search paths for
      * objects in the supplied directories (default to objects).
      */
-    public function run($objectPaths = ["Objects"]) {
+    public function run($objectPaths = ["."]) {
 
         // Ensure basic initialisation has occurred.
         Container::instance()->get(Init::class);

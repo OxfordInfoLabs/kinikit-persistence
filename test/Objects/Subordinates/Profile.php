@@ -7,9 +7,7 @@ namespace Kinikit\Persistence\Objects\Subordinates;
  * Profile class
  *
  * @table new_profile
- *
- * Class Profile
- * @package Kinikit\Persistence\ORM
+ * @generate
  */
 class Profile {
 
