@@ -97,6 +97,7 @@ class TableQueryEngine {
                     // Create clauses
                     $clauses = [];
                     $pkPlaceholders = [];
+                    $orderedResults = [];
                     foreach ($pks as $pkRow) {
                         $pkClauses = [];
                         foreach ($pkRow as $column => $value) {
@@ -104,12 +105,21 @@ class TableQueryEngine {
                             $pkPlaceholders[] = $value;
                         }
                         $clauses[] = "(" . join(" AND ", $pkClauses) . ")";
+                        $pkValues = $tableMapping->getPrimaryKeyValues($pkRow);
+                        $orderedResults[join("||", $pkValues)] = 1;
                     }
 
                     // No do a second query for just the pks
                     $pkQuery = "WHERE " . join(" OR ", $clauses);
 
-                    return $this->query($tableMapping, $pkQuery, $pkPlaceholders);
+                    $results = $this->query($tableMapping, $pkQuery, $pkPlaceholders);
+
+                    // Order the results again
+                    foreach ($results as $pk => $result) {
+                        $orderedResults[$pk] = $result;
+                    }
+
+                    return $orderedResults;
 
                 } else {
                     return [];

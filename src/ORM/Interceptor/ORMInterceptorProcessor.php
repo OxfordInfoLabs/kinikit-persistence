@@ -145,16 +145,23 @@ class ORMInterceptorProcessor {
      * @param $interceptorClassName
      */
     public function addInterceptor($classPattern, $interceptorClassName) {
+
+        // Reset interceptors by class to ensure we don't have caching issues.
+        $this->interceptorsByClass = [];
+
         if (!isset($this->interceptorsByClassNamePattern[$classPattern]))
             $this->interceptorsByClassNamePattern[$classPattern] = [];
         else if (!is_array($this->interceptorsByClassNamePattern[$classPattern]))
             $this->interceptorsByClassNamePattern[$classPattern] = [$this->interceptorsByClassNamePattern[$classPattern]];
         $this->interceptorsByClassNamePattern[$classPattern][] = $interceptorClassName;
+
+
     }
 
 
     // Get all interceptors defined for the passed class.
     private function getInterceptorsForClass($className) {
+
 
         if (!isset($this->interceptorsByClass[$className])) {
             $interceptors = [];
