@@ -225,7 +225,7 @@ class ORM {
         foreach ($items as $item) {
             $itemClass = get_class($item);
 
-            if (!isset($saveItems[$itemClass]))
+            if (!isset($deleteItems[$itemClass]))
                 $deleteItems[$itemClass] = [];
 
             $deleteItems[$itemClass][] = $item;
@@ -234,6 +234,7 @@ class ORM {
 
         // Now save in batches by class.
         foreach ($deleteItems as $class => $classItems) {
+
             $mapping = ORMMapping::get($class);
             $deleteRows = $mapping->mapObjectsToRows($classItems, "DELETE");
             $this->tableMapper->delete($mapping->getWriteTableMapping(), $deleteRows);
