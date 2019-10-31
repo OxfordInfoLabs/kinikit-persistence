@@ -64,15 +64,18 @@ class TableQueryEngine {
         };
 
 
-        $explodedFrom = explode("FROM", $query);
+        $explodedFrom = explode("FROM", $query,1);
 
         if (sizeof($explodedFrom) > 1) {
+
             $explodeWhere = explode("WHERE", $explodedFrom[1]);
+
             $query = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodedFrom[0]);
             $query .= "FROM" . $explodeWhere[0];
             if (sizeof($explodeWhere) > 1) {
                 $query .= "WHERE" . preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodeWhere[1]);
             }
+
         } else {
             $query = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $query);
         }
