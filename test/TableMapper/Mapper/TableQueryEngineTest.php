@@ -282,6 +282,22 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testCanQueryUsingSubqueries() {
+
+        $queryEngine = new TableQueryEngine();
+
+        $tableMapping = new TableMapping("example");
+
+        $this->assertEquals([["name" => "Mark"], ["name" => "John"], ["name" => "Dave"]],
+            $queryEngine->query($tableMapping, "SELECT name FROM example WHERE name IN (SELECT 'Mark'
+UNION SELECT 'John'
+UNION SELECT 'Dave'
+WHERE 1 = 1)"));
+
+
+    }
+
+
     public function testRecursiveNestedRelatedEntitiesAreOnlyQueriedToMaxDepthOf5ByDefault() {
 
         $queryEngine = new TableQueryEngine();

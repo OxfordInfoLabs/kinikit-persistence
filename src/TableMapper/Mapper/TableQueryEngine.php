@@ -64,26 +64,49 @@ class TableQueryEngine {
         };
 
 
-        $explodedFrom = explode("FROM", $query,1);
-
-        if (sizeof($explodedFrom) > 1) {
-
-            $explodeWhere = explode("WHERE", $explodedFrom[1]);
-
-            $query = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodedFrom[0]);
-            $query .= "FROM" . $explodeWhere[0];
-            if (sizeof($explodeWhere) > 1) {
-                $query .= "WHERE" . preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodeWhere[1]);
-            }
-
-        } else {
-            $query = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $query);
-        }
-
-
         if (strpos($query, "SELECT") !== 0) {
             $query = "SELECT * FROM {$tableMapping->getTableName()} " . $query;
         }
+
+
+        $explodedSelect = explode("SELECT", $query);
+
+
+        $selectParts = [];
+
+        foreach ($explodedSelect as $explodedSelectElement) {
+
+
+            if (trim($explodedSelectElement)) {
+
+                $selectPart = null;
+
+                $explodedFrom = explode("FROM", $explodedSelectElement);
+
+                if (sizeof($explodedFrom) > 1) {
+
+                    $explodeWhere = explode("WHERE", $explodedFrom[1]);
+
+                    $selectPart = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodedFrom[0]);
+                    $selectPart .= "FROM" . $explodeWhere[0];
+                    if (sizeof($explodeWhere) > 1) {
+                        $selectPart .= "WHERE" . preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodeWhere[1]);
+                    }
+
+                } else {
+                    $selectPart = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodedSelectElement);
+                }
+
+                $selectParts[] = $selectPart;
+
+            }
+
+        }
+
+
+        $query = "SELECT" . join("SELECT", $selectParts);
+
+
 
         // If we have a select * query add all required columns
         $requiresMapping = false;
