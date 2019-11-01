@@ -31,7 +31,7 @@ class Profile {
     /**
      * @json
      * @sqlType VARCHAR(500)
-     * @var array
+     * @var string[string]
      */
     private $data;
 

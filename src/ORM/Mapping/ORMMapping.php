@@ -4,6 +4,8 @@
 namespace Kinikit\Persistence\ORM\Mapping;
 
 use Kinicart\Objects\Account\Account;
+use Kinikit\Core\Binding\ObjectBinder;
+use Kinikit\Core\Binding\ObjectBindingException;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Reflection\ClassInspector;
@@ -51,6 +53,12 @@ class ORMMapping {
 
 
     /**
+     * @var ObjectBinder
+     */
+    private $objectBinder;
+
+
+    /**
      * List of related entities for this class.  This
      * maps property names to class names.
      *
@@ -85,6 +93,7 @@ class ORMMapping {
         $classInspectorProvider = Container::instance()->get(ClassInspectorProvider::class);
         $this->classInspector = $classInspectorProvider->getClassInspector($className);
         $this->ormInterceptorProcessor = Container::instance()->get(ORMInterceptorProcessor::class);
+        $this->objectBinder = Container::instance()->get(ObjectBinder::class);
     }
 
 
@@ -527,7 +536,12 @@ class ORMMapping {
             $propertyValue = \DateTime::createFromFormat("Y-m-d", $columnValue);
             if (!$propertyValue) $propertyValue = \DateTime::createFromFormat("Y-m-d H:i:s", $columnValue);
         } else if (isset($property->getPropertyAnnotations()["json"])) {
-            $propertyValue = json_decode($columnValue, true);
+            try {
+                $propertyValue = json_decode($columnValue,true);
+                $propertyValue = $this->objectBinder->bindFromArray($propertyValue, $property->getType(), false);
+            } catch (ObjectBindingException $e) {
+                $propertyValue = null;
+            }
         } else {
             $propertyValue = Primitive::convertToPrimitive($property->getType(), $propertyValue);
         }
@@ -541,7 +555,8 @@ class ORMMapping {
         if ($propertyValue instanceof \DateTime) {
             $columnValue = $propertyValue->format("Y-m-d H:i:s");
         } else if (isset($property->getPropertyAnnotations()["json"])) {
-            $columnValue = json_encode($propertyValue);
+            $columnValue = $this->objectBinder->bindToArray($propertyValue, false);
+            $columnValue = json_encode($columnValue);
         }
 
         return $columnValue;
