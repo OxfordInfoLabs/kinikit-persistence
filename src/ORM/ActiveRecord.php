@@ -41,6 +41,12 @@ class ActiveRecord {
      * @param $query
      */
     public static function filter($whereClause = "", ...$placeholderValues) {
+
+        // If array passed instead of ... values handle this
+        if (isset($placeholderValues[0]) && is_array($placeholderValues[0])) {
+            $placeholderValues = $placeholderValues[0];
+        }
+
         return Container::instance()->get(ORM::class)->filter(self::getClass(), $whereClause, $placeholderValues);
     }
 
@@ -55,6 +61,12 @@ class ActiveRecord {
      * @param array ...$placeholderValues
      */
     public static function values($expressions, $whereClause = "", ...$placeholderValues) {
+
+        // If array passed instead of ... values handle this
+        if (isset($placeholderValues[0]) && is_array($placeholderValues[0])) {
+            $placeholderValues = $placeholderValues[0];
+        }
+
         return Container::instance()->get(ORM::class)->values(self::getClass(), $expressions, $whereClause, $placeholderValues);
     }
 

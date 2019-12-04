@@ -102,10 +102,12 @@ class ORM {
      */
     public function filter($className, $whereClause = "", ...$placeholderValues) {
 
+
         // If array passed instead of ... values handle this
         if (isset($placeholderValues[0]) && is_array($placeholderValues[0])) {
             $placeholderValues = $placeholderValues[0];
         }
+
 
 
         $mapping = ORMMapping::get($className);
