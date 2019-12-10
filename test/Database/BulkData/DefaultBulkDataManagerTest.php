@@ -10,6 +10,9 @@ use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 
+include_once "autoloader.php";
+
+
 /**
  * Default bulk data manager tests
  *
@@ -134,14 +137,16 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         $manager = new DefaultBulkDataManager($this->mockDatabaseConnection);
 
         $manager->delete("example", [["id" => 2, "name" => "Mark"], ["id" => 3, "name" => "Luke"],
-            ["id" => 4, "name" => "Tim"], ["id" => 5, "name" => "John"], ["id" => 6, "name" => "James"], ["id" => 7, "name" => "Nathan"]]);
+            ["id" => 4, "name" => "Tim"], ["id" => 5, "name" => "John"], ["id" => 6, "name" => "James"], ["id" => 7, "name" => "Nathan"],
+            ["id" => 8, "name" => null]]);
 
         $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement",
-            ["DELETE FROM example WHERE (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?)"]));
+            ["DELETE FROM example WHERE (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name IS NULL)"]));
 
 
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[2, "Mark", 3, "Luke", 4, "Tim", 5, "John",
-            6, "James", 7, "Nathan"]]));
+            6, "James", 7, "Nathan", 8]]));
+
 
         $this->mockPreparedStatement->resetMethodCallHistory("execute");
 
@@ -156,6 +161,7 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
 
         // Check these were batched into 50s
         $this->assertEquals(2, sizeof($this->mockPreparedStatement->getMethodCallHistory("execute")));
+
 
     }
 

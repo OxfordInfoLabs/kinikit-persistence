@@ -140,26 +140,36 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
                 $query .= $matchColumns[0] . " IN (" . rtrim(str_repeat("?,", sizeof($slice)), ",") . ")";
                 $values = $slice;
             } else {
-                $matchClauses = [];
-                foreach ($matchColumns as $matchColumn) {
-                    $matchClauses[] = $matchColumn . "=?";
-                }
-                $matchClause = join(" AND ", $matchClauses);
 
-                $query .= ltrim(str_repeat(" OR ($matchClause)", sizeof($slice)), " OR");
+                $rowClauses = [];
 
                 foreach ($slice as $sliceRow) {
+
+                    $matchClauses = [];
+
                     foreach ($matchColumns as $index => $matchColumn) {
-                        $values[] = $sliceRow[$matchColumn] ?? $sliceRow[$index] ?? null;
+                        $value = $sliceRow[$matchColumn] ?? $sliceRow[$index] ?? null;
+
+                        // Add the value provided it is not null
+                        if ($value !== null) {
+                            $matchClauses[] = $matchColumn . "=?";
+                            $values[] = $value;
+                        } else {
+                            $matchClauses[] = $matchColumn . " IS NULL";
+                        }
                     }
+
+                    $rowClauses[] = "(" . join(" AND ", $matchClauses) . ")";
+
                 }
 
+                $query .= join(" OR ", $rowClauses);
 
             }
 
             $statement = $this->getPreparedStatement("delete", $query);
             $statement->execute($values);
-            
+
         }
 
 

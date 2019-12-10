@@ -110,8 +110,8 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
 
         // MANY TO ONE RELATIONSHIPS
         $child2Mapper = new TableMapping("example_child2");
-        $childMapper = new TableMapping("example_child", [new ManyToOneTableRelationship($child2Mapper, "child", "child2_id",true)]);
-        $tableMapper = new TableMapping("example_parent", [new ManyToOneTableRelationship($childMapper, "child", "child_id",true)]);
+        $childMapper = new TableMapping("example_child", [new ManyToOneTableRelationship($child2Mapper, "child", "child2_id", true)]);
+        $tableMapper = new TableMapping("example_parent", [new ManyToOneTableRelationship($childMapper, "child", "child_id", true)]);
 
         $insertData = [
             "name" => "Bonzo",
@@ -646,7 +646,6 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(0, sizeof($this->queryEngine->query($childMapping, "WHERE id IN (8,9,10)")));
 
 
-
     }
 
 
@@ -810,6 +809,57 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(2, sizeof($this->queryEngine->query($tableMapping, "WHERE id IN (2,3)")));
         $this->persistenceEngine->deleteRows($tableMapping, $data);
         $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE id IN (2,3)")));
+
+
+    }
+
+
+    public function testCanDeleteObjectsWithMultiplePrimaryKeyValuesIncludingNulls() {
+
+
+        $tableMapping = new TableMapping("example_multi_key");
+
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE key_1 = 1 AND key_2 = 1 AND key_3 = 1")));
+
+        $data = [
+            "key_1" => 1,
+            "key_2" => 1,
+            "key_3" => 1
+        ];
+
+        $this->persistenceEngine->deleteRows($tableMapping, $data);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE key_1 = 1 AND key_2 = 1 AND key_3 = 1")));
+
+
+        // Null one next
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE key_1 = 1 AND key_2 = 1 AND key_3 IS NULL")));
+
+        $data = [
+            "key_1" => 1,
+            "key_2" => 1,
+            "key_3" => null
+        ];
+
+        $this->persistenceEngine->deleteRows($tableMapping, $data);
+
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE key_1 = 1 AND key_2 = 1 AND key_3 IS NULL")));
+
+
+        // All Nulls last
+        $this->assertEquals(1, sizeof($this->queryEngine->query($tableMapping, "WHERE key_1 IS NULL AND key_2 IS NULL AND key_3 IS NULL")));
+
+
+        $data = [
+            "key_1" => null,
+            "key_2" => null,
+            "key_3" => null
+        ];
+
+        $this->persistenceEngine->deleteRows($tableMapping, $data);
+
+        // All Nulls last
+        $this->assertEquals(0, sizeof($this->queryEngine->query($tableMapping, "WHERE key_1 IS NULL AND key_2 IS NULL AND key_3 IS NULL")));
 
 
     }
