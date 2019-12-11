@@ -29,12 +29,14 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      */
     public function connect($configParams = []) {
 
-        $dsn = "mysql:host=" . $configParams["host"];
+        if (isset($configParams["host"]))
+            $dsn = "mysql:host=" . $configParams["host"];
+        else
+            $dsn = "mysql:socket=" . $configParams["socket"];
+
         $dsn .= (isset($configParams["database"]) ? ";dbname=" . $configParams["database"] : "");
         $dsn .= (isset($configParams["port"]) ? ";port=" . $configParams["port"] : "");
-        $dsn .= (isset($configParams["socket"]) ? ";socket=" . $configParams["socket"] : "");
         $dsn .= (isset($configParams["charset"]) ? ";charset=" . $configParams["charset"] : "");
-
 
         $pdoParams = [
             "dsn" => $dsn
