@@ -32,7 +32,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         if (isset($configParams["host"]))
             $dsn = "mysql:host=" . $configParams["host"];
         else
-            $dsn = "mysql:socket=" . $configParams["socket"];
+            $dsn = "mysql:unix_socket=" . $configParams["socket"];
 
         $dsn .= (isset($configParams["database"]) ? ";dbname=" . $configParams["database"] : "");
         $dsn .= (isset($configParams["port"]) ? ";port=" . $configParams["port"] : "");

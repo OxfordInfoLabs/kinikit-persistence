@@ -107,7 +107,6 @@ class TableQueryEngine {
         $query = "SELECT" . join("SELECT", $selectParts);
 
 
-
         // If we have a select * query add all required columns
         $requiresMapping = false;
         if (strpos($query, "SELECT *") === 0) {
