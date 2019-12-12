@@ -158,7 +158,9 @@ class SchemaGenerator {
                     }
                     $line .= ")";
                 }
-                if ($column->isNotNull()) $line .= " NOT NULL";
+                if ($column->isNotNull())
+                    $line .= " NOT NULL";
+
                 if ($column->isPrimaryKey()) {
                     if ($column->isAutoIncrement())
                         $line .= ' PRIMARY KEY';

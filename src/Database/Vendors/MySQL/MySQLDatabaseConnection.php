@@ -133,6 +133,23 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
     }
 
 
+    /**
+     * Replace any core syntax with MySQL variations.
+     *
+     * @param $scriptContents
+     */
+    public function executeScript($scriptContents) {
+
+        // Substitute AUTOINCREMENT keyword
+        $scriptContents = str_replace("AUTOINCREMENT", "AUTO_INCREMENT", $scriptContents);
+
+        // Substitute plain VARCHAR keyword
+        $scriptContents = preg_replace("/VARCHAR([^\(])/i", "VARCHAR(255)$1", $scriptContents);
+
+        parent::executeScript($scriptContents);
+    }
+
+
 }
 
 ?>

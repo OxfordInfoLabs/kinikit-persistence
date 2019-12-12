@@ -173,6 +173,30 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testExecuteScriptConvertsSQLLiteSyntaxToMySQL() {
+
+        $this->mysqlDatabaseConnection->execute("DROP TABLE IF EXISTS test_create");
+
+        $script = "
+            CREATE TABLE test_create (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                number INTEGER,
+                value VARCHAR,
+                last_modifed DATETIME
+            ) ;
+        ";
+
+
+        $this->mysqlDatabaseConnection->executeScript($script);
+
+        $metaData = $this->mysqlDatabaseConnection->getTableMetaData("test_create");
+        $this->assertEquals(4, sizeof($metaData->getColumns()));
+        $this->assertEquals(1, sizeof($metaData->getPrimaryKeyColumns()));
+
+
+    }
+
+
 }
 
 ?>
