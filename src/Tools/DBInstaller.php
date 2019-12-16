@@ -62,6 +62,7 @@ class DBInstaller {
         $this->schemaGenerator->createSchema($objectPaths);
 
         $directories = $this->fileResolver->getSearchPaths();
+        $directories = array_reverse($directories);
 
         // Run core (and application) DB installs
         foreach ($directories as $directory) {
