@@ -115,7 +115,7 @@ class ORM {
 
 
         $results = $this->tableMapper->filter($mapping->getReadTableMapping(), $whereClause, $placeholderValues);
-        return $mapping->mapRowsToObjects($results);
+        return array_values($mapping->mapRowsToObjects($results));
 
     }
 
