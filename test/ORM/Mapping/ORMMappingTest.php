@@ -2,6 +2,8 @@
 
 namespace Kinikit\Persistence\ORM\Mapping;
 
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\ORM\Contact;
@@ -19,6 +21,13 @@ include_once "autoloader.php";
  * Time: 15:27
  */
 class ORMMappingTest extends TestCase {
+
+    public function setUp(): void {
+
+        $databaseConnection = Container::instance()->get(DatabaseConnection::class);
+        $databaseConnection->executeScript(file_get_contents(__DIR__ . "/../orm.sql"));
+
+    }
 
     public function testCanGenerateTableMetaDataForSimpleObject() {
 

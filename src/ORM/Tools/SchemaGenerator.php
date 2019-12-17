@@ -179,8 +179,7 @@ class SchemaGenerator {
                 $sql .= ",\nPRIMARY KEY (" . join(",", $pks) . ")";
             }
 
-            $sql .= "\n)";
-
+            $sql .= "\n);";
 
             $this->databaseConnection->executeScript($sql);
 

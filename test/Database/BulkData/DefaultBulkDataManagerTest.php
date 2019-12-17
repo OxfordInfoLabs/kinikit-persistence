@@ -45,6 +45,8 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         $this->mockDatabaseConnection->returnValue("createPreparedStatement", $this->mockPreparedStatement);
         $this->mockDatabaseConnection->returnValue("getTableMetaData", $this->mockMetaData);
 
+        $databaseConnection = Container::instance()->get(DatabaseConnection::class);
+        $databaseConnection->executeScript(file_get_contents(__DIR__ . "/../../TableMapper/Mapper/tablemapper.sql"));
 
     }
 
