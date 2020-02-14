@@ -19,6 +19,12 @@ INSERT INTO contact(name, primary_address_id)
 VALUES ('Mark', 1), ('Luke', 2), ('John', 3);
 
 
+DROP TABLE IF EXISTS address_country_collection;
+
+CREATE TABLE address_country_collection (id integer PRIMARY KEY AUTOINCREMENT, country_of_interest);
+INSERT INTO address_country_collection (country_of_interest)
+VALUES ('GB'),('FR');
+
 
 DROP TABLE IF EXISTS contact_other_addresses;
 CREATE TABLE contact_other_addresses (contact_id INTEGER, address_id INTEGER);

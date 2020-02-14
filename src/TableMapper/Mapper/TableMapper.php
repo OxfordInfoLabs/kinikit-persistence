@@ -79,6 +79,7 @@ class TableMapper {
 
         $primaryKeyClause = join(" AND ", $primaryKeyClauses);
 
+
         $results = $this->queryEngine->query($tableMapping, "SELECT * FROM {$tableName} WHERE {$primaryKeyClause}", $primaryKeyValue);
         $results = is_array($results) ? array_values($results) : [];
         if (sizeof($results) > 0) {

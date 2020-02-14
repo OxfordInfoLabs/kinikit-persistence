@@ -537,7 +537,7 @@ class ORMMapping {
             if (!$propertyValue) $propertyValue = \DateTime::createFromFormat("Y-m-d H:i:s", $columnValue);
         } else if (isset($property->getPropertyAnnotations()["json"])) {
             try {
-                $propertyValue = json_decode($columnValue,true);
+                $propertyValue = json_decode($columnValue, true);
                 $propertyValue = $this->objectBinder->bindFromArray($propertyValue, $property->getType(), false);
             } catch (ObjectBindingException $e) {
                 $propertyValue = null;
@@ -620,15 +620,9 @@ class ORMMapping {
 
             if ($relatedORM) {
 
-                $relatedColumns = [];
-                if (isset($annotations["childJoinColumns"][0])) {
-                    $relatedColumns = explode(",", str_replace(" ", "", $annotations["childJoinColumns"][0]->getValue()));
-                } else {
-                    $pkNames = $this->writeTableMapping->getPrimaryKeyColumnNames();
-                    foreach ($pkNames as $name) {
-                        $relatedColumns[] = $tableName . "_" . $name;
-                    }
-                }
+                $relatedColumns = $this->expandRelationshipJoinColumnsString(isset($annotations["childJoinColumns"][0]) ? $annotations["childJoinColumns"][0]->getValue() : null,
+                    $tableName, $this->writeTableMapping->getPrimaryKeyColumnNames());
+
 
                 if (isset($annotations["oneToMany"])) {
                     if (!isset($annotations["readOnly"]))
@@ -673,16 +667,11 @@ class ORMMapping {
             if ($relatedORM) {
 
                 $relatedTableMapping = $relatedORM->getWriteTableMapping();
-                $relatedColumns = [];
-                if (isset($annotations["parentJoinColumns"][0])) {
-                    $relatedColumns = explode(",", str_replace(" ", "", $annotations["parentJoinColumns"][0]->getValue()));
-                } else {
-                    $pkNames = $relatedTableMapping->getPrimaryKeyColumnNames();
-                    $relatedTableName = $relatedTableMapping->getTableName();
-                    foreach ($pkNames as $name) {
-                        $relatedColumns[] = $relatedTableName . "_" . $name;
-                    }
-                }
+
+                // Expand join columns
+                $relatedColumns = $this->expandRelationshipJoinColumnsString(isset($annotations["parentJoinColumns"][0]) ? $annotations["parentJoinColumns"][0]->getValue() : null,
+                    $relatedTableMapping->getTableName(),
+                    $relatedTableMapping->getPrimaryKeyColumnNames());
 
                 if (!isset($annotations["readOnly"])) {
                     $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns, isset($annotations["saveCascade"]));
@@ -709,6 +698,34 @@ class ORMMapping {
         $this->writeTableMapping->setRelationships($writeRelationships);
         $this->readTableMapping->setRelationships($readRelationships);
 
+
+    }
+
+    // Expand join columns string into an array of mapped columns.
+    private function expandRelationshipJoinColumnsString($joinColumnsString, $fallbackColumnPrefix, $fallbackPrimaryKeyColumns = []) {
+
+        $relatedColumns = [];
+
+        if ($joinColumnsString) {
+
+            $explodedEntries = explode(",", str_replace(" ", "", $joinColumnsString));
+            $relatedColumns = [];
+            foreach ($explodedEntries as $explodedEntry) {
+                $splitColumn = explode("=>", $explodedEntry);
+                if (sizeof($splitColumn) == 2) {
+                    $relatedColumns[$splitColumn[1]] = $splitColumn[0];
+                } else {
+                    $relatedColumns[] = $splitColumn[0];
+                }
+            }
+
+        } else {
+            foreach ($fallbackPrimaryKeyColumns as $name) {
+                $relatedColumns[] = $fallbackColumnPrefix . "_" . $name;
+            }
+        }
+
+        return $relatedColumns;
 
     }
 

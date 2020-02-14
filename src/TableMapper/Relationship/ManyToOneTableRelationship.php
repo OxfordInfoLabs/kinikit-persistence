@@ -61,7 +61,11 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
         $onClauses = [];
         $relatedPk = $this->relatedTableMapping->getPrimaryKeyColumnNames();
         foreach ($this->parentJoinColumnNames as $index => $joinColumnName) {
-            $onClauses[] = "$parentAlias.$joinColumnName = $myAlias.{$relatedPk[$index]}";
+
+            if (is_numeric($index))
+                $index = $relatedPk[$index];
+
+            $onClauses[] = "$parentAlias.$joinColumnName = $myAlias.{$index}";
         }
 
         $clause .= join(" AND ", $onClauses);

@@ -333,6 +333,19 @@ class ORMTest extends TestCase {
         ], $document->getComments());
 
 
+        /**
+         * @var AddressCountryCollection $addressCountryCollection
+         */
+        $addressCountryCollection = $this->orm->fetch(AddressCountryCollection::class, 1);
+        $this->assertEquals(
+            $this->orm->fetch(Address::class, 1), $addressCountryCollection->getAddress());
+
+        $addressCountryCollection = $this->orm->fetch(AddressCountryCollection::class, 2);
+        $this->assertEquals(
+            $this->orm->fetch(Address::class, 3)
+            , $addressCountryCollection->getAddress());
+
+
     }
 
 
@@ -422,6 +435,11 @@ class ORMTest extends TestCase {
         $this->assertEquals(2, sizeof($reDocument->getComments()));
         $this->assertEquals("Cocktail Waiter", $reDocument->getComments()[0]->getContent());
         $this->assertEquals("Fruit Lover", $reDocument->getComments()[1]->getContent());
+
+
+        // Try a custom mapped one
+
+
 
 
     }
