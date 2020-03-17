@@ -5,6 +5,7 @@ namespace Kinikit\Persistence\TableMapper\Mapper;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
 
 /**
@@ -123,7 +124,11 @@ class TableMapping {
      */
     public function getPrimaryKeyColumnNames() {
         if (!$this->primaryKeyColumnNames) {
-            $this->primaryKeyColumnNames = array_keys($this->databaseConnection->getTableMetaData($this->tableName)->getPrimaryKeyColumns());
+            try {
+                $this->primaryKeyColumnNames = array_keys($this->databaseConnection->getTableMetaData($this->tableName)->getPrimaryKeyColumns());
+            } catch (\Exception $e) {
+                return [];
+            }
         }
         return $this->primaryKeyColumnNames;
     }
