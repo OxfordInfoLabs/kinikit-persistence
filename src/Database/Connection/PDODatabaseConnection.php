@@ -40,6 +40,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
         try {
             $this->connection = new \PDO($configParams["dsn"], $configParams["username"] ?? null, $configParams["password"] ?? null);
             $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
             return true;
         } catch (\PDOException $e) {
             return false;

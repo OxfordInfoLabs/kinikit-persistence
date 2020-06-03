@@ -111,4 +111,24 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testNonStringValuesAreHandledCorrectlyInQueries() {
+
+        $configuration = Configuration::instance()->getAllParameters();
+
+        // Try MySQL one
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
+
+
+        $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo");
+        $pdoConnection->execute("CREATE TABLE example_pdo (id INTEGER, name VARCHAR(50))");
+        $pdoConnection->execute("INSERT INTO example_pdo VALUES (1, 'Mark'),(2, 'Luke'),(3, 'Bob')");
+
+        $results = $pdoConnection->query("SELECT * FROM example_pdo LIMIT ? OFFSET ?", 10, 1);
+        $this->assertEquals(2, sizeof($results->fetchAll()));
+
+
+    }
+
 }

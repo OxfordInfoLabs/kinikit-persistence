@@ -115,11 +115,8 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         // Get the mysql connection object
         $mysqlConnection = $this->mysqlDatabaseConnection;
 
-        $preparedStatement = $mysqlConnection->createPreparedStatement("INSERT INTO test_with_badtable (blob_data) VALUES (?)");
-
-        // Execute and expect exception
         try {
-            $preparedStatement->execute([new BlobWrapper ("SOMETHING EXPLICIT AND LONG AND VERY MUCH WORTH ALL THE EFFORT INVOLVED IN SENDING IT AS APPROPRIATE")]);
+            $preparedStatement = $mysqlConnection->createPreparedStatement("INSERT INTO test_with_badtable (blob_data) VALUES (?)");
             $this->fail("Should have thrown here");
         } catch (SQLException $e) {
             // Success

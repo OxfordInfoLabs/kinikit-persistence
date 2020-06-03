@@ -11,6 +11,7 @@ use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\BulkData\DefaultBulkDataManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 /**
  * Base database connection which implements common defaults for the database connection.
