@@ -108,9 +108,9 @@ class ORMMapping {
         if (!isset(self::$ormMappings[$className])) {
 
             // Handle mapped classes.
-            $className = Container::instance()->getClassMapping($className);
+            $mappedClassName = Container::instance()->getClassMapping($className);
 
-            self::$ormMappings[$className] = new ORMMapping($className);
+            self::$ormMappings[$className] = new ORMMapping($mappedClassName);
             self::$ormMappings[$className]->generateTableMapping();
         }
         return self::$ormMappings[$className];

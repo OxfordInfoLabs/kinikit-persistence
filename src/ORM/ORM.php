@@ -53,6 +53,7 @@ class ORM {
     public function fetch($className, $primaryKeyValue) {
         $mapping = ORMMapping::get($className);
 
+       
         try {
             $results = $this->tableMapper->fetch($mapping->getReadTableMapping(), $primaryKeyValue);
             $results = $mapping->mapRowsToObjects([$results]);
@@ -107,7 +108,6 @@ class ORM {
         if (isset($placeholderValues[0]) && is_array($placeholderValues[0])) {
             $placeholderValues = $placeholderValues[0];
         }
-
 
 
         $mapping = ORMMapping::get($className);
