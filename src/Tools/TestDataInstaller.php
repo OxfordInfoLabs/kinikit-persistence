@@ -11,6 +11,7 @@ use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Configuration\SearchNamespaces;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Bootstrapper;
+use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\ORM\ORM;
 
 /**
@@ -49,6 +50,10 @@ class TestDataInstaller {
      */
     private $searchNamespaces;
 
+    /**
+     * @var ORMInterceptorProcessor
+     */
+    private $ormInterceptorProcessor;
 
     /**
      * TestDataInstaller constructor.
@@ -57,13 +62,15 @@ class TestDataInstaller {
      * @param DBInstaller $dbInstaller
      * @param FileResolver $fileResolver
      * @param SearchNamespaces $searchNamespaces
+     * @param ORMInterceptorProcessor $ormInterceptorProcessor
      */
-    public function __construct($objectBinder, $orm, $dbInstaller, $fileResolver, $searchNamespaces) {
+    public function __construct($objectBinder, $orm, $dbInstaller, $fileResolver, $searchNamespaces, $ormInterceptorProcessor) {
         $this->objectBinder = $objectBinder;
         $this->orm = $orm;
         $this->dbInstaller = $dbInstaller;
         $this->fileResolver = $fileResolver;
         $this->searchNamespaces = $searchNamespaces;
+        $this->ormInterceptorProcessor = $ormInterceptorProcessor;
     }
 
 
@@ -87,6 +94,8 @@ class TestDataInstaller {
         $directories = $this->fileResolver->getSearchPaths();
         $directories = array_reverse($directories);
 
+        // Disable interceptors whilst inserting test data.
+        $this->ormInterceptorProcessor->setEnabled(false);
 
         foreach ($directories as $directory) {
 
@@ -96,6 +105,9 @@ class TestDataInstaller {
             if (file_exists($directory . "/../test/TestData"))
                 $this->processTestDataDirectory($directory . "/../test/TestData");
         }
+
+        // Re-enable interceptors after inserting test data.
+        $this->ormInterceptorProcessor->setEnabled(true);
 
 
     }

@@ -36,6 +36,12 @@ class ORMInterceptorProcessor {
 
 
     /**
+     * @var bool
+     */
+    private $enabled = true;
+
+
+    /**
      * Construct with injected dependencies
      *
      * ORMInterceptorProcessor constructor.
@@ -53,6 +59,9 @@ class ORMInterceptorProcessor {
      * @param mixed[] $objects
      */
     public function processPostMapInterceptors($className, $objects) {
+
+        if (!$this->enabled) return $objects;
+
         $interceptors = $this->getInterceptorsForClass($className);
 
         $returnObjects = [];
@@ -82,6 +91,9 @@ class ORMInterceptorProcessor {
      * @param mixed[] $objects
      */
     public function processPreSaveInterceptors($className, $objects) {
+
+        if (!$this->enabled) return;
+
         $interceptors = $this->getInterceptorsForClass($className);
         foreach ($objects as $object) {
             foreach ($interceptors as $interceptor) {
@@ -98,6 +110,10 @@ class ORMInterceptorProcessor {
      * @param mixed[] $objects
      */
     public function processPostSaveInterceptors($className, $objects) {
+
+        if (!$this->enabled) return;
+
+
         $interceptors = $this->getInterceptorsForClass($className);
         foreach ($objects as $object) {
             foreach ($interceptors as $interceptor) {
@@ -129,6 +145,10 @@ class ORMInterceptorProcessor {
      * @param mixed[] $objects
      */
     public function processPostDeleteInterceptors($className, $objects) {
+
+        if (!$this->enabled) return;
+
+
         $interceptors = $this->getInterceptorsForClass($className);
         foreach ($objects as $object) {
             foreach ($interceptors as $interceptor) {
@@ -156,6 +176,15 @@ class ORMInterceptorProcessor {
         $this->interceptorsByClassNamePattern[$classPattern][] = $interceptorClassName;
 
 
+    }
+
+    /**
+     * Enable or disable interceptors - used by the install test data functionality
+     *
+     * @param bool $enabled
+     */
+    public function setEnabled($enabled) {
+        $this->enabled = $enabled;
     }
 
 
