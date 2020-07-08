@@ -133,7 +133,7 @@ class TestDataInstaller {
 
 
     // Process test data directory looking for objects.
-    private function processTestDataDirectory($baseDir, $suffix = "") {
+    private function processTestDataDirectory($baseDir, $suffix = "", &$processed = []) {
 
 
         $iterator = new DirectoryIterator($baseDir . $suffix);
@@ -144,7 +144,7 @@ class TestDataInstaller {
                 continue;
 
             if ($item->isDir()) {
-                $this->processTestDataDirectory($baseDir, $suffix . "/" . $item->getFilename());
+                $this->processTestDataDirectory($baseDir, $suffix . "/" . $item->getFilename(), $processed);
                 continue;
             }
 
