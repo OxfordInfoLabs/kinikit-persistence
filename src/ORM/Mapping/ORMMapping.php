@@ -575,8 +575,18 @@ class ORMMapping {
         $customTableName = $classAnnotations->getClassAnnotationForMatchingTag("table");
         $tableName = $customTableName ? $customTableName->getValue() : $this->camelCaseToUnderscore($this->classInspector->getShortClassName());
 
-        $this->writeTableMapping = new TableMapping($tableName);
-        $this->readTableMapping = new TableMapping($tableName);
+        // Derive primary keys from object
+        $primaryKeyColumns = [];
+        foreach ($properties as $property) {
+            $annotations = $property->getPropertyAnnotations();
+            if (isset($annotations["primaryKey"])) {
+                $primaryKeyColumns[] = $this->getColumnNameForProperty($property->getPropertyName());
+            }
+        }
+
+
+        $this->writeTableMapping = new TableMapping($tableName, [], null, $primaryKeyColumns);
+        $this->readTableMapping = new TableMapping($tableName, [], null, $primaryKeyColumns);
 
 
         // Resolve any relationships for each type

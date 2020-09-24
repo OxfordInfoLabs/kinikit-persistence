@@ -293,8 +293,10 @@ class TablePersistenceEngine {
                     $pkValues[] = $value;
                     $clause[] = "$key=?";
                 }
-                $pkClauses[] = "(" . join(" AND ", $clause) . ")";
-                $rowMappings[join("||", $pkValues)] = $index;
+                if (sizeof($clause) > 0) {
+                    $pkClauses[] = "(" . join(" AND ", $clause) . ")";
+                    $rowMappings[join("||", $pkValues)] = $index;
+                }
             }
         }
 

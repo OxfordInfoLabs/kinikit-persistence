@@ -53,7 +53,7 @@ class ORM {
     public function fetch($className, $primaryKeyValue) {
         $mapping = ORMMapping::get($className);
 
-       
+
         try {
             $results = $this->tableMapper->fetch($mapping->getReadTableMapping(), $primaryKeyValue);
             $results = $mapping->mapRowsToObjects([$results]);
@@ -113,8 +113,8 @@ class ORM {
         $mapping = ORMMapping::get($className);
         $whereClause = $mapping->replaceMembersWithColumns($whereClause);
 
-
         $results = $this->tableMapper->filter($mapping->getReadTableMapping(), $whereClause, $placeholderValues);
+
         return array_values($mapping->mapRowsToObjects($results));
 
     }

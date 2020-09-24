@@ -78,3 +78,6 @@ VALUES ('Top Level Note', null),
 ('Sixth Level Note', 6),
 ('Seventh Level Note', 7);
 
+DROP VIEW IF EXISTS note_view;
+CREATE VIEW note_view
+AS SELECT * FROM note;

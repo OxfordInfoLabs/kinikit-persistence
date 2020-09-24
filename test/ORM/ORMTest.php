@@ -164,6 +164,14 @@ class ORMTest extends TestCase {
     }
 
 
+    public function testCanGetObjectsWithBackingViews() {
+
+        $noteView = $this->orm->fetch(NoteView::class, 1);
+        $this->assertEquals(new NoteView(1, "Top Level Note"), $noteView);
+
+    }
+
+
     public function testMemberValidationIsTriggeredBeforeSaveAndRecursively() {
 
         $address = new Address();
@@ -438,8 +446,6 @@ class ORMTest extends TestCase {
 
 
         // Try a custom mapped one
-
-
 
 
     }
