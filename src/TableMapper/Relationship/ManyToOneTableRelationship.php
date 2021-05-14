@@ -6,7 +6,9 @@ namespace Kinikit\Persistence\TableMapper\Relationship;
 
 class ManyToOneTableRelationship extends BaseTableRelationship {
 
-    private $parentJoinColumnNames;
+    private $parentJoinColumnNames = [];
+
+    private $nullableJoinColumns = [];
 
     /**
      * Construct a one to one relationship
@@ -24,7 +26,8 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
             $parentJoinColumnNames = [$parentJoinColumnNames];
         }
 
-        $this->parentJoinColumnNames = $parentJoinColumnNames;
+        $this->processColumnNames($parentJoinColumnNames);
+
     }
 
 
@@ -65,7 +68,15 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
             if (is_numeric($index))
                 $index = $relatedPk[$index];
 
-            $onClauses[] = "$parentAlias.$joinColumnName = $myAlias.{$index}";
+            $lhs = "$parentAlias.$joinColumnName";
+            $rhs = "$myAlias.$index";
+
+            if (isset($this->nullableJoinColumns[$joinColumnName])){
+                $lhs = "COALESCE($lhs, '')";
+                $rhs = "COALESCE($rhs, '')";
+            }
+
+            $onClauses[] = "$lhs = $rhs";
         }
 
         $clause .= join(" AND ", $onClauses);
@@ -188,6 +199,18 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
             $this->tablePersistenceEngine->deleteRows($this->relatedTableMapping, $rowsToDelete);
         }
 
+    }
+
+    // Process column names to trim and extract ones which allow null
+    private function processColumnNames($columnNames) {
+        foreach ($columnNames as $index => $columnName) {
+            $trimmedName = trim($columnName, '[]');
+            $trimmedIndex = trim($index, '[]');
+            if (($columnName != $trimmedName) || ($index != $trimmedIndex)) {
+                $this->nullableJoinColumns[$trimmedName] = 1;
+            }
+            $this->parentJoinColumnNames[$trimmedIndex] = $trimmedName;
+        }
     }
 
 }

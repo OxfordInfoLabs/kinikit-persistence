@@ -105,6 +105,112 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testIfManyToOneRelationshipSuppliedWithColumnNamesInBracketsTheseAreJoinedWithCoalesceToAllowNulls() {
+
+        // Create a mapper with a one to one table relationship with another child.
+        $queryEngine = new TableQueryEngine();
+
+        // Test without brackets first to confirm
+        $tableMapping = new TableMapping("example_uses_multi_key",
+            [new ManyToOneTableRelationship(new TableMapping("example_multi_key"),
+                "child", ["multi_key_1", "multi_key_2", "multi_key_3"])]);
+
+        $this->assertEquals([1 => [
+            "id" => 1,
+            "value" => "Item 1",
+            "multi_key_1" => 1,
+            "multi_key_2" => 1,
+            "multi_key_3" => 1,
+            "child" => [
+                "key_1" => 1,
+                "key_2" => 1,
+                "key_3" => 1,
+                "value" => 'Test 1'
+            ]
+        ]], $queryEngine->query($tableMapping, "WHERE id = 1"));
+
+
+        // Check correctly missing child
+        $this->assertEquals([2 => [
+            "id" => 2,
+            "value" => "Item 2",
+            "multi_key_1" => 1,
+            "multi_key_2" => 1,
+            "multi_key_3" => null
+        ]], $queryEngine->query($tableMapping, "WHERE id = 2"));
+
+
+        // Test with square enclosure and check it now returns
+        $tableMapping = new TableMapping("example_uses_multi_key",
+            [new ManyToOneTableRelationship(new TableMapping("example_multi_key"),
+                "child", ["multi_key_1", "multi_key_2", "[multi_key_3]"])]);
+
+
+        $this->assertEquals([1 => [
+            "id" => 1,
+            "value" => "Item 1",
+            "multi_key_1" => 1,
+            "multi_key_2" => 1,
+            "multi_key_3" => 1,
+            "child" => [
+                "key_1" => 1,
+                "key_2" => 1,
+                "key_3" => 1,
+                "value" => 'Test 1'
+            ]
+        ]], $queryEngine->query($tableMapping, "WHERE id = 1"));
+
+
+        // Check child intact
+        $this->assertEquals([2 => [
+            "id" => 2,
+            "value" => "Item 2",
+            "multi_key_1" => 1,
+            "multi_key_2" => 1,
+            "multi_key_3" => null,
+            "child" => [
+                "key_1" => 1,
+                "key_2" => 1,
+                "key_3" => null,
+                "value" => "Test 4"
+            ]
+        ]], $queryEngine->query($tableMapping, "WHERE id = 2"));
+
+
+        // Check correctly missing child
+        $this->assertEquals([3 => [
+            "id" => 3,
+            "value" => "Item 3",
+            "multi_key_1" => 1,
+            "multi_key_2" => null,
+            "multi_key_3" => null
+        ]], $queryEngine->query($tableMapping, "WHERE id = 3"));
+
+
+        // Test full optional key
+        $tableMapping = new TableMapping("example_uses_multi_key",
+            [new ManyToOneTableRelationship(new TableMapping("example_multi_key"),
+                "child", ["[multi_key_1]", "[multi_key_2]", "[multi_key_3]"])]);
+
+        // Check child intact
+        $this->assertEquals([4 => [
+            "id" => 4,
+            "value" => "Item 4",
+            "multi_key_1" => null,
+            "multi_key_2" => null,
+            "multi_key_3" => null,
+            "child" => [
+                "key_1" => null,
+                "key_2" => null,
+                "key_3" => null,
+                "value" => "Test 6"
+            ]
+        ]], $queryEngine->query($tableMapping, "WHERE id = 4"));
+
+
+    }
+
+
     public function testIfOneToOneRelationshipDefinedQueriesAlsoQueryRelatedEntities() {
 
         // Create a mapper with a one to one table relationship with another child.
@@ -139,6 +245,51 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals([["id" => 3, "name" => "James Smith", "child_id" => 2, "child1" =>
             ["id" => 6, "description" => "Walking", "parent_id" => 3]
         ]], array_values($queryEngine->query($tableMapping, "WHERE child1.description = 'Walking'")));
+
+
+    }
+
+
+    public function testIfOneToOneRelationshipSuppliedWithColumnNamesInBracketsTheseAreJoinedWithCoalesceToAllowNulls() {
+
+        // Create a mapper with a one to one table relationship with another child.
+        $queryEngine = new TableQueryEngine();
+
+        // Test without brackets first to confirm
+        $tableMapping = new TableMapping("example_multi_key",
+            [new OneToOneTableRelationship(new TableMapping("example_uses_multi_key"),
+                "child", ["multi_key_1", "multi_key_2", "multi_key_3"])]);
+
+
+        // Not expecting child to be mapped here
+        $this->assertEquals(['1||1||' => [
+            "value" => "Test 4",
+            "key_1" => 1,
+            "key_2" => 1,
+            "key_3" => null
+        ]], $queryEngine->query($tableMapping, "WHERE key_1 = 1 AND key_2 = 1 AND key_3 IS NULL"));
+
+
+        // Test with brackets first to confirm
+        $tableMapping = new TableMapping("example_multi_key",
+            [new OneToOneTableRelationship(new TableMapping("example_uses_multi_key"),
+                "child", ["multi_key_1", "multi_key_2", "[multi_key_3]"])]);
+
+
+        // Expecting child to be mapped here
+        $this->assertEquals(['1||1||' => [
+            "value" => "Test 4",
+            "key_1" => 1,
+            "key_2" => 1,
+            "key_3" => null,
+            "child" => [
+                "value" => "Item 2",
+                "multi_key_1" => 1,
+                "multi_key_2" => 1,
+                "multi_key_3" => null,
+                "id" => 2
+            ]
+        ]], $queryEngine->query($tableMapping, "WHERE key_1 = 1 AND key_2 = 1 AND key_3 IS NULL"));
 
 
     }

@@ -15,6 +15,12 @@ class OneToOneTableRelationship extends BaseTableRelationship {
      */
     private $childJoinColumnNames;
 
+
+    /**
+     * @var array
+     */
+    private $nullableJoinColumns = [];
+
     /**
      * Construct a one to one relationship
      *
@@ -31,7 +37,7 @@ class OneToOneTableRelationship extends BaseTableRelationship {
             $childJoinColumnNames = [$childJoinColumnNames];
         }
 
-        $this->childJoinColumnNames = $childJoinColumnNames;
+        $this->processColumnNames($childJoinColumnNames);
     }
 
     /**
@@ -77,7 +83,16 @@ class OneToOneTableRelationship extends BaseTableRelationship {
                 if (!is_numeric($staticValue)) $staticValue = "'" . $staticValue . "'";
                 $onClauses[] = "$myAlias.$splitColumnName[0] = $staticValue";
             } else {
-                $onClauses[] = "$parentAlias.{$parentPrimaryKeyColumns[$index]} = $myAlias.$joinColumnName";
+
+                $lhs = "$parentAlias.{$parentPrimaryKeyColumns[$index]}";
+                $rhs = "$myAlias.$joinColumnName";
+
+                if (isset($this->nullableJoinColumns[$joinColumnName])){
+                    $lhs = "COALESCE($lhs, '')";
+                    $rhs = "COALESCE($rhs, '')";
+                }
+
+                $onClauses[] = "$lhs = $rhs";
             }
         }
 
@@ -188,6 +203,18 @@ class OneToOneTableRelationship extends BaseTableRelationship {
             $this->tablePersistenceEngine->saveRows($this->relatedTableMapping, $rowsToDelete, TablePersistenceEngine::SAVE_OPERATION_UPDATE);
         }
 
+    }
+
+    // Process column names to trim and extract ones which allow null
+    private function processColumnNames($columnNames) {
+        foreach ($columnNames as $index => $columnName) {
+            $trimmedName = trim($columnName, '[]');
+            $trimmedIndex = trim($index, '[]');
+            if (($columnName != $trimmedName) || ($index != $trimmedIndex)) {
+                $this->nullableJoinColumns[$trimmedName] = 1;
+            }
+            $this->childJoinColumnNames[$trimmedIndex] = $trimmedName;
+        }
     }
 
 

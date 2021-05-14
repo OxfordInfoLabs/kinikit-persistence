@@ -197,7 +197,6 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
                 while ($numberProcessed > 0)
                     $statement = preg_replace("/'(.*?)\|\|\^\^(.*?)'/", "'$1;$2'", $statement, -1, $numberProcessed);
 
-
                 $this->execute($statement);
 
             }

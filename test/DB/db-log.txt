@@ -1,0 +1,1069 @@
+PRAGMA table_info('contact')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='contact' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+PRAGMA table_info('address')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='address' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.name = ?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.phone_number LIKE ?
+Completed in 0 seconds
+SELECT COUNT(*) FROM address _X  
+Completed in 0.0001 seconds
+SELECT COUNT(*) FROM address _X  GROUP BY _X.phone_number
+Completed in 0 seconds
+SELECT _X.phone_number, COUNT(*) FROM address _X  GROUP BY _X.phone_number
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+PRAGMA table_info('note_view')
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id FROM note_view _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0.0004 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?)
+Completed in 0 seconds
+PRAGMA table_info('phone_number')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='phone_number' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+PRAGMA table_info('profile')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='profile' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0.0001 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+PRAGMA table_info('document')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='document' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+PRAGMA table_info('attachment')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='attachment' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.content _X__content, _XA.id _XA__id, _XA.content _XA__content, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.content _XB__content, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM document _X 
+LEFT JOIN attachment _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN attachment _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.content _X__content, _X.parent_id _X__parent_id, _X.type _X__type FROM attachment _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.content _X__content, _X.parent_id _X__parent_id, _X.type _X__type FROM attachment _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.content _X__content, _X.parent_id _X__parent_id, _X.type _X__type FROM attachment _X  WHERE _X.id=?
+Completed in 0 seconds
+PRAGMA table_info('address_country_collection')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='address_country_collection' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.country_of_interest _X__country_of_interest, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code FROM address_country_collection _X 
+LEFT JOIN address _XA ON _X.country_of_interest = _XA.country_code WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.country_of_interest _X__country_of_interest, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code FROM address_country_collection _X 
+LEFT JOIN address _XA ON _X.country_of_interest = _XA.country_code WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0.0001 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+PRAGMA table_info('contact_other_addresses')
+Completed in 0 seconds
+SELECT _X.contact_id _X__contact_id, _X.address_id _X__address_id FROM contact_other_addresses _X  WHERE (_X.contact_id=? AND _X.address_id=?) OR (_X.contact_id=? AND _X.address_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.content _X__content, _XA.id _XA__id, _XA.content _XA__content, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.content _XB__content, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM document _X 
+LEFT JOIN attachment _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN attachment _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.contact_id _X__contact_id, _X.address_id _X__address_id FROM contact_other_addresses _X  WHERE (_X.contact_id=? AND _X.address_id=?) OR (_X.contact_id=? AND _X.address_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.contact_id _X__contact_id, _X.address_id _X__address_id FROM contact_other_addresses _X  WHERE (_X.contact_id=? AND _X.address_id=?) OR (_X.contact_id=? AND _X.address_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.contact_id _X__contact_id, _X.address_id _X__address_id FROM contact_other_addresses _X  WHERE (_X.contact_id=? AND _X.address_id=?) OR (_X.contact_id=? AND _X.address_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0.0001 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT COUNT(*) total FROM contact_other_addresses WHERE contact_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.content _X__content, _XA.id _XA__id, _XA.content _XA__content, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.content _XB__content, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM document _X 
+LEFT JOIN attachment _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN attachment _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.content _X__content, _XA.id _XA__id, _XA.content _XA__content, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.content _XB__content, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM document _X 
+LEFT JOIN attachment _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN attachment _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' 
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.content _X__content, _X.parent_id _X__parent_id, _X.type _X__type FROM attachment _X  
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.type _X__type, _X.number _X__number, _X.contact_id _X__contact_id FROM phone_number _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id FROM contact _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
+LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN address _XA ON _XAL.address_id = _XA.id
+LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
+LEFT JOIN profile _XC ON _X.id = _XC.contact_id
+LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
+Completed in 0 seconds
+PRAGMA table_info('note')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='note' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE _X.id=?
+Completed in 0.0001 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
+Completed in 0.0001 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.parent_note_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id WHERE _X.id=?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
+Completed in 0.0001 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.parent_note_id=?)
+Completed in 0.0001 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
+LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
+LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
+LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.parent_note_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id FROM note _X 
+LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
+LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id WHERE _X.id=?
+Completed in 0 seconds
+PRAGMA table_info('new_note')
+Completed in 0 seconds
+PRAGMA table_info('new_contact')
+Completed in 0 seconds
+PRAGMA table_info('new_address')
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.name = 'Conrad'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.name In ('Stephen', 'Willis', 'Pedro')
+Completed in 0 seconds
+PRAGMA table_info('example_child_with_parent_key')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='example_child_with_parent_key' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+PRAGMA table_info('example_parent')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='example_parent' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.name = 'Michael'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.description = 'Swimming Lanes' AND _X.parent_id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.description _XAA__description, _XAA.parent_id _XAA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id
+LEFT JOIN example_child_with_parent_key _XAA ON _XA.id = _XAA.parent_id WHERE _X.name = 'Stephanie'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_child_with_parent_key _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.description = 'Cycling Lanes' AND _X.parent_id = 6
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_child_with_parent_key _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.description = 'Jumping up and down' AND _X.parent_id = 9
+Completed in 0 seconds
+PRAGMA table_info('example_child')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='example_child' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+PRAGMA table_info('example_child2')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='example_child2' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id, _XAA.id _XAA__id, _XAA.profession _XAA__profession FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id
+LEFT JOIN example_child2 _XAA ON _XA.child2_id = _XAA.id WHERE _X.name = 'Bonzo' AND _X.child_id IS NOT NULL
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_child _X 
+LEFT JOIN example_child2 _XA ON _X.child2_id = _XA.id WHERE _X.description = 'Dog Catching' AND _X.child2_id IS NOT NULL
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_child _X 
+LEFT JOIN example_child2 _XA ON _X.child2_id = _XA.id WHERE _X.id = 8 AND profession = 'Dentist'
+Completed in 0 seconds
+DELETE FROM example_child_with_parent_key
+Completed in 0.0002 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.description _XAA__description, _XAA.parent_id _XAA__parent_id FROM example _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id
+LEFT JOIN example_child_with_parent_key _XAA ON _XA.id = _XAA.parent_id WHERE _X.name = 'Pickachoo' AND _X.id = 4
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_child_with_parent_key _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.parent_id = 4
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.parent_id = 11
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.parent_id = 12
+Completed in 0 seconds
+DELETE FROM example_many_to_many_link
+Completed in 0.0002 seconds
+PRAGMA table_info('example_many_to_many_link')
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession, _XAA.id _XAA__id, _XAA.name _XAA__name, _XAA.child_id _XAA__child_id FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id
+LEFT JOIN example_many_to_many_link _XAAL ON _XA.id = _XAAL.example_child2_id LEFT JOIN example_parent _XAA ON _XAAL.example_parent_id = _XAA.id WHERE _X.name = 'Flash Gordon'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.id = 1 AND _X.name = 'Conrad'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE (_X.id = 2 AND _X.name ='Stephen') OR (_X.id = 3 AND _X.name='Willis') OR (_X.id = 5 AND _X.name = 'Pedro')
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1 AND _X.name = 'Michael'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 2 AND _X.description = 'Swimming Lanes' AND _X.parent_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.description _XAA__description, _XAA.parent_id _XAA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id
+LEFT JOIN example_child_with_parent_key _XAA ON _XA.id = _XAA.parent_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_child_with_parent_key _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.description _XAA__description, _XAA.parent_id _XAA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id
+LEFT JOIN example_child_with_parent_key _XAA ON _XA.id = _XAA.parent_id WHERE _X.id = 1 AND _X.name = 'Stephanie'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_child_with_parent_key _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 2 AND _X.description = 'Cycling Lanes' AND _X.parent_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_child_with_parent_key _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3 AND _X.description = 'Jumping up and down' AND _X.parent_id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE (_X.id = 1 AND _X.name = 'Conrad') OR (_X.id = 4 AND _X.name='Pierre')
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE (_X.id = 2 AND _X.name ='Stephen') OR (_X.id = 3 AND _X.name='Willis') OR (_X.id = 5 AND _X.name = 'Pedro')
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1 AND _X.name = 'Michael'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 8 AND _X.description = 'Swimming Lanes' AND _X.parent_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.description _XAA__description, _XAA.parent_id _XAA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id
+LEFT JOIN example_child_with_parent_key _XAA ON _XA.id = _XAA.parent_id WHERE _X.name = 'Stephanie'
+Completed in 0.0001 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_child_with_parent_key _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.description = 'Cycling Lanes' AND _X.parent_id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_child_with_parent_key _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.description = 'Jumping up and down' AND _X.parent_id = 9
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.name = 'Piglet'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.name = 'Poppet'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.name IN ('Pooh', 'Christopher Robin')
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.name = 'Pickle'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.name = 'Pickle'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.name = 'Pickle'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 8
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE (_X.id=?) OR (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.name = 'Pickle'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id IN (8,9,10)
+Completed in 0 seconds
+PRAGMA table_info('example_child_with_parent_and_type')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='example_child_with_parent_and_type' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.description _XB__description, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM example_parent _X 
+LEFT JOIN example_child_with_parent_and_type _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN example_child_with_parent_and_type _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.description _XB__description, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM example_parent _X 
+LEFT JOIN example_child_with_parent_and_type _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN example_child_with_parent_and_type _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _X.type _X__type FROM example_child_with_parent_and_type _X  WHERE (_X.id=?) OR (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _X.type _X__type FROM example_child_with_parent_and_type _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.description _XB__description, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM example_parent _X 
+LEFT JOIN example_child_with_parent_and_type _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN example_child_with_parent_and_type _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.description _XB__description, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM example_parent _X 
+LEFT JOIN example_child_with_parent_and_type _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN example_child_with_parent_and_type _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _X.type _X__type FROM example_child_with_parent_and_type _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _X.type _X__type FROM example_child_with_parent_and_type _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.description _XB__description, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM example_parent _X 
+LEFT JOIN example_child_with_parent_and_type _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN example_child_with_parent_and_type _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.description _XB__description, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM example_parent _X 
+LEFT JOIN example_child_with_parent_and_type _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN example_child_with_parent_and_type _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _X.type _X__type FROM example_child_with_parent_and_type _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.description _XB__description, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM example_parent _X 
+LEFT JOIN example_child_with_parent_and_type _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN example_child_with_parent_and_type _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE _X.name = 'Pickle'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _X.type _X__type FROM example_child_with_parent_and_type _X  WHERE _X.id IN (8,9,10)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.example_parent_id _X__example_parent_id, _X.example_child2_id _X__example_child2_id FROM example_many_to_many_link _X  WHERE (_X.example_parent_id=? AND _X.example_child2_id=?) OR (_X.example_parent_id=? AND _X.example_child2_id=?) OR (_X.example_parent_id=? AND _X.example_child2_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.example_parent_id _X__example_parent_id, _X.example_child2_id _X__example_child2_id FROM example_many_to_many_link _X  WHERE (_X.example_parent_id=? AND _X.example_child2_id=?) OR (_X.example_parent_id=? AND _X.example_child2_id=?) OR (_X.example_parent_id=? AND _X.example_child2_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.example_parent_id _X__example_parent_id, _X.example_child2_id _X__example_child2_id FROM example_many_to_many_link _X  WHERE (_X.example_parent_id=? AND _X.example_child2_id=?) OR (_X.example_parent_id=? AND _X.example_child2_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 5
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.id IN (2,3)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.id IN (2,3)
+Completed in 0 seconds
+PRAGMA table_info('example_multi_key')
+Completed in 0 seconds
+SELECT _X.key_1 _X__key_1, _X.key_2 _X__key_2, _X.key_3 _X__key_3, _X.value _X__value FROM example_multi_key _X  WHERE _X.key_1 = 1 AND _X.key_2 = 1 AND _X.key_3 = 1
+Completed in 0 seconds
+SELECT _X.key_1 _X__key_1, _X.key_2 _X__key_2, _X.key_3 _X__key_3, _X.value _X__value FROM example_multi_key _X  WHERE _X.key_1 = 1 AND _X.key_2 = 1 AND _X.key_3 = 1
+Completed in 0 seconds
+SELECT _X.key_1 _X__key_1, _X.key_2 _X__key_2, _X.key_3 _X__key_3, _X.value _X__value FROM example_multi_key _X  WHERE _X.key_1 = 1 AND _X.key_2 = 1 AND _X.key_3 IS NULL
+Completed in 0 seconds
+SELECT _X.key_1 _X__key_1, _X.key_2 _X__key_2, _X.key_3 _X__key_3, _X.value _X__value FROM example_multi_key _X  WHERE _X.key_1 = 1 AND _X.key_2 = 1 AND _X.key_3 IS NULL
+Completed in 0 seconds
+SELECT _X.key_1 _X__key_1, _X.key_2 _X__key_2, _X.key_3 _X__key_3, _X.value _X__value FROM example_multi_key _X  WHERE _X.key_1 IS NULL AND _X.key_2 IS NULL AND _X.key_3 IS NULL
+Completed in 0 seconds
+SELECT _X.key_1 _X__key_1, _X.key_2 _X__key_2, _X.key_3 _X__key_3, _X.value _X__value FROM example_multi_key _X  WHERE _X.key_1 IS NULL AND _X.key_2 IS NULL AND _X.key_3 IS NULL
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE (_X.parent_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE (_X.parent_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.parent_id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.parent_id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id IN (4,5,6)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.parent_id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.parent_id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id IN (4,5,6)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.parent_id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE (_X.parent_id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.parent_id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.id IN (4,5,6)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2 AND _X.child_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2 AND _X.child_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2 AND _X.child_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2 AND _X.child_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2 AND _X.child_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2 AND _X.child_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2 AND _X.child_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2 AND _X.child_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id FROM example_child _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 3
+Completed in 0 seconds
+SELECT COUNT(*) total FROM example_many_to_many_link WHERE example_parent_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 3
+Completed in 0 seconds
+SELECT COUNT(*) total FROM example_many_to_many_link WHERE example_parent_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 3
+Completed in 0 seconds
+SELECT COUNT(*) total FROM example_many_to_many_link WHERE example_parent_id = 1
+Completed in 0 seconds
+SELECT _X.example_parent_id _X__example_parent_id, _X.example_child2_id _X__example_child2_id FROM example_many_to_many_link _X  WHERE (_X.example_parent_id =?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE (_X.id=?) OR (_X.id=?) OR (_X.id=?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.profession _X__profession FROM example_child2 _X  WHERE _X.id = 3
+Completed in 0 seconds
+SELECT COUNT(*) total FROM example_many_to_many_link WHERE example_parent_id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.name = ?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified FROM example _X  WHERE _X.name = ? or _X.name = ? ORDER by _X.id
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id WHERE _X.name LIKE ? OR _X.child_id = ?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id, _XAA.id _XAA__id, _XAA.profession _XAA__profession FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id
+LEFT JOIN example_child2 _XAA ON _XA.child2_id = _XAA.id WHERE _X.id = 4
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id, _XAA.id _XAA__id, _XAA.profession _XAA__profession FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id
+LEFT JOIN example_child2 _XAA ON _XA.child2_id = _XAA.id WHERE _XA.description = 'Cooking'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.child2_id _XA__child2_id, _XAA.id _XAA__id, _XAA.profession _XAA__profession FROM example_parent _X 
+LEFT JOIN example_child _XA ON _X.child_id = _XA.id
+LEFT JOIN example_child2 _XAA ON _XA.child2_id = _XAA.id WHERE _XAA.id = 1
+Completed in 0 seconds
+PRAGMA table_info('example_uses_multi_key')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='example_uses_multi_key' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.value _X__value, _X.multi_key_1 _X__multi_key_1, _X.multi_key_2 _X__multi_key_2, _X.multi_key_3 _X__multi_key_3, _XA.key_1 _XA__key_1, _XA.key_2 _XA__key_2, _XA.key_3 _XA__key_3, _XA.value _XA__value FROM example_uses_multi_key _X 
+LEFT JOIN example_multi_key _XA ON _X.multi_key_1 = _XA.key_1 AND _X.multi_key_2 = _XA.key_2 AND _X.multi_key_3 = _XA.key_3 WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.value _X__value, _X.multi_key_1 _X__multi_key_1, _X.multi_key_2 _X__multi_key_2, _X.multi_key_3 _X__multi_key_3, _XA.key_1 _XA__key_1, _XA.key_2 _XA__key_2, _XA.key_3 _XA__key_3, _XA.value _XA__value FROM example_uses_multi_key _X 
+LEFT JOIN example_multi_key _XA ON _X.multi_key_1 = _XA.key_1 AND _X.multi_key_2 = _XA.key_2 AND _X.multi_key_3 = _XA.key_3 WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.value _X__value, _X.multi_key_1 _X__multi_key_1, _X.multi_key_2 _X__multi_key_2, _X.multi_key_3 _X__multi_key_3, _XA.key_1 _XA__key_1, _XA.key_2 _XA__key_2, _XA.key_3 _XA__key_3, _XA.value _XA__value FROM example_uses_multi_key _X 
+LEFT JOIN example_multi_key _XA ON _X.multi_key_1 = _XA.key_1 AND _X.multi_key_2 = _XA.key_2 AND COALESCE(_X.multi_key_3, '') = COALESCE(_XA.key_3, '') WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.value _X__value, _X.multi_key_1 _X__multi_key_1, _X.multi_key_2 _X__multi_key_2, _X.multi_key_3 _X__multi_key_3, _XA.key_1 _XA__key_1, _XA.key_2 _XA__key_2, _XA.key_3 _XA__key_3, _XA.value _XA__value FROM example_uses_multi_key _X 
+LEFT JOIN example_multi_key _XA ON _X.multi_key_1 = _XA.key_1 AND _X.multi_key_2 = _XA.key_2 AND COALESCE(_X.multi_key_3, '') = COALESCE(_XA.key_3, '') WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.value _X__value, _X.multi_key_1 _X__multi_key_1, _X.multi_key_2 _X__multi_key_2, _X.multi_key_3 _X__multi_key_3, _XA.key_1 _XA__key_1, _XA.key_2 _XA__key_2, _XA.key_3 _XA__key_3, _XA.value _XA__value FROM example_uses_multi_key _X 
+LEFT JOIN example_multi_key _XA ON _X.multi_key_1 = _XA.key_1 AND _X.multi_key_2 = _XA.key_2 AND COALESCE(_X.multi_key_3, '') = COALESCE(_XA.key_3, '') WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.value _X__value, _X.multi_key_1 _X__multi_key_1, _X.multi_key_2 _X__multi_key_2, _X.multi_key_3 _X__multi_key_3, _XA.key_1 _XA__key_1, _XA.key_2 _XA__key_2, _XA.key_3 _XA__key_3, _XA.value _XA__value FROM example_uses_multi_key _X 
+LEFT JOIN example_multi_key _XA ON COALESCE(_X.multi_key_1, '') = COALESCE(_XA.key_1, '') AND COALESCE(_X.multi_key_2, '') = COALESCE(_XA.key_2, '') AND COALESCE(_X.multi_key_3, '') = COALESCE(_XA.key_3, '') WHERE _X.id = 4
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.name LIKE ?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _XA.description = 'Walking'
+Completed in 0 seconds
+SELECT _X.key_1 _X__key_1, _X.key_2 _X__key_2, _X.key_3 _X__key_3, _X.value _X__value, _XA.id _XA__id, _XA.value _XA__value, _XA.multi_key_1 _XA__multi_key_1, _XA.multi_key_2 _XA__multi_key_2, _XA.multi_key_3 _XA__multi_key_3 FROM example_multi_key _X 
+LEFT JOIN example_uses_multi_key _XA ON _X.key_1 = _XA.multi_key_1 AND _X.key_2 = _XA.multi_key_2 AND _X.key_3 = _XA.multi_key_3 WHERE _X.key_1 = 1 AND _X.key_2 = 1 AND _X.key_3 IS NULL
+Completed in 0 seconds
+SELECT _X.key_1 _X__key_1, _X.key_2 _X__key_2, _X.key_3 _X__key_3, _X.value _X__value, _XA.id _XA__id, _XA.value _XA__value, _XA.multi_key_1 _XA__multi_key_1, _XA.multi_key_2 _XA__multi_key_2, _XA.multi_key_3 _XA__multi_key_3 FROM example_multi_key _X 
+LEFT JOIN example_uses_multi_key _XA ON _X.key_1 = _XA.multi_key_1 AND _X.key_2 = _XA.multi_key_2 AND COALESCE(_X.key_3, '') = COALESCE(_XA.multi_key_3, '') WHERE _X.key_1 = 1 AND _X.key_2 = 1 AND _X.key_3 IS NULL
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 3
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.name LIKE ?
+Completed in 0 seconds
+SELECT DISTINCT _X.id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _XA.description = 'Walking'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.id = ?)
+Completed in 0 seconds
+SELECT DISTINCT _X.id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id LIMIT 4
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE (_X.id = ?) OR (_X.id = ?) OR (_X.id = ?) OR (_X.id = ?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.description _XB__description, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM example_parent _X 
+LEFT JOIN example_child_with_parent_and_type _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN example_child_with_parent_and_type _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XA.type _XA__type, _XB.id _XB__id, _XB.description _XB__description, _XB.parent_id _XB__parent_id, _XB.type _XB__type FROM example_parent _X 
+LEFT JOIN example_child_with_parent_and_type _XA ON _X.id = _XA.parent_id AND _XA.type = 'NOTE'
+LEFT JOIN example_child_with_parent_and_type _XB ON _X.id = _XB.parent_id AND _XB.type = 'COMMENT' WHERE _X.id = 2
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT DISTINCT _X.id FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _XA.profession = ?
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE (_X.id = ?) OR (_X.id = ?)
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE _X.id IN (2, 3)
+Completed in 0 seconds
+SELECT DISTINCT _X.id FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id LIMIT 4
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession FROM example_parent _X 
+LEFT JOIN example_many_to_many_link _XAL ON _X.id = _XAL.example_parent_id LEFT JOIN example_child2 _XA ON _XAL.example_child2_id = _XA.id WHERE (_X.id = ?) OR (_X.id = ?) OR (_X.id = ?) OR (_X.id = ?)
+Completed in 0 seconds
+SELECT _X.name FROM example _X 
+Completed in 0 seconds
+SELECT _X.name, _XA.description FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id IN (1, 2)
+Completed in 0 seconds
+SELECT _X.name FROM example _X  WHERE _X.name IN (SELECT 'Mark'
+UNION SELECT 'John'
+UNION SELECT 'Dave'
+WHERE 1 = 1)
+Completed in 0.0001 seconds
+PRAGMA table_info('example_recursive')
+Completed in 0 seconds
+SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='example_recursive' AND sql LIKE '%AUTOINCREMENT%'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_id _XAA__parent_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_id _XAAA__parent_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_id _XAAAA__parent_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_id _XAAAAA__parent_id FROM example_recursive _X 
+LEFT JOIN example_recursive _XA ON _X.id = _XA.parent_id
+LEFT JOIN example_recursive _XAA ON _XA.id = _XAA.parent_id
+LEFT JOIN example_recursive _XAAA ON _XAA.id = _XAAA.parent_id
+LEFT JOIN example_recursive _XAAAA ON _XAAA.id = _XAAAA.parent_id
+LEFT JOIN example_recursive _XAAAAA ON _XAAAA.id = _XAAAAA.parent_id WHERE _X.id = 1
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.note _X__note, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_id _XAA__parent_id FROM example_recursive _X 
+LEFT JOIN example_recursive _XA ON _X.id = _XA.parent_id
+LEFT JOIN example_recursive _XAA ON _XA.id = _XAA.parent_id WHERE _X.id = 1
+Completed in 0 seconds
