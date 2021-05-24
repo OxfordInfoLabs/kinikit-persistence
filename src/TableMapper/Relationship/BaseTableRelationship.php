@@ -4,6 +4,7 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Mapper\TablePersistenceEngine;

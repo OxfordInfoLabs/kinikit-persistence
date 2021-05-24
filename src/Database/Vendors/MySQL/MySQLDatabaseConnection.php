@@ -50,6 +50,16 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
     }
 
+    /**
+     * Escape a MySQL column
+     *
+     * @param $columnName
+     * @return mixed
+     */
+    public function escapeColumn($columnName) {
+        return "`" . $columnName . "`";
+    }
+
 
     /**
      * Begin a transaction

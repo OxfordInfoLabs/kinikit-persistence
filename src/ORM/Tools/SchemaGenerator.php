@@ -150,7 +150,9 @@ class SchemaGenerator {
             $pks = array();
             foreach ($tableMetaData->getColumns() as $column) {
 
-                $line = $column->getName() . " " . $column->getType();
+                $columnName = $this->databaseConnection->escapeColumn($column->getName());
+
+                $line = $columnName . " " . $column->getType();
                 if ($column->getLength()) {
                     $line .= "(" . $column->getLength();
                     if ($column->getPrecision()) {
@@ -165,7 +167,7 @@ class SchemaGenerator {
                     if ($column->isAutoIncrement())
                         $line .= ' PRIMARY KEY';
                     else
-                        $pks[] = $column->getName();
+                        $pks[] = $columnName;
                 }
                 if ($column->isAutoIncrement()) $line .= ' AUTOINCREMENT';
 

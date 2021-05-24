@@ -161,6 +161,7 @@ class TestDataInstaller {
 
         foreach ($filepaths as $filepath) {
 
+
             $trimmedPath = ltrim($suffix . "/$filepath", "/");
 
             $targetClass = str_replace("/", "\\", $trimmedPath);

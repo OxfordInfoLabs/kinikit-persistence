@@ -35,7 +35,12 @@ class StandardBulkDataManager extends DefaultBulkDataManager {
     // Actually do an insert or replace (they are basically the same except for keyword difference).
     private function doInsertOrReplace($tableName, $rows, $insertColumns, $type = "INSERT") {
 
-        $joinedColumns = join(",", $insertColumns);
+        $escapedColumns = [];
+        foreach ($insertColumns as $insertColumn) {
+            $escapedColumns[] = $this->databaseConnection->escapeColumn($insertColumn);
+        }
+
+        $joinedColumns = join(",", $escapedColumns);
 
         // Loop in batch sizes.
         while ($slice = array_splice($rows, 0, $this->batchSize, [])) {

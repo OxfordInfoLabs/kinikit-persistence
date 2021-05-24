@@ -41,7 +41,12 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
 
         $this->mockDatabaseConnection->returnValue("createPreparedStatement", $this->mockPreparedStatement);
         $this->mockDatabaseConnection->returnValue("getTableMetaData", $this->mockMetaData);
-
+        $this->mockDatabaseConnection->returnValue("escapeColumn", "`id`", [
+            "id"
+        ]);
+        $this->mockDatabaseConnection->returnValue("escapeColumn", "`name`", [
+            "name"
+        ]);
 
     }
 
@@ -52,7 +57,7 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         // try simple insert
         $manager->insert("example", ["id" => 3, "name" => "Jeeves"]);
 
-        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example (id,name) VALUES (?,?)"]));
+        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example (`id`,`name`) VALUES (?,?)"]));
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[3, "Jeeves"]]));
 
 
@@ -67,7 +72,7 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
 
         $manager->insert("example", $randomRecords);
 
-        $this->assertFalse($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example (id,name) VALUES (?,?)"]));
+        $this->assertFalse($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example (`id`,`name`) VALUES (?,?)"]));
         $this->assertEquals(2, sizeof($this->mockPreparedStatement->getMethodCallHistory("execute")));
 
     }
@@ -164,7 +169,7 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         // try simple insert
         $manager->replace("example", ["id" => 3, "name" => "Jeeves"]);
 
-        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["REPLACE INTO example (id,name) VALUES (?,?)"]));
+        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["REPLACE INTO example (`id`,`name`) VALUES (?,?)"]));
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[3, "Jeeves"]]));
 
 
@@ -179,7 +184,7 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
 
         $manager->replace("example", $randomRecords);
 
-        $this->assertFalse($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["REPLACE INTO example (id,name) VALUES (?,?)"]));
+        $this->assertFalse($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["REPLACE INTO example (`id`,`name`) VALUES (?,?)"]));
         $this->assertEquals(2, sizeof($this->mockPreparedStatement->getMethodCallHistory("execute")));
 
     }
