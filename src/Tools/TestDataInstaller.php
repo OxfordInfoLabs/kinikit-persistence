@@ -11,6 +11,8 @@ use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Configuration\SearchNamespaces;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Bootstrapper;
+use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\ORM\ORM;
 
@@ -55,6 +57,12 @@ class TestDataInstaller {
      */
     private $ormInterceptorProcessor;
 
+
+    /**
+     * @var DatabaseConnection
+     */
+    private $databaseConnection;
+
     /**
      * TestDataInstaller constructor.
      * @param ObjectBinder $objectBinder
@@ -63,14 +71,16 @@ class TestDataInstaller {
      * @param FileResolver $fileResolver
      * @param SearchNamespaces $searchNamespaces
      * @param ORMInterceptorProcessor $ormInterceptorProcessor
+     * @param DatabaseConnection $databaseConnection
      */
-    public function __construct($objectBinder, $orm, $dbInstaller, $fileResolver, $searchNamespaces, $ormInterceptorProcessor) {
+    public function __construct($objectBinder, $orm, $dbInstaller, $fileResolver, $searchNamespaces, $ormInterceptorProcessor, $databaseConnection) {
         $this->objectBinder = $objectBinder;
         $this->orm = $orm;
         $this->dbInstaller = $dbInstaller;
         $this->fileResolver = $fileResolver;
         $this->searchNamespaces = $searchNamespaces;
         $this->ormInterceptorProcessor = $ormInterceptorProcessor;
+        $this->databaseConnection = $databaseConnection;
     }
 
 
@@ -91,12 +101,17 @@ class TestDataInstaller {
             chdir($cwd);
         }
 
+        // If we subclass the base database connection, clear meta data cache
+        if ($this->databaseConnection instanceof BaseDatabaseConnection) {
+            $this->databaseConnection->clearMetaDataCache();
+        }
+
         $directories = $this->fileResolver->getSearchPaths();
         $directories = array_reverse($directories);
 
         // Disable interceptors whilst inserting test data.
         $this->ormInterceptorProcessor->setEnabled(false);
-
+        
         foreach ($directories as $directory) {
 
             if (in_array($directory, $excludeTestDataPaths))

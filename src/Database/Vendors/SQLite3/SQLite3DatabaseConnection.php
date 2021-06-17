@@ -75,6 +75,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         }
 
 
+
         return $columns;
 
 

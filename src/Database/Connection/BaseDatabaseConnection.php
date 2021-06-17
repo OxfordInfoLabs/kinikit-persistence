@@ -325,6 +325,14 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
 
 
     /**
+     * Clear meta data cache.  Useful when installing test data
+     */
+    public function clearMetaDataCache(){
+        $this->cachedMetaData = [];
+    }
+
+
+    /**
      * Get table column meta data for a given table as an associative array keyed in by column name.
      *
      * @param $tableName
