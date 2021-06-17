@@ -111,7 +111,7 @@ class TestDataInstaller {
 
         // Disable interceptors whilst inserting test data.
         $this->ormInterceptorProcessor->setEnabled(false);
-        
+
         foreach ($directories as $directory) {
 
             if (in_array($directory, $excludeTestDataPaths))

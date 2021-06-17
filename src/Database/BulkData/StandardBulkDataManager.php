@@ -35,6 +35,7 @@ class StandardBulkDataManager extends DefaultBulkDataManager {
     // Actually do an insert or replace (they are basically the same except for keyword difference).
     private function doInsertOrReplace($tableName, $rows, $insertColumns, $type = "INSERT") {
 
+
         $escapedColumns = [];
         foreach ($insertColumns as $insertColumn) {
             $escapedColumns[] = $this->databaseConnection->escapeColumn($insertColumn);
@@ -58,7 +59,9 @@ class StandardBulkDataManager extends DefaultBulkDataManager {
                 }
             }
 
+
             $statement->execute($values);
+
 
         }
 

@@ -143,6 +143,7 @@ abstract class BaseBulkDataManager implements BulkDataManager {
             $replaceColumns = array_keys($rows[0]);
         }
 
+      
 
         $this->doReplace($tableName, $rows, $replaceColumns);
     }

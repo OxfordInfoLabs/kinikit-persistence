@@ -379,7 +379,7 @@ LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
 LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
 LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
 LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
-Completed in 0 seconds
+Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
 LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
 LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
@@ -418,14 +418,14 @@ LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
 LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
 LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
 LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
-Completed in 0 seconds
+Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
 LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
 LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
 LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
 LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
 LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
 LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
 LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id

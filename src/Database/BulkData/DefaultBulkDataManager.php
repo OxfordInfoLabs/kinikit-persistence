@@ -125,14 +125,13 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
      * @throws SQLException
      */
     public function doDelete($tableName, $pkValues, $matchColumns) {
-
-
+        
         $inClause = !is_array($pkValues[0] ?? null);
-
-        $query = "DELETE FROM $tableName WHERE ";
-
+        
         // Loop in batch sizes.
         while ($slice = array_splice($pkValues, 0, $this->batchSize, [])) {
+
+            $query = "DELETE FROM $tableName WHERE ";
 
             $values = [];
 
