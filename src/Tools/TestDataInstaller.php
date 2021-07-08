@@ -6,11 +6,9 @@ namespace Kinikit\Persistence\Tools;
 
 use DirectoryIterator;
 use Kinikit\Core\Binding\ObjectBinder;
-use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Configuration\SearchNamespaces;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Bootstrapper;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
@@ -93,6 +91,7 @@ class TestDataInstaller {
      */
     public function run($installDB = true, $excludeTestDataPaths = []) {
 
+
         $cwd = getcwd();
 
         if ($installDB) {
@@ -100,6 +99,8 @@ class TestDataInstaller {
             $this->dbInstaller->run();
             chdir($cwd);
         }
+
+
 
         // If we subclass the base database connection, clear meta data cache
         if ($this->databaseConnection instanceof BaseDatabaseConnection) {

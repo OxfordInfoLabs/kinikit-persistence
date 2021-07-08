@@ -55,7 +55,6 @@ class SchemaGenerator {
      */
     public function createSchema($objectPaths = ["."], $dropIfExists = true) {
 
-
         foreach ($this->fileResolver->getSearchPaths() as $searchPath) {
 
             foreach ($objectPaths as $objectPath) {

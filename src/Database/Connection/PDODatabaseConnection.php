@@ -43,6 +43,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
             $this->connection->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
             return true;
         } catch (\PDOException $e) {
+            throw ($e);
             return false;
         }
     }

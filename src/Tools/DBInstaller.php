@@ -64,6 +64,7 @@ class DBInstaller {
         $directories = $this->fileResolver->getSearchPaths();
         $directories = array_reverse($directories);
 
+
         // Run core (and application) DB installs
         foreach ($directories as $directory) {
             if (file_exists($directory . "/DB")) {
