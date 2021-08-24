@@ -106,6 +106,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
             $placeholders = $placeholders[0];
         }
 
+
         return $this->doQuery($sql, $placeholders);
     }
 

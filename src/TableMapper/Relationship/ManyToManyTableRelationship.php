@@ -47,7 +47,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
         return $this->linkTableName;
     }
 
-    
+
     /**
      * Get the select join clause for this relationship
      *
@@ -173,7 +173,8 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
     public function postParentSaveOperation($saveType, &$relationshipData) {
 
         // Perform a save operation using the child rows.
-        $this->performSaveOperationOnChildren($saveType, $relationshipData);
+        if ($this->saveCascade)
+            $this->performSaveOperationOnChildren($saveType, $relationshipData);
 
         $parentTableName = $this->parentMapping->getTableName();
         $childTableName = $this->getRelatedTableMapping()->getTableName();
