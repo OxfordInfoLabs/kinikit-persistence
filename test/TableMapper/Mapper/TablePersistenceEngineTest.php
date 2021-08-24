@@ -175,8 +175,8 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
 
 
         $child2Mapper = new TableMapping("example_parent");
-        $childMapper = new TableMapping("example_child2", [new ManyToManyTableRelationship($child2Mapper, "children", "example_many_to_many_link")]);
-        $tableMapper = new TableMapping("example_parent", [new ManyToManyTableRelationship($childMapper, "children", "example_many_to_many_link")]);
+        $childMapper = new TableMapping("example_child2", [new ManyToManyTableRelationship($child2Mapper, "children", "example_many_to_many_link", true)]);
+        $tableMapper = new TableMapping("example_parent", [new ManyToManyTableRelationship($childMapper, "children", "example_many_to_many_link", true)]);
 
         $insertData = [
             "name" => "Flash Gordon",
@@ -699,7 +699,7 @@ class TablePersistenceEngineTest extends \PHPUnit\Framework\TestCase {
     public function testCanSaveManyToManyRelationships() {
 
         $childMapping = new TableMapping("example_child2");
-        $tableMapping = new TableMapping("example_parent", [new ManyToManyTableRelationship($childMapping, "children", "example_many_to_many_link")]);
+        $tableMapping = new TableMapping("example_parent", [new ManyToManyTableRelationship($childMapping, "children", "example_many_to_many_link", true)]);
 
 
         // Do a create

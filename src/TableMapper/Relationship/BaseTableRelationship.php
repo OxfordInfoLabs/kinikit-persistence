@@ -257,7 +257,7 @@ abstract class BaseTableRelationship implements TableRelationship {
 
 
         // Get the global persistence engine instance and save the children if they exist
-        if (sizeof($relationshipData["allRelatedItems"]))
+        if (sizeof($relationshipData["allRelatedItems"]) && $this->saveCascade)
             $this->tablePersistenceEngine->__saveRows($this->relatedTableMapping, $relationshipData["allRelatedItems"], $saveType);
 
 

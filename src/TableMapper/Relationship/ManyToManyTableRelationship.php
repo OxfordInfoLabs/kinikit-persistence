@@ -173,8 +173,7 @@ class ManyToManyTableRelationship extends BaseTableRelationship {
     public function postParentSaveOperation($saveType, &$relationshipData) {
 
         // Perform a save operation using the child rows.
-        if ($this->saveCascade)
-            $this->performSaveOperationOnChildren($saveType, $relationshipData);
+        $this->performSaveOperationOnChildren($saveType, $relationshipData);
 
         $parentTableName = $this->parentMapping->getTableName();
         $childTableName = $this->getRelatedTableMapping()->getTableName();
