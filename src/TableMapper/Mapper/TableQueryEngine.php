@@ -46,6 +46,7 @@ class TableQueryEngine {
 
         // Substitute params for both select and WHERE clause for optimisation purposes below
         $replacementFunction = function ($matches) use ($fullPathAliases, $allColumns, &$doubleQueryRequired) {
+
             if (isset($matches[0])) {
                 if (in_array($matches[0], $allColumns)) {
                     return "_X." . $matches[0];
@@ -87,14 +88,14 @@ class TableQueryEngine {
 
                     $explodeWhere = explode("WHERE", $explodedFrom[1]);
 
-                    $selectPart = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodedFrom[0]);
+                    $selectPart = preg_replace_callback("/[0-9a-zA-Z_\.]+/", $replacementFunction, $explodedFrom[0]);
                     $selectPart .= "FROM" . $explodeWhere[0];
                     if (sizeof($explodeWhere) > 1) {
-                        $selectPart .= "WHERE" . preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodeWhere[1]);
+                        $selectPart .= "WHERE" . preg_replace_callback("/[0-9a-zA-Z_\.]+/", $replacementFunction, $explodeWhere[1]);
                     }
 
                 } else {
-                    $selectPart = preg_replace_callback("/[0-9a-z_\.]+/", $replacementFunction, $explodedSelectElement);
+                    $selectPart = preg_replace_callback("/[0-9a-zA-Z_\.]+/", $replacementFunction, $explodedSelectElement);
                 }
 
                 $selectParts[] = $selectPart;
@@ -105,6 +106,7 @@ class TableQueryEngine {
 
 
         $query = "SELECT" . join("SELECT", $selectParts);
+
 
 
         // If we have a select * query add all required columns
