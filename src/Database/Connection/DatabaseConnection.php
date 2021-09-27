@@ -48,6 +48,16 @@ interface DatabaseConnection {
 
 
     /**
+     * Parse SQL prior to execution - used to make vendor specific alterations from the default
+     * SQL dialect (SQLite)
+     *
+     * @param $sql
+     * @return mixed
+     */
+    public function parseSQL($sql);
+
+
+    /**
      * Issue a SQL query with results.  Returns a ResultSet if successful or
      * may throw SQLException if issues
      *

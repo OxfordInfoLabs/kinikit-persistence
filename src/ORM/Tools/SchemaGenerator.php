@@ -8,6 +8,7 @@ use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\ORM\Mapping\ORMMapping;
 
@@ -37,16 +38,23 @@ class SchemaGenerator {
 
 
     /**
+     * @var TableDDLGenerator
+     */
+    private $tableDDLGenerator;
+
+    /**
      * SchemaGenerator constructor.
      *
      * @param ClassInspectorProvider $classInspectorProvider
      * @param DatabaseConnection $databaseConnection
      * @param FileResolver $fileResolver
+     * @param TableDDLGenerator $tableDDLGenerator
      */
-    public function __construct($classInspectorProvider, $databaseConnection, $fileResolver) {
+    public function __construct($classInspectorProvider, $databaseConnection, $fileResolver, $tableDDLGenerator) {
         $this->classInspectorProvider = $classInspectorProvider;
         $this->databaseConnection = $databaseConnection;
         $this->fileResolver = $fileResolver;
+        $this->tableDDLGenerator = $tableDDLGenerator;
     }
 
 
@@ -143,44 +151,7 @@ class SchemaGenerator {
                 $sql = "DROP TABLE IF EXISTS {$tableMetaData->getTableName()};";
             }
 
-            $sql .= "CREATE TABLE {$tableMetaData->getTableName()} (\n";
-
-            $columnLines = array();
-            $pks = array();
-            foreach ($tableMetaData->getColumns() as $column) {
-
-                $columnName = $this->databaseConnection->escapeColumn($column->getName());
-
-                $line = $columnName . " " . $column->getType();
-                if ($column->getLength()) {
-                    $line .= "(" . $column->getLength();
-                    if ($column->getPrecision()) {
-                        $line .= "," . $column->getPrecision();
-                    }
-                    $line .= ")";
-                }
-                if ($column->isNotNull())
-                    $line .= " NOT NULL";
-
-                if ($column->isPrimaryKey()) {
-                    if ($column->isAutoIncrement())
-                        $line .= ' PRIMARY KEY';
-                    else
-                        $pks[] = $columnName;
-                }
-                if ($column->isAutoIncrement()) $line .= ' AUTOINCREMENT';
-
-                $columnLines[] = $line;
-            }
-
-
-            $sql .= join(",\n", $columnLines);
-
-            if (sizeof($pks) > 0) {
-                $sql .= ",\nPRIMARY KEY (" . join(",", $pks) . ")";
-            }
-
-            $sql .= "\n);";
+            $sql .= $this->tableDDLGenerator->generateTableCreateSQL($tableMetaData, $this->databaseConnection);
 
             $this->databaseConnection->executeScript($sql);
 

@@ -3,6 +3,9 @@
 namespace Kinikit\Persistence\Database\ResultSet;
 
 
+use Kinikit\Core\Logging\Logger;
+use Kinikit\Persistence\Database\Exception\SQLException;
+
 class PDOResultSet extends BaseResultSet {
 
     private $statement;
@@ -31,11 +34,16 @@ class PDOResultSet extends BaseResultSet {
      *
      */
     public function getColumnNames() {
+
         $columnNames = array();
         for ($i = 0; $i < $this->statement->columnCount(); $i++) {
-            $columnMeta = $this->statement->getColumnMeta($i);
-            $columnNames [] = $columnMeta ["name"];
+            try {
+                $columnMeta = $this->statement->getColumnMeta($i);
+                $columnNames [] = $columnMeta ["name"];
+            } catch(\PDOException $e){
+            }
         }
+
         return $columnNames;
     }
 

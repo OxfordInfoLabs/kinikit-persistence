@@ -92,6 +92,18 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
 
     }
 
+
+    /**
+     * Default implementation of the parseSQL method - simply returns SQL intact
+     *
+     * @param $sql
+     * @return mixed|void
+     */
+    public function parseSQL($sql) {
+        return $sql;
+    }
+
+
     /**
      * Implement query method to ensure query is correctly
      * processed and then call the abstract doQuery method
@@ -105,6 +117,9 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
         if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
             $placeholders = $placeholders[0];
         }
+
+        // Parse the SQL to ensure we catch any vendor specific dialect
+        $sql = $this->parseSQL($sql);
 
 
         return $this->doQuery($sql, $placeholders);
@@ -126,6 +141,10 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
             $placeholders = $placeholders[0];
         }
 
+        // Parse the SQL to ensure we catch any vendor specific dialect
+        $sql = $this->parseSQL($sql);
+
+
         // Create prepared statement for passed SQL.
         $statement = $this->createPreparedStatement($sql);
 
@@ -146,6 +165,9 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * @return PreparedStatement|void
      */
     public function createPreparedStatement($sql) {
+
+        // Parse the SQL to ensure we catch any vendor specific dialect
+        $sql = $this->parseSQL($sql);
 
         return $this->doCreatePreparedStatement($sql);
 
@@ -328,7 +350,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
     /**
      * Clear meta data cache.  Useful when installing test data
      */
-    public function clearMetaDataCache(){
+    public function clearMetaDataCache() {
         $this->cachedMetaData = [];
     }
 

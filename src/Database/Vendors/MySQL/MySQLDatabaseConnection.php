@@ -60,6 +60,23 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         return "`" . $columnName . "`";
     }
 
+    /**
+     * Add MySQL specific parsing rules to SQL.
+     *
+     * @param $sql
+     * @return mixed|void
+     */
+    public function parseSQL($sql) {
+        
+        // Substitute AUTOINCREMENT keyword
+        $sql = str_replace("AUTOINCREMENT", "AUTO_INCREMENT", $sql);
+
+        // Substitute plain VARCHAR keyword
+        $sql = preg_replace("/VARCHAR([^\(])/i", "VARCHAR(255)$1", $sql);
+
+        return $sql;
+    }
+
 
     /**
      * Begin a transaction
@@ -140,23 +157,6 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      */
     public function getBulkDataManager() {
         return new StandardBulkDataManager($this);
-    }
-
-
-    /**
-     * Replace any core syntax with MySQL variations.
-     *
-     * @param $scriptContents
-     */
-    public function executeScript($scriptContents) {
-
-        // Substitute AUTOINCREMENT keyword
-        $scriptContents = str_replace("AUTOINCREMENT", "AUTO_INCREMENT", $scriptContents);
-
-        // Substitute plain VARCHAR keyword
-        $scriptContents = preg_replace("/VARCHAR([^\(])/i", "VARCHAR(255)$1", $scriptContents);
-
-        parent::executeScript($scriptContents);
     }
 
 

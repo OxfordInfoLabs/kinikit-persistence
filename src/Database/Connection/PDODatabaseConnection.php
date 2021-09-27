@@ -5,6 +5,7 @@ namespace Kinikit\Persistence\Database\Connection;
 
 
 use Kinikit\Core\Exception\MethodNotImplementedException;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\PDOPreparedStatement;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
@@ -82,7 +83,6 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
         if (!$this->connection) {
             throw new ConnectionClosedException();
         }
-
 
         try {
             $statement = $this->connection->prepare($sql);
