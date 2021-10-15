@@ -47,7 +47,7 @@ class TableMapper {
 
 
     /**
-     * Fetch a row by primary key from the configured table mappeer
+     * Fetch a row by primary key from the configured table mapper
      *
      * @param string|TableMapping $tableMapping
      * @param mixed $primaryKeyValue

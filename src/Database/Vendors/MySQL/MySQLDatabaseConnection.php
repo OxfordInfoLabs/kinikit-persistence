@@ -72,7 +72,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         $sql = str_replace("AUTOINCREMENT", "AUTO_INCREMENT", $sql);
 
         // Substitute plain VARCHAR keyword
-        $sql = preg_replace("/VARCHAR([^\(])/i", "VARCHAR(255)$1", $sql);
+        $sql = preg_replace("/VARCHAR([^\(]|$)/i", "VARCHAR(255)$1", $sql);
 
         return $sql;
     }

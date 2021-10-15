@@ -39,6 +39,9 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
     public function getTableColumnMetaData($tableName) {
 
         $results = $this->query("PRAGMA table_info('" . $tableName . "')")->fetchAll();
+        if (sizeof($results) == 0) {
+            throw new SQLException("table $tableName does not exist");
+        }
 
         $columns = [];
         $pkColumns = [];
@@ -73,7 +76,6 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
             if (sizeof($results) > 0)
                 $pkColumns[0]->setAutoIncrement(true);
         }
-
 
 
         return $columns;
