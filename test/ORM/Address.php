@@ -73,7 +73,7 @@ class Address {
     /**
      * @return string
      */
-    public function getName(): string {
+    public function getName() {
         return $this->name;
     }
 
