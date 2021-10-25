@@ -87,7 +87,7 @@ class Address {
     /**
      * @return string
      */
-    public function getStreet1(): string {
+    public function getStreet1() {
         return $this->street1;
     }
 
@@ -101,7 +101,7 @@ class Address {
     /**
      * @return string
      */
-    public function getStreet2(): string {
+    public function getStreet2() {
         return $this->street2;
     }
 
@@ -115,7 +115,7 @@ class Address {
     /**
      * @return string
      */
-    public function getPhoneNumber(): string {
+    public function getPhoneNumber() {
         return $this->phoneNumber;
     }
 
@@ -129,7 +129,7 @@ class Address {
     /**
      * @return string
      */
-    public function getCountryCode(): string {
+    public function getCountryCode() {
         return $this->countryCode;
     }
 
