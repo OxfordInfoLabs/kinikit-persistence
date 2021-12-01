@@ -118,6 +118,8 @@ class TableMapper {
         $primaryKeyClauses = [];
         $placeholderValues = [];
         $serialisedPks = [];
+        $results = [];
+
         foreach ($primaryKeyValues as $index => $primaryKey) {
 
             // If primary key is not an array, make it so.
@@ -134,13 +136,21 @@ class TableMapper {
             }
             $primaryKeyClauses[] = "(" . join(" AND ", $primaryKeyClause) . ")";
 
+            if (sizeof($placeholderValues) >= 990) {
+                $whereClause = join(" OR ", $primaryKeyClauses);
+                $results = $results + $this->queryEngine->query($tableMapping, "SELECT * FROM {$tableName} WHERE $whereClause", $placeholderValues);
+                $primaryKeyClauses = [];
+                $placeholderValues = [];
+            }
+
 
         }
 
-        $whereClause = join(" OR ", $primaryKeyClauses);
+        if (sizeof($primaryKeyClauses) > 0) {
+            $whereClause = join(" OR ", $primaryKeyClauses);
+            $results = $results + $this->queryEngine->query($tableMapping, "SELECT * FROM {$tableName} WHERE $whereClause", $placeholderValues);
+        }
 
-
-        $results = $this->queryEngine->query($tableMapping, "SELECT * FROM {$tableName} WHERE $whereClause", $placeholderValues);
 
         $orderedResults = [];
         foreach ($serialisedPks as $serialisedPk) {

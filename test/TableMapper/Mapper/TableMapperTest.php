@@ -158,6 +158,36 @@ class TableMapperTest extends TestCase {
     }
 
 
+    public function testMultiFetchForMoreThan990ValuesAreSplitAndReturnedCorrectly() {
+
+        // Create a basic mapper
+        $tableMapping = new TableMapping("example");
+
+        $values = [1];
+        for ($i = 1000; $i < 1989; $i++) {
+            $values[] = $i;
+        }
+
+        $this->queryEngine->returnValue("query", [1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"]],
+            [$tableMapping, "SELECT * FROM example WHERE (id=?)".str_repeat(" OR (id=?)",989), $values]);
+
+        $values[] = 2000;
+        $values[] = 3;
+
+        $this->queryEngine->returnValue("query", [3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]],
+            [$tableMapping, "SELECT * FROM example WHERE (id=?) OR (id=?)", [2000, 3]]);
+
+
+
+        $this->assertEquals([
+            1 => ["id" => 1, "name" => "Mark", "last_modified" => "2010-01-01"],
+            3 => ["id" => 3, "name" => "Dave", "last_modified" => "2014-01-01"]
+        ], $this->tableMapper->multiFetch($tableMapping, $values, true));
+
+
+    }
+
+
     public function testCanGetValuesArray() {
 
         // Create a basic mapper
