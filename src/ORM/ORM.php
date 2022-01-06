@@ -166,7 +166,7 @@ class ORM {
      *
      * @param mixed $items
      */
-    public function save($items) {
+    public function save($items, $overrideValidation = false) {
 
         $isArray = is_array($items);
         if (!$isArray) {
@@ -184,10 +184,12 @@ class ORM {
 
             $saveItems[$itemClass][] = $item;
 
-            // Validate the object for errors
-            $validationErrors = $this->validator->validateObject($item);
-            if ($validationErrors) {
-                $validations[] = $validationErrors;
+            if (!$overrideValidation) {
+                // Validate the object for errors
+                $validationErrors = $this->validator->validateObject($item);
+                if ($validationErrors) {
+                    $validations[] = $validationErrors;
+                }
             }
         }
 
@@ -199,11 +201,7 @@ class ORM {
         foreach ($saveItems as $class => $classItems) {
             $mapping = ORMMapping::get($class);
             $saveRows = $mapping->mapObjectsToRows($classItems);
-
-
             $saveRows = $this->tableMapper->save($mapping->getWriteTableMapping(), $saveRows);
-
-
             $mapping->mapRowsToObjects($saveRows, $classItems);
         }
 

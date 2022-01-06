@@ -101,7 +101,6 @@ class TestDataInstaller {
         }
 
 
-
         // If we subclass the base database connection, clear meta data cache
         if ($this->databaseConnection instanceof BaseDatabaseConnection) {
             $this->databaseConnection->clearMetaDataCache();
@@ -199,7 +198,7 @@ class TestDataInstaller {
                 $objects = $this->objectBinder->bindFromArray($items, $targetClass . "[]", false);
 
                 // Save the objects.
-                $this->orm->save($objects);
+                $this->orm->save($objects, true);
             }
 
         }
