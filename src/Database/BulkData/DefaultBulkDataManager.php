@@ -168,6 +168,7 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
 
             $statement = $this->getPreparedStatement("delete", $query);
             $statement->execute($values);
+            $statement->close();
 
         }
 
