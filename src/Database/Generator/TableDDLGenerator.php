@@ -7,6 +7,7 @@ namespace Kinikit\Persistence\Database\Generator;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 
 class TableDDLGenerator {
 
@@ -67,40 +68,52 @@ class TableDDLGenerator {
         $originalColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $originalTableMetaData->getColumns());
         $modifiedColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $modifiedTableMetaData->getColumns());
 
+
         // Initialise clauses
         $clauses = [];
 
         // Now loop through original columns and process any matches / missing in modified
-        foreach ($originalColumns as $name => $originalColumn) {
+        foreach ($modifiedColumns as $name => $modifiedColumn) {
+
+            $nameChangeRequired = ($modifiedColumn instanceof UpdatableTableColumn) && $modifiedColumn->getPreviousName();
+
+            // Calculate the original column as required
+            $originalColumn =
+                $originalColumns[$name] ??
+                ($nameChangeRequired ? $originalColumns[$modifiedColumn->getPreviousName()] ?? null : null);
+
 
             // Check if modification required
-            if (isset($modifiedColumns[$name])) {
-                $modifiedColumn = $modifiedColumns[$name];
+            if ($originalColumn) {
 
                 // If a change is required, make it
                 if (($originalColumn->getType() != $modifiedColumn->getType()) ||
                     ($originalColumn->getLength() != $modifiedColumn->getLength()) ||
                     ($originalColumn->getPrecision() != $modifiedColumn->getPrecision()) ||
-                    ($originalColumn->isNotNull() != $modifiedColumn->isNotNull())) {
+                    ($originalColumn->isNotNull() != $modifiedColumn->isNotNull()) ||
+                    (($modifiedColumn instanceof UpdatableTableColumn) && $modifiedColumn->getPreviousName())) {
 
                     list($columnName, $line) = $this->createColumnDefinitionString($modifiedColumn, $databaseConnection);
-                    $clauses[] = "ALTER TABLE $tableName MODIFY COLUMN $line;";
+
+                    $clauses[] = "ALTER TABLE $tableName " . ($nameChangeRequired ? "CHANGE" : "MODIFY") . " COLUMN $line;";
                 }
 
-                // Unset modified columns
-                unset($modifiedColumns[$name]);
+                // Unset original columns
+                unset($originalColumns[$originalColumn->getName()]);
 
-            } // Otherwise it's a drop
+            } // Otherwise it's an add
             else {
-                $clauses[] = "ALTER TABLE $tableName DROP COLUMN $name;";
+                list($columnName, $line) = $this->createColumnDefinitionString($modifiedColumn, $databaseConnection);
+                $clauses[] = "ALTER TABLE $tableName ADD COLUMN $line;";
+
+
             }
         }
 
 
         // Now loop through the remaining modified columns and treat as adds.
-        foreach ($modifiedColumns as $modifiedColumn) {
-            list($columnName, $line) = $this->createColumnDefinitionString($modifiedColumn, $databaseConnection);
-            $clauses[] = "ALTER TABLE $tableName ADD COLUMN $line;";
+        foreach ($originalColumns as $name => $originalColumn) {
+            $clauses[] = "ALTER TABLE $tableName DROP COLUMN $name;";
         }
 
 
@@ -118,7 +131,12 @@ class TableDDLGenerator {
     private function createColumnDefinitionString($column, $databaseConnection): array {
         $columnName = $databaseConnection->escapeColumn($column->getName());
 
-        $line = $columnName . " " . $column->getType();
+        if ($column instanceof UpdatableTableColumn && $column->getPreviousName()) {
+            $line = $databaseConnection->escapeColumn($column->getPreviousName()) . " " . $columnName;
+        } else {
+            $line = $columnName;
+        }
+        $line .= " " . $column->getType();
         if ($column->getLength()) {
             $line .= "(" . $column->getLength();
             if ($column->getPrecision()) {

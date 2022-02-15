@@ -7,14 +7,14 @@ namespace Kinikit\Persistence\Database\MetaData;
  */
 class TableColumn {
 
-    private $name;
-    private $type;
-    private $length;
-    private $precision;
-    private $defaultValue;
-    private $primaryKey;
-    private $autoIncrement;
-    private $notNull;
+    protected $name;
+    protected $type;
+    protected $length;
+    protected $precision;
+    protected $defaultValue;
+    protected $primaryKey;
+    protected $autoIncrement;
+    protected $notNull;
 
     const SQL_VARCHAR = "VARCHAR";
     const SQL_TINYINT = "TINYINT";

@@ -7,8 +7,10 @@ use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
-use mysql_xdevapi\Table;
+
+include_once "autoloader.php";
 
 /**
  * Test cases for the Table DDL generator
@@ -146,6 +148,40 @@ PRIMARY KEY (id)
         $this->assertStringContainsString("ALTER TABLE test MODIFY COLUMN start_date DATE", $sql);
         $this->assertStringContainsString("ALTER TABLE test ADD COLUMN notes VARCHAR(2000)", $sql);
 
+    }
+
+
+    public function testIfUpdatableTableColumnSuppliedWithPreviousNameFieldColumnIsRenamed() {
+
+        $databaseConnection = new SQLite3DatabaseConnection();
+
+
+        $previousMetaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_INT),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+            new TableColumn("score", TableColumn::SQL_FLOAT, 5, 5),
+            new TableColumn("description", TableColumn::SQL_BLOB, null, null, null, null, false, true),
+            new TableColumn("start_date", TableColumn::SQL_DATE),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME)
+        ]);
+
+        $newMetaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_INT),
+            new UpdatableTableColumn("new_description", TableColumn::SQL_BLOB, null, null, null, null, false, true, "description"),
+            new TableColumn("start_date", TableColumn::SQL_DATE_TIME),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME),
+            new TableColumn("notes", TableColumn::SQL_VARCHAR, 2000),
+            new UpdatableTableColumn("updated_score", TableColumn::SQL_INT, null, null, null, false, false, false, "score")
+        ]);
+
+
+        $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
+
+        $this->assertStringContainsString("ALTER TABLE test DROP COLUMN name;", $sql);
+        $this->assertStringContainsString("ALTER TABLE test CHANGE COLUMN description new_description BLOB NOT NULL;", $sql);
+        $this->assertStringContainsString("ALTER TABLE test CHANGE COLUMN score updated_score INT;", $sql);
+        $this->assertStringContainsString("ALTER TABLE test MODIFY COLUMN start_date DATE", $sql);
+        $this->assertStringContainsString("ALTER TABLE test ADD COLUMN notes VARCHAR(2000)", $sql);
     }
 
 
