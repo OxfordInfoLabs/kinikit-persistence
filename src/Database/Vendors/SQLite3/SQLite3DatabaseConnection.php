@@ -5,7 +5,9 @@ namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
+use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
 use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
 use Kinikit\Persistence\Database\Connection\DatabaseConnectionException;
@@ -91,5 +93,94 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
     public function getBulkDataManager() {
         return new StandardBulkDataManager($this);
     }
+
+    /**
+     * Implement parsing rules specific to SQL Lite.  Specifically Alter table commands
+     *
+     * @param $sql
+     * @return mixed|void
+     */
+    public function parseSQL($sql) {
+
+        // Detect an alter table
+        preg_match("/^ALTER TABLE (\w+) .*(ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);
+
+        if (sizeof($alterMatches)) {
+
+            // Grab table and meta data
+            $table = $alterMatches[1];
+            $tableMetaData = $this->getTableMetaData($table);
+
+            // Rename the existing table
+            $newString = "ALTER TABLE $table RENAME TO __$table;";
+            $this->execute($newString);
+
+            preg_match_all("/(ADD|DROP|MODIFY|CHANGE) COLUMN (.*?)(,|$)/i", $sql, $operationMatches, PREG_SET_ORDER);
+
+            // Loop through all matches and update modified, add and remove arrays
+            $modifiedColumns = [];
+            $addColumns = [];
+            $dropColumns = [];
+            foreach ($operationMatches ?? [] as $matches) {
+                $operation = $matches[1];
+
+                // Grab column name as special
+                $spec = explode(" ", $matches[2]);
+                $previousColumnName = array_shift($spec);
+                $newSpec = join(" ", $spec);
+
+                if ($operation == "CHANGE") {
+                    $splitSpec = explode(" ", trim($newSpec));
+                    $newColumnName = array_shift($splitSpec);
+                    $newSpec = join(" ", $splitSpec);
+                    $modifiedColumns[$previousColumnName] = TableColumn::createFromStringSpec($newColumnName . " " . $newSpec);
+                } else if ($operation == "MODIFY") {
+                    $newColumnName = $previousColumnName;
+                    $modifiedColumns[$previousColumnName] = TableColumn::createFromStringSpec($newColumnName . " " . $newSpec);
+                } else if ($operation == "ADD") {
+                    $addColumns[] = TableColumn::createFromStringSpec($previousColumnName . " " . $newSpec);
+                } else if ($operation == "DROP") {
+                    $dropColumns[$previousColumnName] = 1;
+                }
+            }
+
+
+            // Now make global array
+            $newColumns = [];
+            $selectColumnNames = [];
+            $insertColumnNames = [];
+            foreach ($tableMetaData->getColumns() as $column) {
+                if ($modifiedColumns[$column->getName()] ?? null) {
+                    $newColumns[] = $modifiedColumns[$column->getName()];
+                    $selectColumnNames[] = $column->getName();
+                    $insertColumnNames[] = $modifiedColumns[$column->getName()]->getName();
+                } else if (!isset($dropColumns[$column->getName()])) {
+                    $newColumns[] = $column;
+                    $selectColumnNames[] = $column->getName();
+                    $insertColumnNames[] = $column->getName();
+                }
+            }
+
+            // Add any new columns
+            $newColumns = array_merge($newColumns, $addColumns);
+
+            $newMetaData = new TableMetaData($table, $newColumns);
+            $ddlGenerator = new TableDDLGenerator();
+            $newString = $ddlGenerator->generateTableCreateSQL($newMetaData, $this);
+            $this->executeScript($newString);
+
+            // Perform an insert using select and insert column names to synchronise the data
+            $insertSQL = "INSERT INTO $table (" . join(",", $insertColumnNames) . ") SELECT " . join(",", $selectColumnNames) . " FROM __$table";
+            $this->execute($insertSQL);
+
+
+            $sql = "DROP TABLE __$table";
+
+        }
+
+        return $sql;
+    }
+
+
 }
 

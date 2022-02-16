@@ -95,7 +95,7 @@ class TableDDLGenerator {
 
                     list($columnName, $line) = $this->createColumnDefinitionString($modifiedColumn, $databaseConnection);
 
-                    $clauses[] = "ALTER TABLE $tableName " . ($nameChangeRequired ? "CHANGE" : "MODIFY") . " COLUMN $line;";
+                    $clauses[] = ($nameChangeRequired ? "CHANGE" : "MODIFY") . " COLUMN $line";
                 }
 
                 // Unset original columns
@@ -104,7 +104,7 @@ class TableDDLGenerator {
             } // Otherwise it's an add
             else {
                 list($columnName, $line) = $this->createColumnDefinitionString($modifiedColumn, $databaseConnection);
-                $clauses[] = "ALTER TABLE $tableName ADD COLUMN $line;";
+                $clauses[] = "ADD COLUMN $line";
 
 
             }
@@ -113,11 +113,14 @@ class TableDDLGenerator {
 
         // Now loop through the remaining modified columns and treat as adds.
         foreach ($originalColumns as $name => $originalColumn) {
-            $clauses[] = "ALTER TABLE $tableName DROP COLUMN $name;";
+            $clauses[] = "DROP COLUMN $name";
         }
 
-
-        return join("\n", $clauses);
+        if (sizeof($clauses)) {
+            return "ALTER TABLE $tableName " . join(" ", $clauses);
+        } else {
+            return "";
+        }
 
     }
 
@@ -146,6 +149,9 @@ class TableDDLGenerator {
         }
         if ($column->isNotNull())
             $line .= " NOT NULL";
+
+        if ($column->getDefaultValue())
+            $line .= " DEFAULT " . (is_numeric($column->getDefaultValue()) ? $column->getDefaultValue() : "'" . $column->getDefaultValue() . "'");
 
 
         return array($columnName, $line);

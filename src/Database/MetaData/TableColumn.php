@@ -148,6 +148,32 @@ class TableColumn {
     }
 
 
+    /**
+     * Create a table column from a string spec
+     *
+     * @param $stringSpec
+     */
+    public static function createFromStringSpec($stringSpec) {
+
+        $splitSpec = explode(" ", trim($stringSpec));
+
+        $columnName = $splitSpec[0];
+        $type = $splitSpec[1];
+        $length = null;
+        $notNull = strpos($stringSpec, "NOT NULL") ? true : false;
+        $autoIncrement = strpos($stringSpec, "AUTOINCREMENT") ? true : false;
+        preg_match("/^(.*?)\((.*?)\)/", $type, $matches);
+        if ($matches) {
+            $type = $matches[1];
+            $length = $matches[2];
+        }
+        preg_match("/DEFAULT ('.*?'|\w+)/", $stringSpec, $defaultMatches);
+        $defaultValue = sizeof($defaultMatches) ? trim($defaultMatches[1], "' ") : null;
+
+        return new TableColumn($columnName, $type, $length, null, $defaultValue, $autoIncrement, $autoIncrement, $notNull);
+
+    }
+
 }
 
 ?>

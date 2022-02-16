@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
+use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\ConnectionClosedException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
@@ -226,6 +227,89 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testExecuteScriptHandlesChangeAndModifyStatementsCorrectly() {
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS test_types");
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS __test_types");
+
+        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33)";
+        $sqlite3Connection->execute($query);
+        $sqlite3Connection->execute("INSERT INTO test_types (id, name, tiny_int) VALUES (1, 'Mark', 25), (2, 'John', 66)");
+
+        $sqlite3Connection->executeScript("ALTER TABLE test_types MODIFY COLUMN name VARCHAR(200) NOT NULL;");
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $metaData = $sqlite3Connection->getTableMetaData("test_types");
+        $columns = $metaData->getColumns();
+        $this->assertEquals(3, sizeof($columns));
+        $this->assertEquals(new TableColumn("id", "INTEGER", null, null, null, true, true, false), $columns["id"]);
+        $this->assertEquals(new TableColumn("name", "VARCHAR", 200, null, null, false, false, true), $columns["name"]);
+        $this->assertEquals(new TableColumn("tiny_int", "TINYINT", null, null, 33, false, false, true), $columns["tiny_int"]);
+
+        // Check data intact
+        $results = $sqlite3Connection->query("SELECT * FROM test_types WHERE 1 = 1")->fetchAll();
+        $this->assertEquals([
+            ["id" => 1, "name" => "Mark", "tiny_int" => 25],
+            ["id" => 2, "name" => "John", "tiny_int" => 66],
+
+        ], $results);
+
+
+        $sqlite3Connection->executeScript("ALTER TABLE test_types CHANGE COLUMN name big_name VARCHAR(200) NOT NULL, MODIFY COLUMN tiny_int FLOAT;");
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $metaData = $sqlite3Connection->getTableMetaData("test_types");
+        $columns = $metaData->getColumns();
+        $this->assertEquals(3, sizeof($columns));
+        $this->assertEquals(new TableColumn("id", "INTEGER", null, null, null, true, true, false), $columns["id"]);
+        $this->assertEquals(new TableColumn("big_name", "VARCHAR", 200, null, null, false, false, true), $columns["big_name"]);
+        $this->assertEquals(new TableColumn("tiny_int", "FLOAT", null, null, null, false, false, false), $columns["tiny_int"]);
+
+        $results = $sqlite3Connection->query("SELECT * FROM test_types WHERE 1 = 1")->fetchAll();
+        $this->assertEquals([
+            ["id" => 1, "big_name" => "Mark", "tiny_int" => 25],
+            ["id" => 2, "big_name" => "John", "tiny_int" => 66],
+
+        ], $results);
+    }
+
+
+    public function testExecuteScriptHandlesAddColumnAndDropColumnStatementsCorrectly() {
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS test_types");
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS __test_types");
+
+        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33)";
+        $sqlite3Connection->execute($query);
+        $sqlite3Connection->execute("INSERT INTO test_types (id, name, tiny_int) VALUES (1, 'Mark', 25), (2, 'John', 66)");
+
+        $sqlite3Connection->executeScript("ALTER TABLE test_types ADD COLUMN description VARCHAR(1000) NOT NULL DEFAULT 'BOB', DROP COLUMN tiny_int;");
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $metaData = $sqlite3Connection->getTableMetaData("test_types");
+        $columns = $metaData->getColumns();
+        $this->assertEquals(3, sizeof($columns));
+        $this->assertEquals(new TableColumn("id", "INTEGER", null, null, null, true, true, false), $columns["id"]);
+        $this->assertEquals(new TableColumn("name", "VARCHAR", 500, null, null, false, false, false), $columns["name"]);
+        $this->assertEquals(new TableColumn("description", "VARCHAR", 1000, null, "'BOB'", false, false, true), $columns["description"]);
+
+        // Check data intact
+        $results = $sqlite3Connection->query("SELECT * FROM test_types WHERE 1 = 1")->fetchAll();
+        $this->assertEquals([
+            ["id" => 1, "name" => "Mark", "description" => "BOB"],
+            ["id" => 2, "name" => "John", "description" => "BOB"],
+
+        ], $results);
+
+    }
 
 }
 

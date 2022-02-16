@@ -27,7 +27,7 @@ Completed in 0 seconds
 SELECT COUNT(*) FROM address _X  
 Completed in 0 seconds
 SELECT COUNT(*) FROM address _X  GROUP BY _X.phone_number
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.phone_number, COUNT(*) FROM address _X  GROUP BY _X.phone_number
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
@@ -65,7 +65,7 @@ LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN addr
 LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
 LEFT JOIN profile _XC ON _X.id = _XC.contact_id
 LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?) OR (_X.id=?)
@@ -113,7 +113,7 @@ LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN addr
 LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
 LEFT JOIN profile _XC ON _X.id = _XC.contact_id
 LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.primary_address_id _X__primary_address_id, _XA.id _XA__id, _XA.name _XA__name, _XA.street_1 _XA__street_1, _XA.street_2 _XA__street_2, _XA.phone_number _XA__phone_number, _XA.country_code _XA__country_code, _XB.id _XB__id, _XB.type _XB__type, _XB.number _XB__number, _XB.contact_id _XB__contact_id, _XC.id _XC__id, _XC.date_of_birth _XC__date_of_birth, _XC.instantiated _XC__instantiated, _XC.data _XC__data, _XC.contact_id _XC__contact_id, _XD.id _XD__id, _XD.name _XD__name, _XD.street_1 _XD__street_1, _XD.street_2 _XD__street_2, _XD.phone_number _XD__phone_number, _XD.country_code _XD__country_code FROM contact _X 
@@ -129,7 +129,7 @@ LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN addr
 LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
 LEFT JOIN profile _XC ON _X.id = _XC.contact_id
 LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
@@ -139,7 +139,7 @@ LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN addr
 LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
 LEFT JOIN profile _XC ON _X.id = _XC.contact_id
 LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE (_X.id=?)
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE (_X.id=?)
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE (_X.id=?)
@@ -149,7 +149,7 @@ LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN addr
 LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
 LEFT JOIN profile _XC ON _X.id = _XC.contact_id
 LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
-Completed in 0 seconds
+Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
@@ -183,7 +183,7 @@ LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN addr
 LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
 LEFT JOIN profile _XC ON _X.id = _XC.contact_id
 LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
-Completed in 0 seconds
+Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.id=?
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.date_of_birth _X__date_of_birth, _X.instantiated _X__instantiated, _X.data _X__data, _X.contact_id _X__contact_id FROM profile _X  WHERE _X.id=?
@@ -339,7 +339,7 @@ LEFT JOIN contact_other_addresses _XAL ON _X.id = _XAL.contact_id LEFT JOIN addr
 LEFT JOIN phone_number _XB ON _X.id = _XB.contact_id
 LEFT JOIN profile _XC ON _X.id = _XC.contact_id
 LEFT JOIN address _XD ON _X.primary_address_id = _XD.id WHERE _X.id=?
-Completed in 0.0001 seconds
+Completed in 0 seconds
 PRAGMA table_info('note')
 Completed in 0 seconds
 SELECT 'is-autoincrement' FROM sqlite_master WHERE tbl_name='note' AND sql LIKE '%AUTOINCREMENT%'
@@ -364,7 +364,7 @@ LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
 LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
 LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
 LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
 LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
 LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
@@ -378,7 +378,7 @@ LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
 LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
 LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
 LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
 LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
 LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
@@ -424,7 +424,7 @@ LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
 LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
 LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
 LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.parent_note_id=?)
-Completed in 0.0002 seconds
+Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
 LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
 LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id

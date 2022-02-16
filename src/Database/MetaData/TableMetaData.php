@@ -45,7 +45,7 @@ class TableMetaData {
     }
 
     /**
-     * @return TableColumn[]
+     * @return tablecolumn[]
      */
     public function getColumns() {
         return $this->tableColumns;
