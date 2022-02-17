@@ -8,6 +8,7 @@ use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
 use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
 use Kinikit\Persistence\Database\Connection\DatabaseConnectionException;
@@ -103,7 +104,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
     public function parseSQL($sql) {
 
         // Detect an alter table
-        preg_match("/^ALTER TABLE (\w+) .*(ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);
+        preg_match("/^ALTER TABLE (\w+) .*(DROP PRIMARY KEY|ADD PRIMARY KEY|ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);
 
         if (sizeof($alterMatches)) {
 
@@ -144,20 +145,41 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
                 }
             }
 
+            // Register if we are dropping pk
+            $dropPK = strpos(strtoupper($sql), "DROP PRIMARY KEY");
+
+            // Grab any add primary key matches
+            preg_match("/ADD PRIMARY KEY \((.*?)\)/", $sql, $addPKMatches);
+
+            $pkColumns = [];
+            if (sizeof($addPKMatches ?? []) > 0) {
+                $pkColumns = explode(",", str_replace(" ", "", $addPKMatches[1]));
+            }
 
             // Now make global array
             $newColumns = [];
             $selectColumnNames = [];
             $insertColumnNames = [];
             foreach ($tableMetaData->getColumns() as $column) {
+                $newColumn = null;
                 if ($modifiedColumns[$column->getName()] ?? null) {
-                    $newColumns[] = $modifiedColumns[$column->getName()];
+                    $newColumn = UpdatableTableColumn::createFromTableColumn($modifiedColumns[$column->getName()]);
                     $selectColumnNames[] = $column->getName();
                     $insertColumnNames[] = $modifiedColumns[$column->getName()]->getName();
                 } else if (!isset($dropColumns[$column->getName()])) {
-                    $newColumns[] = $column;
+                    $newColumn = UpdatableTableColumn::createFromTableColumn($column);
                     $selectColumnNames[] = $column->getName();
                     $insertColumnNames[] = $column->getName();
+                }
+
+                // Deal with primary keys
+                if ($newColumn) {
+                    if (in_array($newColumn->getName(), $pkColumns)) {
+                        $newColumn->setPrimaryKey(true);
+                    } else if ($dropColumns || sizeof($pkColumns)) {
+                        $newColumn->setPrimaryKey(false);
+                    }
+                    $newColumns[] = $newColumn;
                 }
             }
 

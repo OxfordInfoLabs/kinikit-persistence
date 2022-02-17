@@ -73,6 +73,8 @@ class TableDDLGenerator {
         $clauses = [];
 
         // Now loop through original columns and process any matches / missing in modified
+        $originalPKColumnNames = [];
+        $modifiedPKColumnNames = [];
         foreach ($modifiedColumns as $name => $modifiedColumn) {
 
             $nameChangeRequired = ($modifiedColumn instanceof UpdatableTableColumn) && $modifiedColumn->getPreviousName();
@@ -85,6 +87,10 @@ class TableDDLGenerator {
 
             // Check if modification required
             if ($originalColumn) {
+
+                // If original column was part of PK, add it in.
+                if ($originalColumn->isPrimaryKey())
+                    $originalPKColumnNames[] = $originalColumn->getName();
 
                 // If a change is required, make it
                 if (($originalColumn->getType() != $modifiedColumn->getType()) ||
@@ -108,16 +114,30 @@ class TableDDLGenerator {
 
 
             }
+
+            if ($modifiedColumn->isPrimaryKey())
+                $modifiedPKColumnNames[] = $modifiedColumn->getName();
+
         }
 
 
         // Now loop through the remaining modified columns and treat as adds.
         foreach ($originalColumns as $name => $originalColumn) {
+            if ($originalColumn->isPrimaryKey())
+                $originalPKColumnNames[] = $originalColumn->getName();
+
             $clauses[] = "DROP COLUMN $name";
         }
 
+
+        // Now check if pk has changed and adjust as appropriate
+        if ($originalPKColumnNames !== $modifiedPKColumnNames) {
+            $clauses[] = "DROP PRIMARY KEY";
+            $clauses[] = "ADD PRIMARY KEY (" . join(", ", $modifiedPKColumnNames) . ")";
+        }
+
         if (sizeof($clauses)) {
-            return "ALTER TABLE $tableName " . join(" ", $clauses);
+            return "ALTER TABLE $tableName " . join(", ", $clauses);
         } else {
             return "";
         }

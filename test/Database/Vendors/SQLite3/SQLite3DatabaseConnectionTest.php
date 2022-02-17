@@ -311,6 +311,29 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testExecuteScriptHandlesDropAndAddPrimaryKeyStatementsCorrectly() {
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS test_types");
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS __test_types");
+
+        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33)";
+        $sqlite3Connection->execute($query);
+        $sqlite3Connection->execute("INSERT INTO test_types (id, name, tiny_int) VALUES (1, 'Mark', 25), (2, 'John', 66)");
+
+        $sqlite3Connection->executeScript("ALTER TABLE test_types DROP PRIMARY KEY, ADD PRIMARY KEY (name)");
+
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $metaData = $sqlite3Connection->getTableMetaData("test_types");
+        $pkColumns = $metaData->getPrimaryKeyColumns();
+        $this->assertEquals("name", $pkColumns["name"]->getName());
+
+    }
+
+
 }
 
 ?>

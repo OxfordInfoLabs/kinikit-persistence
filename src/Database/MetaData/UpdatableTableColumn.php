@@ -96,4 +96,16 @@ class UpdatableTableColumn extends TableColumn {
     }
 
 
+    /**
+     * Get an updatable table column from a table column
+     *
+     * @param TableColumn $tableColumn
+     */
+    public static function createFromTableColumn($tableColumn) {
+        return new UpdatableTableColumn($tableColumn->getName(), $tableColumn->getType(), $tableColumn->getLength(),
+            $tableColumn->getPrecision(), $tableColumn->getDefaultValue(), $tableColumn->isPrimaryKey(), $tableColumn->isAutoIncrement(),
+            $tableColumn->isNotNull());
+    }
+
+
 }

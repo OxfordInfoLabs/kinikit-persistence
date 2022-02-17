@@ -187,4 +187,36 @@ PRIMARY KEY (id)
     }
 
 
+    public function testIfPrimaryKeyHasChangedItIsRegeneratedAsPartOfModifySQL() {
+
+        $databaseConnection = new SQLite3DatabaseConnection();
+
+
+        $previousMetaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_INT, null, null, null, true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+            new TableColumn("score", TableColumn::SQL_FLOAT, 5, 5),
+            new TableColumn("description", TableColumn::SQL_BLOB, null, null, null, null, false, true),
+            new TableColumn("start_date", TableColumn::SQL_DATE),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME)
+        ]);
+
+        $newMetaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_INT, null, null, null, true),
+            new UpdatableTableColumn("new_description", TableColumn::SQL_BLOB, null, null, null, true, false, true, "description"),
+            new TableColumn("start_date", TableColumn::SQL_DATE_TIME),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME),
+            new TableColumn("notes", TableColumn::SQL_VARCHAR, 2000),
+            new UpdatableTableColumn("updated_score", TableColumn::SQL_INT, null, null, null, false, false, false, "score")
+        ]);
+
+
+        $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
+
+        $this->assertStringContainsString("ALTER TABLE test", $sql);
+        $this->assertStringContainsString("DROP PRIMARY KEY", $sql);
+        $this->assertStringContainsString("ADD PRIMARY KEY (id, new_description)", $sql);
+
+    }
+
 }
