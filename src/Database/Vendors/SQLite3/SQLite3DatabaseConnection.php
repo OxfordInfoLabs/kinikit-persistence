@@ -176,7 +176,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
                 if ($newColumn) {
                     if (in_array($newColumn->getName(), $pkColumns)) {
                         $newColumn->setPrimaryKey(true);
-                    } else if ($dropColumns || sizeof($pkColumns)) {
+                    } else if ($dropPK || sizeof($pkColumns)) {
                         $newColumn->setPrimaryKey(false);
                     }
                     $newColumns[] = $newColumn;
