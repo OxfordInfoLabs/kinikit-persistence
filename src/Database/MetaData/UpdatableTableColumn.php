@@ -4,6 +4,8 @@
 namespace Kinikit\Persistence\Database\MetaData;
 
 
+use Kinikit\Core\Logging\Logger;
+
 /**
  * Updatable version of a table column.  This allows for setting of all properties as well
  * as providing ability to rename a column by allowing for a previous name field.
@@ -18,7 +20,19 @@ class UpdatableTableColumn extends TableColumn {
      */
     private $previousName;
 
-
+    /**
+     * UpdatableTableColumn constructor.
+     *
+     * @param string $name
+     * @param string $type
+     * @param integer $length
+     * @param integer $precision
+     * @param mixed $defaultValue
+     * @param boolean $primaryKey
+     * @param boolean $autoIncrement
+     * @param boolean $notNull
+     * @param string $previousName
+     */
     public function __construct($name, $type, $length = null, $precision = null, $defaultValue = null, $primaryKey = false, $autoIncrement = false, $notNull = false, $previousName = null) {
         parent::__construct($name, $type, $length, $precision, $defaultValue, $primaryKey, $autoIncrement, $notNull);
         $this->previousName = $previousName;
@@ -39,42 +53,42 @@ class UpdatableTableColumn extends TableColumn {
     }
 
     /**
-     * @param mixed|null $length
+     * @param integer $length
      */
     public function setLength($length) {
         $this->length = $length;
     }
 
     /**
-     * @param mixed|null $precision
+     * @param integer $precision
      */
     public function setPrecision($precision) {
         $this->precision = $precision;
     }
 
     /**
-     * @param mixed|null $defaultValue
+     * @param mixed $defaultValue
      */
     public function setDefaultValue($defaultValue) {
         $this->defaultValue = $defaultValue;
     }
 
     /**
-     * @param false|mixed $primaryKey
+     * @param boolean $primaryKey
      */
     public function setPrimaryKey($primaryKey) {
         $this->primaryKey = $primaryKey;
     }
 
     /**
-     * @param false|mixed $autoIncrement
+     * @param boolean $autoIncrement
      */
     public function setAutoIncrement($autoIncrement) {
         $this->autoIncrement = $autoIncrement;
     }
 
     /**
-     * @param false|mixed $notNull
+     * @param boolean $notNull
      */
     public function setNotNull($notNull) {
         $this->notNull = $notNull;

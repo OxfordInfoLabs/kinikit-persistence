@@ -3,6 +3,7 @@
 namespace Kinikit\Persistence\ORM;
 
 use Kinikit\Core\Exception\ItemNotFoundException;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;

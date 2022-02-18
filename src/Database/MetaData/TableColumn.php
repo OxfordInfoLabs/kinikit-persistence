@@ -7,13 +7,44 @@ namespace Kinikit\Persistence\Database\MetaData;
  */
 class TableColumn {
 
+    /**
+     * @var string
+     */
     protected $name;
+
+    /**
+     * @var string
+     */
     protected $type;
+
+    /**
+     * @var integer
+     */
     protected $length;
+
+    /**
+     * @var integer
+     */
     protected $precision;
+
+    /**
+     * @var mixed
+     */
     protected $defaultValue;
+
+    /**
+     * @var boolean
+     */
     protected $primaryKey;
+
+    /**
+     * @var boolean
+     */
     protected $autoIncrement;
+
+    /**
+     * @var boolean
+     */
     protected $notNull;
 
     const SQL_VARCHAR = "VARCHAR";
@@ -33,12 +64,18 @@ class TableColumn {
     const SQL_BLOB = "BLOB";
     const SQL_UNKNOWN = "UNKNOWN";
 
+
     /**
-     * Construct with name and type
+     * TableColumn constructor.
      *
-     * @param $name string
-     * @param $type string
-     * @return TableColumn
+     * @param string $name
+     * @param string $type
+     * @param integer $length
+     * @param integer $precision
+     * @param mixed $defaultValue
+     * @param boolean $primaryKey
+     * @param boolean $autoIncrement
+     * @param boolean $notNull
      */
     public function __construct($name, $type, $length = null, $precision = null, $defaultValue = null, $primaryKey = false, $autoIncrement = false, $notNull = false) {
         $this->name = $name;
@@ -79,7 +116,7 @@ class TableColumn {
     }
 
     /**
-     * @return null
+     * @return integer
      */
     public function getPrecision() {
         return $this->precision;
@@ -88,13 +125,15 @@ class TableColumn {
 
     /**
      * Return the default value if set.
+     *
+     * @return mixed
      */
     public function getDefaultValue() {
         return $this->defaultValue;
     }
 
     /**
-     * @return mixed
+     * @return boolean
      */
     public function isPrimaryKey() {
         return $this->primaryKey;
@@ -102,14 +141,14 @@ class TableColumn {
 
 
     /**
-     * @return bool
+     * @return boolean
      */
     public function isAutoIncrement() {
         return $this->autoIncrement;
     }
 
     /**
-     * @param bool $autoIncrement
+     * @param boolean $autoIncrement
      */
     public function setAutoIncrement($autoIncrement) {
         $this->autoIncrement = $autoIncrement;
@@ -117,7 +156,7 @@ class TableColumn {
 
 
     /**
-     * @return mixed
+     * @return boolean
      */
     public function isNotNull() {
         return $this->notNull;

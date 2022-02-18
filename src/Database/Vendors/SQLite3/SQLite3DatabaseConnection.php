@@ -113,8 +113,9 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
             $tableMetaData = $this->getTableMetaData($table);
 
             // Rename the existing table
-            $newString = "ALTER TABLE $table RENAME TO __$table;";
-            $this->execute($newString);
+            $this->execute("DROP TABLE IF EXISTS __$table");
+            $this->execute("ALTER TABLE $table RENAME TO __$table");
+
 
             preg_match_all("/(ADD|DROP|MODIFY|CHANGE) COLUMN (.*?)(,|$)/i", $sql, $operationMatches, PREG_SET_ORDER);
 
@@ -188,15 +189,23 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
 
             $newMetaData = new TableMetaData($table, $newColumns);
             $ddlGenerator = new TableDDLGenerator();
-            $newString = $ddlGenerator->generateTableCreateSQL($newMetaData, $this);
-            $this->executeScript($newString);
 
-            // Perform an insert using select and insert column names to synchronise the data
-            $insertSQL = "INSERT INTO $table (" . join(",", $insertColumnNames) . ") SELECT " . join(",", $selectColumnNames) . " FROM __$table";
-            $this->execute($insertSQL);
+            try {
+                $newString = $ddlGenerator->generateTableCreateSQL($newMetaData, $this);
+                $this->executeScript($newString);
 
+                // Perform an insert using select and insert column names to synchronise the data
+                $insertSQL = "INSERT INTO $table (" . join(",", $insertColumnNames) . ") SELECT " . join(",", $selectColumnNames) . " FROM __$table";
+                $this->execute($insertSQL);
 
-            $sql = "DROP TABLE __$table";
+                $sql = "DROP TABLE __$table";
+            } catch (SQLException $e) {
+
+                // Reset the table if an error occurs
+                $this->execute("DROP TABLE IF EXISTS $table");
+                $this->execute("ALTER TABLE __$table RENAME TO $table");
+                throw ($e);
+            }
 
         }
 
