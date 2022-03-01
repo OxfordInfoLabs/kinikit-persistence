@@ -96,7 +96,11 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
         if ($statement) {
 
             $success = $this->executeCallableWithLogging(function () use ($statement, $placeholderValues) {
-                return $statement->execute($placeholderValues);
+                // Bind values - as numbers if numeric
+                foreach ($placeholderValues as $index => $value) {
+                    $statement->bindValue($index + 1, $value, is_numeric($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+                }
+                return $statement->execute();
             }, $sql);
 
             if ($success) {
