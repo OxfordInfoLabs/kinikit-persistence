@@ -110,6 +110,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
      */
     public function parseSQL($sql) {
 
+
         // Detect an alter table
         preg_match("/^ALTER TABLE (\w+) .*(DROP PRIMARY KEY|ADD PRIMARY KEY|ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);
 

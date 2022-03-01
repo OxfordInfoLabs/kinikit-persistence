@@ -228,6 +228,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+
     public function testExecuteScriptHandlesChangeAndModifyStatementsCorrectly() {
 
         $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);

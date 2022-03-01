@@ -46,14 +46,14 @@ class TableDDLGeneratorTest extends \PHPUnit\Framework\TestCase {
 
         $sql = $this->generator->generateTableCreateSQL($metaData, $databaseConnection);
 
-        $this->assertEquals("CREATE TABLE test (
-id INT,
-name VARCHAR(255),
-score FLOAT(5,5),
-description BLOB NOT NULL,
-start_date DATE,
-last_modified DATETIME
-);", $sql);
+        $this->assertEquals('CREATE TABLE test (
+"id" INT,
+"name" VARCHAR(255),
+"score" FLOAT(5,5),
+"description" BLOB NOT NULL,
+"start_date" DATE,
+"last_modified" DATETIME
+);', $sql);
 
     }
 
@@ -71,11 +71,11 @@ last_modified DATETIME
 
         $sql = $this->generator->generateTableCreateSQL($metaData, $databaseConnection);
 
-        $this->assertEquals("CREATE TABLE test (
-id INT,
-name VARCHAR(255),
-PRIMARY KEY (id)
-);", $sql);
+        $this->assertEquals('CREATE TABLE test (
+"id" INT,
+"name" VARCHAR(255),
+PRIMARY KEY ("id")
+);', $sql);
 
 
         $metaData = new TableMetaData("test", [
@@ -85,10 +85,10 @@ PRIMARY KEY (id)
 
         $sql = $this->generator->generateTableCreateSQL($metaData, $databaseConnection);
 
-        $this->assertEquals("CREATE TABLE test (
-id INT PRIMARY KEY AUTOINCREMENT,
-name VARCHAR(255)
-);", $sql);
+        $this->assertEquals('CREATE TABLE test (
+"id" INT PRIMARY KEY AUTOINCREMENT,
+"name" VARCHAR(255)
+);', $sql);
 
 
     }
@@ -145,9 +145,9 @@ PRIMARY KEY (id)
 
         $this->assertStringStartsWith("ALTER TABLE test", $sql);
         $this->assertStringContainsString("DROP COLUMN name", $sql);
-        $this->assertStringContainsString("MODIFY COLUMN score INT", $sql);
-        $this->assertStringContainsString("MODIFY COLUMN start_date DATE", $sql);
-        $this->assertStringContainsString("ADD COLUMN notes VARCHAR(2000)", $sql);
+        $this->assertStringContainsString('MODIFY COLUMN "score" INT', $sql);
+        $this->assertStringContainsString('MODIFY COLUMN "start_date" DATE', $sql);
+        $this->assertStringContainsString('ADD COLUMN "notes" VARCHAR(2000)', $sql);
 
     }
 
@@ -180,10 +180,10 @@ PRIMARY KEY (id)
 
         $this->assertStringContainsString("ALTER TABLE test", $sql);
         $this->assertStringContainsString("DROP COLUMN name", $sql);
-        $this->assertStringContainsString("CHANGE COLUMN description new_description BLOB NOT NULL", $sql);
-        $this->assertStringContainsString("CHANGE COLUMN score updated_score INT", $sql);
-        $this->assertStringContainsString("MODIFY COLUMN start_date DATE", $sql);
-        $this->assertStringContainsString("ADD COLUMN notes VARCHAR(2000)", $sql);
+        $this->assertStringContainsString('CHANGE COLUMN "description" "new_description" BLOB NOT NULL', $sql);
+        $this->assertStringContainsString('CHANGE COLUMN "score" "updated_score" INT', $sql);
+        $this->assertStringContainsString('MODIFY COLUMN "start_date" DATE', $sql);
+        $this->assertStringContainsString('ADD COLUMN "notes" VARCHAR(2000)', $sql);
     }
 
 

@@ -67,7 +67,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * @return mixed|void
      */
     public function parseSQL($sql) {
-        
+
         // Substitute AUTOINCREMENT keyword
         $sql = str_replace("AUTOINCREMENT", "AUTO_INCREMENT", $sql);
 
