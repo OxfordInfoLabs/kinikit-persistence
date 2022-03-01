@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
@@ -85,6 +86,12 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
 
 
     }
+
+
+    public function escapeColumn($columnName) {
+        return '"' . $columnName . '"';
+    }
+
 
     /**
      * Return the standard bulk data manager for SQLite

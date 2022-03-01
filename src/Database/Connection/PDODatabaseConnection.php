@@ -80,6 +80,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
      */
     public function doQuery($sql, $placeholderValues) {
 
+
         if (!$this->connection) {
             throw new ConnectionClosedException();
         }
