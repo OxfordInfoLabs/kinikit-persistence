@@ -44,6 +44,9 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
 
         $this->mockDatabaseConnection->returnValue("createPreparedStatement", $this->mockPreparedStatement);
         $this->mockDatabaseConnection->returnValue("getTableMetaData", $this->mockMetaData);
+        $this->mockDatabaseConnection->returnValue("escapeColumn", "[id]", ["id"]);
+        $this->mockDatabaseConnection->returnValue("escapeColumn", "[name]", ["name"]);
+        $this->mockDatabaseConnection->returnValue("escapeColumn", "[dob]", ["dob"]);
 
         $databaseConnection = Container::instance()->get(DatabaseConnection::class);
         $databaseConnection->executeScript(file_get_contents(__DIR__ . "/../../TableMapper/Mapper/tablemapper.sql"));
@@ -57,7 +60,7 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         // try simple insert
         $manager->insert("example", ["id" => 3, "name" => "Jeeves"]);
 
-        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example (id,name) VALUES (?,?)"]));
+        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example ([id],[name]) VALUES (?,?)"]));
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[3, "Jeeves"]]));
 
 
@@ -71,7 +74,7 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
 
         $manager->insert("example", $randomRecords);
 
-        $this->assertFalse($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example (id,name) VALUES (?,?)"]));
+        $this->assertFalse($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example ([id],[name]) VALUES (?,?)"]));
 
 
         for ($i = 0; $i < 100; $i++) {
@@ -89,7 +92,7 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         // try simple insert
         $manager->update("example", ["id" => 3, "name" => "Jeeves", "dob" => "01/01/2003"]);
 
-        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["UPDATE example SET name=?,dob=? WHERE id=?"]));
+        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["UPDATE example SET [name]=?,[dob]=? WHERE [id]=?"]));
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [["Jeeves", "01/01/2003", 3]]));
 
 
@@ -103,7 +106,7 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
 
         $manager->update("example", $randomRecords);
 
-        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["UPDATE example SET name=? WHERE id=?"]));
+        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["UPDATE example SET [name]=? WHERE [id]=?"]));
 
 
         for ($i = 0; $i < 100; $i++) {
@@ -122,7 +125,7 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         $manager->delete("example", [2, 3, 4, 5, 6, 7]);
 
         $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement",
-            ["DELETE FROM example WHERE id IN (?,?,?,?,?,?)"]));
+            ["DELETE FROM example WHERE [id] IN (?,?,?,?,?,?)"]));
 
 
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[2, 3, 4, 5, 6, 7]]));
@@ -143,7 +146,7 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
             ["id" => 8, "name" => null]]);
 
         $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement",
-            ["DELETE FROM example WHERE (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name IS NULL)"]));
+            ["DELETE FROM example WHERE ([id]=? AND [name]=?) OR ([id]=? AND [name]=?) OR ([id]=? AND [name]=?) OR ([id]=? AND [name]=?) OR ([id]=? AND [name]=?) OR ([id]=? AND [name]=?) OR ([id]=? AND [name] IS NULL)"]));
 
 
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[2, "Mark", 3, "Luke", 4, "Tim", 5, "John",
@@ -178,8 +181,8 @@ class DefaultBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         // try simple insert
         $manager->replace("example", ["id" => 3, "name" => "Jeeves"]);
 
-        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["DELETE FROM example WHERE (id=?)"]));
-        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example (id,name) VALUES (?,?)"]));
+        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["DELETE FROM example WHERE ([id]=?)"]));
+        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["INSERT INTO example ([id],[name]) VALUES (?,?)"]));
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[3]]));
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[3, "Jeeves"]]));
 

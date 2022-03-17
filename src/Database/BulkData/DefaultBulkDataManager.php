@@ -30,7 +30,12 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
      */
     public function doInsert($tableName, $rows, $insertColumns) {
 
-        $joinedColumns = join(",", $insertColumns);
+        // Escape all insert columns
+        foreach ($insertColumns as  $insertColumn) {
+            $escapedColumns[] = $this->databaseConnection->escapeColumn($insertColumn);
+        }
+
+        $joinedColumns = join(",", $escapedColumns);
         $placeholders = rtrim(str_repeat("?,", sizeof($insertColumns)), ",");
 
         // Prepare an insert command first up
@@ -68,13 +73,13 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
 
         $updateClauses = [];
         foreach ($updateColumns as $column) {
-            $updateClauses[] = $column . "=?";
+            $updateClauses[] = $this->databaseConnection->escapeColumn($column) . "=?";
         }
         $updateClause = join(",", $updateClauses);
 
         $matchClauses = [];
         foreach ($matchColumns as $column) {
-            $matchClauses[] = $column . "=?";
+            $matchClauses[] = $this->databaseConnection->escapeColumn($column) . "=?";
         }
         $matchClause = join(" AND ", $matchClauses);
 
@@ -125,9 +130,9 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
      * @throws SQLException
      */
     public function doDelete($tableName, $pkValues, $matchColumns) {
-        
+
         $inClause = !is_array($pkValues[0] ?? null);
-        
+
         // Loop in batch sizes.
         while ($slice = array_splice($pkValues, 0, $this->batchSize, [])) {
 
@@ -136,7 +141,7 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
             $values = [];
 
             if ($inClause) {
-                $query .= $matchColumns[0] . " IN (" . rtrim(str_repeat("?,", sizeof($slice)), ",") . ")";
+                $query .= $this->databaseConnection->escapeColumn($matchColumns[0]) . " IN (" . rtrim(str_repeat("?,", sizeof($slice)), ",") . ")";
                 $values = $slice;
             } else {
 
@@ -151,10 +156,10 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
 
                         // Add the value provided it is not null
                         if ($value !== null) {
-                            $matchClauses[] = $matchColumn . "=?";
+                            $matchClauses[] = $this->databaseConnection->escapeColumn($matchColumn) . "=?";
                             $values[] = $value;
                         } else {
-                            $matchClauses[] = $matchColumn . " IS NULL";
+                            $matchClauses[] = $this->databaseConnection->escapeColumn($matchColumn) . " IS NULL";
                         }
                     }
 

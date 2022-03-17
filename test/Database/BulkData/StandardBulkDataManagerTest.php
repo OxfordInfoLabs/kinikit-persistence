@@ -47,6 +47,9 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         $this->mockDatabaseConnection->returnValue("escapeColumn", "`name`", [
             "name"
         ]);
+        $this->mockDatabaseConnection->returnValue("escapeColumn", "`dob`", [
+            "dob"
+        ]);
 
     }
 
@@ -86,7 +89,7 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         // try simple insert
         $manager->update("example", ["id" => 3, "name" => "Jeeves", "dob" => "01/01/2003"]);
 
-        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["UPDATE example SET name=?,dob=? WHERE id=?"]));
+        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["UPDATE example SET `name`=?,`dob`=? WHERE `id`=?"]));
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [["Jeeves", "01/01/2003", 3]]));
 
 
@@ -100,7 +103,7 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
 
         $manager->update("example", $randomRecords);
 
-        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["UPDATE example SET name=? WHERE id=?"]));
+        $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement", ["UPDATE example SET `name`=? WHERE `id`=?"]));
 
 
         for ($i = 0; $i < 100; $i++) {
@@ -119,7 +122,7 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
         $manager->delete("example", [2, 3, 4, 5, 6, 7]);
 
         $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement",
-            ["DELETE FROM example WHERE id IN (?,?,?,?,?,?)"]));
+            ["DELETE FROM example WHERE `id` IN (?,?,?,?,?,?)"]));
 
 
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[2, 3, 4, 5, 6, 7]]));
@@ -139,7 +142,7 @@ class StandardBulkDataManagerTest extends \PHPUnit\Framework\TestCase {
             ["id" => 4, "name" => "Tim"], ["id" => 5, "name" => "John"], ["id" => 6, "name" => "James"], ["id" => 7, "name" => "Nathan"]]);
 
         $this->assertTrue($this->mockDatabaseConnection->methodWasCalled("createPreparedStatement",
-            ["DELETE FROM example WHERE (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?) OR (id=? AND name=?)"]));
+            ["DELETE FROM example WHERE (`id`=? AND `name`=?) OR (`id`=? AND `name`=?) OR (`id`=? AND `name`=?) OR (`id`=? AND `name`=?) OR (`id`=? AND `name`=?) OR (`id`=? AND `name`=?)"]));
 
 
         $this->assertTrue($this->mockPreparedStatement->methodWasCalled("execute", [[2, "Mark", 3, "Luke", 4, "Tim", 5, "John",
