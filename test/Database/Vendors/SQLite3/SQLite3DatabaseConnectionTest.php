@@ -228,7 +228,6 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-
     public function testExecuteScriptHandlesChangeAndModifyStatementsCorrectly() {
 
         $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
@@ -375,6 +374,22 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+
+    public function testCanAddCustomFunctionForSQLite() {
+
+        SQLite3DatabaseConnection::addCustomFunction(new TestCustomFunction());
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+        $results = $sqlite3Connection->query("SELECT TESTCUSTOM(4) testcustom");
+        $this->assertEquals(8, $results->fetchAll()[0]["testcustom"]);
+
+        $results = $sqlite3Connection->query("SELECT TESTCUSTOM(5) testcustom");
+        $this->assertEquals(10, $results->fetchAll()[0]["testcustom"]);
+
+
+    }
+
 
 }
 

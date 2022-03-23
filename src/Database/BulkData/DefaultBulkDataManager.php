@@ -4,6 +4,7 @@
 namespace Kinikit\Persistence\Database\BulkData;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
 
 /**
@@ -170,6 +171,8 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
                 $query .= join(" OR ", $rowClauses);
 
             }
+
+
 
             $statement = $this->getPreparedStatement("delete", $query);
             $statement->execute($values);

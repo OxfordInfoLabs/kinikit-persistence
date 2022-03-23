@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
@@ -16,6 +17,7 @@ use Kinikit\Persistence\Database\Connection\DatabaseConnectionException;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\Vendors\SQLite3\CustomFunctions\Concat;
 
 /**
  * Database connection implementation for SQLite 3
@@ -25,14 +27,34 @@ use Kinikit\Persistence\Database\Exception\SQLException;
  */
 class SQLite3DatabaseConnection extends PDODatabaseConnection {
 
+    /**
+     * Array of custom functions to be added to all created connections
+     *
+     * @var SQLite3CustomFunction[]
+     */
+    private static $customFunctions = [];
+
 
     public function connect($configParams = []) {
         if (!isset($configParams["filename"]))
             throw new DatabaseConnectionException("No filename passed for SQL Lite database");
 
-        return parent::connect(["dsn" => "sqlite:" . $configParams["filename"]]);
+        $connected = parent::connect(["dsn" => "sqlite:" . $configParams["filename"]]);
 
+        if ($connected)
+            $this->applyCustomFunctionsToConnection();
+
+        return $connected;
     }
+
+
+    /**
+     * @param SQLite3CustomFunction $customFunction
+     */
+    public static function addCustomFunction($customFunction) {
+        self::$customFunctions[] = $customFunction;
+    }
+
 
     /**
      * Get table column meta data for a given table as an associative array keyed in by column name.
@@ -218,6 +240,19 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         }
 
         return $sql;
+    }
+
+    // Apply all custom functions defined statically to the connection
+    private function applyCustomFunctionsToConnection() {
+
+        // Add the built ins
+        $builtIns = [new Concat()];
+
+        foreach (array_merge($builtIns, self::$customFunctions) as $customFunction) {
+            $this->connection->sqliteCreateFunction($customFunction->getName(), array($customFunction, "execute"));
+        }
+
+
     }
 
 
