@@ -18,6 +18,9 @@ use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Vendors\SQLite3\CustomFunctions\Concat;
+use Kinikit\Persistence\Database\Vendors\SQLite3\CustomFunctions\Day;
+use Kinikit\Persistence\Database\Vendors\SQLite3\CustomFunctions\Month;
+use Kinikit\Persistence\Database\Vendors\SQLite3\CustomFunctions\Year;
 
 /**
  * Database connection implementation for SQLite 3
@@ -246,7 +249,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
     private function applyCustomFunctionsToConnection() {
 
         // Add the built ins
-        $builtIns = [new Concat()];
+        $builtIns = [new Concat(), new Year(), new Month(), new Day()];
 
         foreach (array_merge($builtIns, self::$customFunctions) as $customFunction) {
             $this->connection->sqliteCreateFunction($customFunction->getName(), array($customFunction, "execute"));
