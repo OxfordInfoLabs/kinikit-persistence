@@ -5,6 +5,9 @@ namespace Kinikit\Persistence\Database\Connection;
 
 
 use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Persistence\Database\Exception\SQLException;
+
+include_once "autoloader.php";
 
 class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
@@ -128,6 +131,36 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $results = $pdoConnection->query("SELECT * FROM example_pdo LIMIT ? OFFSET ?", 10, 1);
         $this->assertEquals(2, sizeof($results->fetchAll()));
 
+
+    }
+
+
+    public function testSQLExceptionsRaisedWithSQLCodeIntactIfStatementOrQueryFails() {
+
+        $configuration = Configuration::instance()->getAllParameters();
+
+        // Try MySQL one
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
+
+        $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo");
+        $pdoConnection->execute("CREATE TABLE example_pdo (id INTEGER, name VARCHAR(50), PRIMARY KEY(id))");
+        $pdoConnection->execute("INSERT INTO example_pdo VALUES (1, 'Mark'),(2, 'Luke'),(3, 'Bob')");
+
+        try {
+            $pdoConnection->execute("INSERT INTO example_pdo VALUES (1, 'Mark')");
+            $this->fail("Should have thrown here");
+        } catch (SQLException $e) {
+            $this->assertEquals(23000, $e->getSqlStateCode());
+        }
+
+
+        try {
+            $pdoConnection->query("SELECT * FROM example_pdo WHERE HELLO");
+            $this->fail("Should have throw here");
+        } catch (SQLException $e){
+            $this->assertEquals("42S22", $e->getSqlStateCode());
+        }
 
     }
 

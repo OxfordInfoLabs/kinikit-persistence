@@ -89,9 +89,8 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
             $statement = $this->connection->prepare($sql);
 
         } catch (\PDOException $e) {
-
             $this->setLastErrorMessage($e->getMessage());
-            throw new SQLException($e->getMessage());
+            throw new SQLException($e->getMessage(), $e->getCode() ?? 0);
         }
 
         if ($statement) {

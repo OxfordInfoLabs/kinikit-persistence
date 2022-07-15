@@ -190,6 +190,21 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(4, sizeof($metaData->getColumns()));
         $this->assertEquals(1, sizeof($metaData->getPrimaryKeyColumns()));
 
+//
+//        $sql = "SELECT GROUP_CONCAT(field) FROM test";
+//        $this->assertEquals("SELECT GROUP_CONCAT(field) FROM test", $this->mysqlDatabaseConnection->parseSQL($sql));
+//
+//        // Check separator syntax left intact
+//        $sql = "SELECT GROUP_CONCAT(field SEPARATOR ';') FROM test";
+//        $this->assertEquals("SELECT GROUP_CONCAT(field SEPARATOR ';') FROM test", $this->mysqlDatabaseConnection->parseSQL($sql));
+//
+//        // Check SQLIte variant mapped correctly
+//        $sql = "SELECT GROUP_CONCAT(field, ';') FROM test";
+//        $this->assertEquals("SELECT GROUP_CONCAT(field SEPARATOR ';') FROM test", $this->mysqlDatabaseConnection->parseSQL($sql));
+//
+//
+//        $sql = "SELECT group_concat(field, ';') FROM test";
+//        $this->assertEquals("SELECT group_concat(field SEPARATOR ';') FROM test", $this->mysqlDatabaseConnection->parseSQL($sql));
 
     }
 

@@ -62,6 +62,7 @@ class TableColumn {
     const SQL_DATE_TIME = "DATETIME";
     const SQL_TIMESTAMP = "TIMESTAMP";
     const SQL_BLOB = "BLOB";
+    const SQL_LONGBLOB = "LONGBLOB";
     const SQL_UNKNOWN = "UNKNOWN";
 
 

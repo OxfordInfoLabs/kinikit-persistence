@@ -8,9 +8,23 @@ namespace Kinikit\Persistence\Database\Exception;
  */
 class SQLException extends \Exception {
 
-    public function __construct($sqlError) {
+    /**
+     * @var string
+     */
+    private $sqlStateCode;
+
+    public function __construct($sqlError, $sqlStateCode = null) {
         parent::__construct($sqlError);
+        $this->sqlStateCode = $sqlStateCode;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getSqlStateCode() {
+        return $this->sqlStateCode;
+    }
+
 
 }
 

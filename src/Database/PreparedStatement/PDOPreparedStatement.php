@@ -4,6 +4,7 @@
 namespace Kinikit\Persistence\Database\PreparedStatement;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
 
 class PDOPreparedStatement extends BasePreparedStatement {
@@ -74,7 +75,7 @@ class PDOPreparedStatement extends BasePreparedStatement {
         try {
             $this->statement->execute();
         } catch (\PDOException $e) {
-            throw new SQLException($e->getMessage());
+            throw new SQLException($e->getMessage(), $e->getCode());
         }
     }
 
