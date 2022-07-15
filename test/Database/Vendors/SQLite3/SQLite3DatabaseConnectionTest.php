@@ -86,9 +86,30 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
             // Success
         }
 
+
         $this->assertTrue(true);
 
     }
+
+    public function testSQLStateExceptionCodesReturnedCorrectlyInSQLExceptions() {
+
+        $database = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $database->execute("DROP TABLE IF EXISTS example_pdo");
+        $database->execute("CREATE TABLE example_pdo (id INTEGER, name VARCHAR(50), PRIMARY KEY(id))");
+        $database->execute("INSERT INTO example_pdo VALUES (1, 'Mark'),(2, 'Luke'),(3, 'Bob')");
+
+        try {
+            $database->execute("INSERT INTO example_pdo VALUES (1, 'Mark')");
+            $this->fail("Should have thrown here");
+        } catch (SQLException $e) {
+            $this->assertEquals(23000, $e->getSqlStateCode());
+        }
+
+
+
+    }
+
 
     public function testCanEscapeAStringUsingEscapeString() {
 
