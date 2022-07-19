@@ -219,4 +219,12 @@ PRIMARY KEY (id)
 
     }
 
+
+    public function testCanCreateTableDropSQL() {
+
+        $sql = $this->generator->generateTableDropSQL("test");
+        $this->assertStringContainsString("DROP TABLE test", $sql);
+
+    }
+
 }

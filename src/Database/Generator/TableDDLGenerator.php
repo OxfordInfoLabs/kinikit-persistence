@@ -144,6 +144,16 @@ class TableDDLGenerator {
 
     }
 
+
+    /**
+     * Generate table drop SQL
+     *
+     * @param string $tableName
+     */
+    public function generateTableDropSQL($tableName) {
+        return "DROP TABLE $tableName";
+    }
+
     /**
      * Create a column definition string
      *
