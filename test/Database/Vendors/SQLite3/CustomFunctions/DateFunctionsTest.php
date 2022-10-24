@@ -30,4 +30,9 @@ class DateFunctionsTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testCanGetCurrentDateUsingNowFunction() {
+        $now = new Now();
+        $this->assertEquals(date('Y-m-d H:i:s'), $now->execute());
+    }
+
 }
