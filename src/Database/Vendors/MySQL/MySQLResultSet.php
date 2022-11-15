@@ -25,7 +25,9 @@ class MySQLResultSet extends PDOResultSet {
         "DATETIME" => TableColumn::SQL_DATE_TIME,
         "TIMESTAMP" => TableColumn::SQL_TIMESTAMP,
         "BLOB" => TableColumn::SQL_BLOB,
-        "LONGBLOB" => TableColumn::SQL_LONGBLOB
+        "LONGBLOB" => TableColumn::SQL_LONGBLOB,
+        "TEXT" => TableColumn::SQL_BLOB,
+        "LONGTEXT" => TableColumn::SQL_LONGBLOB
     ];
 
 
