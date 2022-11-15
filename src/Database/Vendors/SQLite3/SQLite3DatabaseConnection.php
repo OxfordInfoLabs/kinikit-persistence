@@ -61,6 +61,15 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
 
 
     /**
+     * Get result set class
+     *
+     * @return string
+     */
+    public function getResultSetClass() {
+        return SQLite3ResultSet::class;
+    }
+
+    /**
      * Get table column meta data for a given table as an associative array keyed in by column name.
      *
      * @param $tableName
@@ -135,7 +144,6 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
      * @return mixed|void
      */
     public function parseSQL($sql) {
-
 
         // Detect an alter table
         preg_match("/^ALTER TABLE (\w+) .*(DROP PRIMARY KEY|ADD PRIMARY KEY|ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);

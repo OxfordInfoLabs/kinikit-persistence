@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
 
 use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
 use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
@@ -205,6 +206,42 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 //
 //        $sql = "SELECT group_concat(field, ';') FROM test";
 //        $this->assertEquals("SELECT group_concat(field SEPARATOR ';') FROM test", $this->mysqlDatabaseConnection->parseSQL($sql));
+
+    }
+
+
+    public function testResultSetForQueriedMySQLReturnsValidResultSetColumnObjects() {
+
+
+        $query = "DROP TABLE IF EXISTS test_all_types; CREATE TABLE test_all_types (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, 
+            small_int SMALLINT, big_int BIGINT, 
+            float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, long_blob_val LONGBLOB, text_val TEXT, long_text_val LONGTEXT
+            )";
+
+        $this->mysqlDatabaseConnection->executeScript($query);
+
+        $resultSet = $this->mysqlDatabaseConnection->query("SELECT * FROM test_all_types");
+        $columns = $resultSet->getColumns();
+
+        $this->assertEquals(17, sizeof($columns));
+        $this->assertEquals(new ResultSetColumn("id", TableColumn::SQL_INTEGER, 11, null), $columns[0]);
+        $this->assertEquals(new ResultSetColumn("name", TableColumn::SQL_VARCHAR, 1500), $columns[1]);
+        $this->assertEquals(new ResultSetColumn("tiny_int", TableColumn::SQL_TINYINT, 4), $columns[2]);
+        $this->assertEquals(new ResultSetColumn("small_int", TableColumn::SQL_SMALLINT, 6), $columns[3]);
+        $this->assertEquals(new ResultSetColumn("big_int", TableColumn::SQL_BIGINT, 20), $columns[4]);
+        $this->assertEquals(new ResultSetColumn("float_val", TableColumn::SQL_FLOAT, 12, 31), $columns[5]);
+        $this->assertEquals(new ResultSetColumn("double_val", TableColumn::SQL_DOUBLE, 22, 31), $columns[6]);
+        $this->assertEquals(new ResultSetColumn("real_val", TableColumn::SQL_DOUBLE, 22, 31), $columns[7]);
+        $this->assertEquals(new ResultSetColumn("decimal_val", TableColumn::SQL_DECIMAL, 3, 1), $columns[8]);
+        $this->assertEquals(new ResultSetColumn("date_val", TableColumn::SQL_DATE), $columns[9]);
+        $this->assertEquals(new ResultSetColumn("time_val", TableColumn::SQL_TIME), $columns[10]);
+        $this->assertEquals(new ResultSetColumn("date_time", TableColumn::SQL_DATE_TIME), $columns[11]);
+        $this->assertEquals(new ResultSetColumn("timestamp_val", TableColumn::SQL_TIMESTAMP), $columns[12]);
+        $this->assertEquals(new ResultSetColumn("blob_val", TableColumn::SQL_BLOB), $columns[13]);
+        $this->assertEquals(new ResultSetColumn("long_blob_val", TableColumn::SQL_LONGBLOB), $columns[14]);
+        $this->assertEquals(new ResultSetColumn("text_val", TableColumn::SQL_BLOB), $columns[15]);
+        $this->assertEquals(new ResultSetColumn("long_text_val", TableColumn::SQL_LONGBLOB), $columns[16]);
 
     }
 

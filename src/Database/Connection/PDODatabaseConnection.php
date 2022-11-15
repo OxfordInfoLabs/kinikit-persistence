@@ -30,6 +30,14 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
         return $this->connection;
     }
 
+
+    /**
+     * Get the class type to use for the result set.
+     *
+     * @return string
+     */
+    public abstract function getResultSetClass();
+
     /**
      * Connect to the database.  This receives an array of normalised stripped config parameters
      * so e.g. "db.name" or "db.test.name" would be mapped to simply "name" for convenience of handling.
@@ -104,7 +112,8 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
             }, $sql);
 
             if ($success) {
-                return new PDOResultSet($statement);
+                $resultSetClass = $this->getResultSetClass();
+                return new $resultSetClass($statement, $this);
             } else {
                 $error = join(',', $this->connection->errorInfo());
                 $this->setLastErrorMessage($error);

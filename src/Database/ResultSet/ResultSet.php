@@ -2,6 +2,8 @@
 
 namespace Kinikit\Persistence\Database\ResultSet;
 
+use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
+
 /**
  * Abstract Result set class
  *
@@ -9,10 +11,19 @@ namespace Kinikit\Persistence\Database\ResultSet;
 interface ResultSet {
 
     /**
-     * Get the list of result columns if available
+     * Get the list of result column names if available
      *
      */
     public function getColumnNames();
+
+
+    /**
+     * Get an array of result set column objects for each column returned in this result set
+     *
+     * @return ResultSetColumn[]
+     */
+    public function getColumns();
+
 
     /**
      * Get the next record from this record set or null if no more data available.

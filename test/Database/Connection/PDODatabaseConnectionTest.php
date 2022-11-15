@@ -6,6 +6,8 @@ namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\Vendors\MySQL\MySQLResultSet;
+use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3ResultSet;
 
 include_once "autoloader.php";
 
@@ -18,13 +20,13 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         // Try MySQL one
         $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
-            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
+            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
 
         $this->assertTrue($pdoConnection->getPDO() instanceof \PDO);
 
         // Try SQL Lite one
-        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]]);
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]], SQLite3ResultSet::class);
 
         $this->assertTrue($pdoConnection->getPDO() instanceof \PDO);
 
@@ -37,7 +39,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         // Try MySQL one
         $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
-            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
+            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo");
@@ -54,7 +56,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
         // Try SQL Lite one
-        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]]);
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]], SQLite3ResultSet::class);
 
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo");
@@ -78,7 +80,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         // Try MySQL one
         $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
-            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
+            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo_with_blob");
         $pdoConnection->execute("CREATE TABLE example_pdo_with_blob (id INTEGER, name VARCHAR(50), pdf BLOB)");
@@ -95,7 +97,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
         // Try SQL Lite one
-        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]]);
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite:" . $configuration["db.filename"]], SQLite3ResultSet::class);
 
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo_with_blob");
@@ -121,7 +123,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         // Try MySQL one
         $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
-            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
+            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo");
@@ -141,7 +143,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         // Try MySQL one
         $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
-            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]]);
+            "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo");
         $pdoConnection->execute("CREATE TABLE example_pdo (id INTEGER, name VARCHAR(50), PRIMARY KEY(id))");
@@ -158,7 +160,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         try {
             $pdoConnection->query("SELECT * FROM example_pdo WHERE HELLO");
             $this->fail("Should have throw here");
-        } catch (SQLException $e){
+        } catch (SQLException $e) {
             $this->assertEquals("42S22", $e->getSqlStateCode());
         }
 

@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\ConnectionClosedException;
+use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
 use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
@@ -105,7 +106,6 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         } catch (SQLException $e) {
             $this->assertEquals(23000, $e->getSqlStateCode());
         }
-
 
 
     }
@@ -223,13 +223,14 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, small_int SMALLINT, big_int BIGINT, 
             float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
-            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB)";
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, long_blob_val LONGBLOB,
+            text_val TEXT, long_text_val LONGTEXT)";
 
         $sqlite3Connection->execute($query);
 
         $tableColumns = $sqlite3Connection->getTableColumnMetaData("test_types");
 
-        $this->assertEquals(14, sizeof($tableColumns));
+        $this->assertEquals(17, sizeof($tableColumns));
         $this->assertEquals(new TableColumn("id", "INTEGER", null, null, null, true, true, false), $tableColumns["id"]);
         $this->assertEquals(new TableColumn("name", "VARCHAR", 500), $tableColumns["name"]);
         $this->assertEquals(new TableColumn("tiny_int", "TINYINT", null, null, 33, false, null, true), $tableColumns["tiny_int"]);
@@ -244,8 +245,89 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new TableColumn("date_time", "DATETIME"), $tableColumns["date_time"]);
         $this->assertEquals(new TableColumn("timestamp_val", "TIMESTAMP"), $tableColumns["timestamp_val"]);
         $this->assertEquals(new TableColumn("blob_val", "BLOB"), $tableColumns["blob_val"]);
+        $this->assertEquals(new TableColumn("long_blob_val", "LONGBLOB"), $tableColumns["long_blob_val"]);
+        $this->assertEquals(new TableColumn("text_val", "TEXT"), $tableColumns["text_val"]);
+        $this->assertEquals(new TableColumn("long_text_val", "LONGTEXT"), $tableColumns["long_text_val"]);
 
 
+    }
+
+    public function testCanGetColumnsFromSQLiteResultSetWhenNoDataReturned(){
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS test_types");
+
+        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, small_int SMALLINT, big_int BIGINT, 
+            float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, long_blob_val LONGBLOB,
+            text_val TEXT, long_text_val LONGTEXT)";
+
+        $sqlite3Connection->execute($query);
+
+        $query = $sqlite3Connection->query("SELECT * FROM test_types LIMIT 10 OFFSET 10");
+
+        $columns = $query->getColumns();
+        $this->assertEquals(17, sizeof($columns));
+
+        $this->assertEquals(new ResultSetColumn("id", "INTEGER", null), $columns[0]);
+        $this->assertEquals(new ResultSetColumn("name", "VARCHAR", 500), $columns[1]);
+        $this->assertEquals(new ResultSetColumn("tiny_int", "TINYINT"), $columns[2]);
+        $this->assertEquals(new ResultSetColumn("small_int", "SMALLINT"), $columns[3]);
+        $this->assertEquals(new ResultSetColumn("big_int", "BIGINT"), $columns[4]);
+        $this->assertEquals(new ResultSetColumn("float_val", "FLOAT"), $columns[5]);
+        $this->assertEquals(new ResultSetColumn("double_val", "DOUBLE"), $columns[6]);
+        $this->assertEquals(new ResultSetColumn("real_val", "REAL"), $columns[7]);
+        $this->assertEquals(new ResultSetColumn("decimal_val", "DECIMAL", 1, 1), $columns[8]);
+        $this->assertEquals(new ResultSetColumn("date_val", "DATE"), $columns[9]);
+        $this->assertEquals(new ResultSetColumn("time_val", "TIME"), $columns[10]);
+        $this->assertEquals(new ResultSetColumn("date_time", "DATETIME"), $columns[11]);
+        $this->assertEquals(new ResultSetColumn("timestamp_val", "TIMESTAMP"), $columns[12]);
+        $this->assertEquals(new ResultSetColumn("blob_val", "BLOB"), $columns[13]);
+        $this->assertEquals(new ResultSetColumn("long_blob_val", "LONGBLOB"), $columns[14]);
+        $this->assertEquals(new ResultSetColumn("text_val", "TEXT"), $columns[15]);
+        $this->assertEquals(new ResultSetColumn("long_text_val", "LONGTEXT"), $columns[16]);
+
+    }
+
+
+    public function testCanGetColumnsFromSQLiteResultSetWhenDataReturned() {
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS test_types");
+
+        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, small_int SMALLINT, big_int BIGINT, 
+            float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, long_blob_val LONGBLOB,
+            text_val TEXT, long_text_val LONGTEXT)";
+
+        $sqlite3Connection->execute($query);
+
+        $sqlite3Connection->execute("INSERT INTO test_types VALUES (25,'Hello',3,3,22,22,44,44,55.5,'2022-01-01',
+                               '10:23:00','2022-05-01 10:30:00', '2022-05-01 10:30:00', 'BIG', 'BIG', 'BIG', 'BIG')");
+
+        $query = $sqlite3Connection->query("SELECT * FROM test_types");
+
+        $columns = $query->getColumns();
+        $this->assertEquals(17, sizeof($columns));
+
+        $this->assertEquals(new ResultSetColumn("id", "INTEGER", null), $columns[0]);
+        $this->assertEquals(new ResultSetColumn("name", "VARCHAR", 500), $columns[1]);
+        $this->assertEquals(new ResultSetColumn("tiny_int", "TINYINT"), $columns[2]);
+        $this->assertEquals(new ResultSetColumn("small_int", "SMALLINT"), $columns[3]);
+        $this->assertEquals(new ResultSetColumn("big_int", "BIGINT"), $columns[4]);
+        $this->assertEquals(new ResultSetColumn("float_val", "FLOAT"), $columns[5]);
+        $this->assertEquals(new ResultSetColumn("double_val", "DOUBLE"), $columns[6]);
+        $this->assertEquals(new ResultSetColumn("real_val", "REAL"), $columns[7]);
+        $this->assertEquals(new ResultSetColumn("decimal_val", "DECIMAL", 1, 1), $columns[8]);
+        $this->assertEquals(new ResultSetColumn("date_val", "DATE"), $columns[9]);
+        $this->assertEquals(new ResultSetColumn("time_val", "TIME"), $columns[10]);
+        $this->assertEquals(new ResultSetColumn("date_time", "DATETIME"), $columns[11]);
+        $this->assertEquals(new ResultSetColumn("timestamp_val", "TIMESTAMP"), $columns[12]);
+        $this->assertEquals(new ResultSetColumn("blob_val", "BLOB"), $columns[13]);
+        $this->assertEquals(new ResultSetColumn("long_blob_val", "LONGBLOB"), $columns[14]);
+        $this->assertEquals(new ResultSetColumn("text_val", "TEXT"), $columns[15]);
+        $this->assertEquals(new ResultSetColumn("long_text_val", "LONGTEXT"), $columns[16]);
     }
 
 

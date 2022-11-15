@@ -4,21 +4,33 @@ namespace Kinikit\Persistence\Database\ResultSet;
 
 
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 
-class PDOResultSet extends BaseResultSet {
+abstract class PDOResultSet extends BaseResultSet {
 
-    private $statement;
+    /**
+     * @var \PDOStatement
+     */
+    protected $statement;
+
+    /**
+     * @var PDODatabaseConnection
+     */
+    protected $databaseConnection;
 
     /**
      * Construct a result set for sqlite 3 results.
      *
      * @param \PDOStatement $statement
+     * @param PDODatabaseConnection $databaseConnection
      *
      * @return PDOResultSet
      */
-    public function __construct($statement) {
+    public function __construct($statement, $databaseConnection) {
         $this->statement = $statement;
+        $this->databaseConnection = $databaseConnection;
     }
 
     /**
@@ -40,12 +52,21 @@ class PDOResultSet extends BaseResultSet {
             try {
                 $columnMeta = $this->statement->getColumnMeta($i);
                 $columnNames [] = $columnMeta ["name"];
-            } catch(\PDOException $e){
+            } catch (\PDOException $e) {
             }
         }
 
         return $columnNames;
     }
+
+
+    /**
+     * Get columns
+     *
+     * @return ResultSetColumn[]
+     */
+    public abstract function getColumns();
+
 
     /**
      * @see ResultSet::nextRow()
@@ -59,6 +80,7 @@ class PDOResultSet extends BaseResultSet {
         } else
             $this->close();
     }
+
 
 }
 

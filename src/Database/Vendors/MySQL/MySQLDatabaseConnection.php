@@ -51,6 +51,13 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
     }
 
     /**
+     * @return string
+     */
+    public function getResultSetClass() {
+        return MySQLResultSet::class;
+    }
+
+    /**
      * Escape a MySQL column
      *
      * @param $columnName
@@ -162,4 +169,3 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
 }
 
-?>

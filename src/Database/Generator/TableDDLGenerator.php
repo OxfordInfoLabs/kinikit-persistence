@@ -26,7 +26,7 @@ class TableDDLGenerator {
         $pks = array();
         foreach ($tableMetaData->getColumns() as $column) {
 
-            list($columnName, $line) = $this->createColumnDefinitionString($column, $databaseConnection);
+            list($columnName, $line) = $this->createColumnDefinitionString($column, $databaseConnection, true);
 
             if ($column->isPrimaryKey()) {
                 if ($column->isAutoIncrement())
@@ -161,7 +161,7 @@ class TableDDLGenerator {
      * @param $column
      * @return array
      */
-    private function createColumnDefinitionString($column, $databaseConnection): array {
+    private function createColumnDefinitionString($column, $databaseConnection, $create = false): array {
         $columnName = $databaseConnection->escapeColumn($column->getName());
 
         if ($column instanceof UpdatableTableColumn && $column->getPreviousName()) {
@@ -177,6 +177,10 @@ class TableDDLGenerator {
             }
             $line .= ")";
         }
+
+        if (!$create && $column->isAutoIncrement())
+            $line .= ' AUTOINCREMENT';
+
         if ($column->isNotNull())
             $line .= " NOT NULL";
 
