@@ -243,6 +243,18 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new ResultSetColumn("text_val", TableColumn::SQL_BLOB), $columns[15]);
         $this->assertEquals(new ResultSetColumn("long_text_val", TableColumn::SQL_LONGBLOB), $columns[16]);
 
+
+        // Try another query
+        $resultSet = $this->mysqlDatabaseConnection->query("SELECT * FROM test_all_types WHERE (id = ? AND name = ?) 
+                                OR (id = ? AND name = ?)", 33, "Mark", 44, "Luke");
+        $columns = $resultSet->getColumns();
+
+        $this->assertEquals(17, sizeof($columns));
+
+        $this->assertEquals(new ResultSetColumn("id", TableColumn::SQL_INTEGER, 11, null), $columns[0]);
+        $this->assertEquals(new ResultSetColumn("name", TableColumn::SQL_VARCHAR, 1500), $columns[1]);
+
+
     }
 
 
