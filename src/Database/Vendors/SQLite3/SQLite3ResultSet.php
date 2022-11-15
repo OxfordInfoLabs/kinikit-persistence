@@ -43,7 +43,7 @@ class SQLite3ResultSet extends PDOResultSet {
             $meta = $statement->getColumnMeta($i);
 
             // Pull off the DECLARED type of format e.g. VARCHAR(200) or DECIMAL(5,3)
-            $fullType = $meta["sqlite:decl_type"];
+            $fullType = $meta["sqlite:decl_type"] ?? "VARCHAR";
             $exploded = explode("(", $fullType);
 
             // Type is LHS of explosion

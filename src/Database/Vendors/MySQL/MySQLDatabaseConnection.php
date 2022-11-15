@@ -137,7 +137,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
             // Grab the type
             $explodedType = explode("(", rtrim($result["Type"], ")"));
-            $type = $explodedType[0];
+            $type = strtoupper($explodedType[0]);
             $length = $precision = null;
             if (sizeof($explodedType) > 1) {
                 $explodedArgs = explode(",", $explodedType[1]);
@@ -147,7 +147,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
                 }
             }
 
-            $columns[$result["Field"]] = new TableColumn($result["Field"], strtoupper($type), $length, $precision,
+            $columns[$result["Field"]] = new TableColumn($result["Field"], $type, $length, $precision,
                 $result["Default"], $result["Key"] == "PRI", is_numeric(strpos($result["Extra"], "auto_increment")),
                 $result["Null"] === "NO");
         }
