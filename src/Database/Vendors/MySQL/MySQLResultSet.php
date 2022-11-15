@@ -52,14 +52,20 @@ class MySQLResultSet extends PDOResultSet {
             try {
                 $columnMeta = $this->statement->getColumnMeta($i);
 
-                // Fall back to varchar
-                $columnType = self::NATIVE_SQL_MAPPINGS[$columnMeta["native_type"]] ?? TableColumn::SQL_VARCHAR;
-                $lengthRelated = in_array($columnMeta["native_type"], self::LENGTH_COLUMNS);
+                if ($columnMeta) {
 
-                if ($columnType == TableColumn::SQL_BLOB && $columnMeta["len"] > 200000)
-                    $columnType = TableColumn::SQL_LONGBLOB;
+                    // Fall back to varchar
+                    $columnType = self::NATIVE_SQL_MAPPINGS[$columnMeta["native_type"]] ?? TableColumn::SQL_VARCHAR;
+                    $lengthRelated = in_array($columnMeta["native_type"], self::LENGTH_COLUMNS);
 
-                $columns[] = new ResultSetColumn($columnMeta["name"], $columnType, $lengthRelated ? $columnMeta["len"] : null, $lengthRelated ? $columnMeta["precision"] : null);
+                    if ($columnType == TableColumn::SQL_BLOB && $columnMeta["len"] > 200000)
+                        $columnType = TableColumn::SQL_LONGBLOB;
+
+                    $columns[] = new ResultSetColumn($columnMeta["name"], $columnType, $lengthRelated ? $columnMeta["len"] : null, $lengthRelated ? $columnMeta["precision"] : null);
+
+                } else {
+                    $columns[] = new ResultSetColumn("column" . ($i + 1), TableColumn::SQL_VARCHAR);
+                }
 
             } catch (\PDOException $e) {
             }
