@@ -4,6 +4,7 @@
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\ResultSet\PDOResultSet;
@@ -32,15 +33,15 @@ class MySQLResultSet extends PDOResultSet {
 
 
     // List of Native Types which use length
-    const LENGTH_COLUMNS = [
-        "LONG",
-        "VAR_STRING",
-        "TINY",
-        "SHORT",
-        "LONGLONG",
-        "FLOAT",
-        "DOUBLE",
-        "NEWDECIMAL"
+    const LENGTH_COLUMN_DIVISORS = [
+        "LONG" => 1,
+        "VAR_STRING" => 3,
+        "TINY" => 1,
+        "SHORT" => 1,
+        "LONGLONG" => 1,
+        "FLOAT" => 1,
+        "DOUBLE" => 1,
+        "NEWDECIMAL" => 1
     ];
 
     /**
@@ -58,12 +59,13 @@ class MySQLResultSet extends PDOResultSet {
 
                     // Fall back to varchar
                     $columnType = self::NATIVE_SQL_MAPPINGS[$columnMeta["native_type"]] ?? TableColumn::SQL_VARCHAR;
-                    $lengthRelated = in_array($columnMeta["native_type"], self::LENGTH_COLUMNS);
+                    $lengthDivisor = self::LENGTH_COLUMN_DIVISORS[$columnMeta["native_type"]] ?? null;
 
                     if ($columnType == TableColumn::SQL_BLOB && $columnMeta["len"] > 200000)
                         $columnType = TableColumn::SQL_LONGBLOB;
 
-                    $columns[] = new ResultSetColumn($columnMeta["name"], $columnType, $lengthRelated ? $columnMeta["len"] : null, $lengthRelated ? $columnMeta["precision"] : null);
+                    $columns[] = new ResultSetColumn($columnMeta["name"], $columnType,
+                        $lengthDivisor ? $columnMeta["len"] / $lengthDivisor : null, $lengthDivisor ? $columnMeta["precision"] : null);
 
                 } else {
                     $columns[] = new ResultSetColumn("column" . ($i + 1), TableColumn::SQL_VARCHAR);

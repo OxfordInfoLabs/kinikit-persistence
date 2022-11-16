@@ -92,6 +92,13 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
 
     }
 
+    /**
+     * @return string[]
+     */
+    public function getConfigParams() {
+        return $this->configParams;
+    }
+
 
     /**
      * Default implementation of the parseSQL method - simply returns SQL intact
