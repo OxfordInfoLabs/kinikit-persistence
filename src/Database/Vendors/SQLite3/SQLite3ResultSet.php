@@ -4,11 +4,21 @@
 namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\ResultSet\PDOResultSet;
 
 
 class SQLite3ResultSet extends PDOResultSet {
+
+    /**
+     * Map native types back to friendly types
+     */
+    const NATIVE_TYPES_SQL_MAPPING = [
+        "string" => "VARCHAR(5000)",
+        "integer" => "BIGINT",
+        "double" => "DOUBLE"
+    ];
 
     /**
      * Return columns
@@ -43,7 +53,7 @@ class SQLite3ResultSet extends PDOResultSet {
             $meta = $statement->getColumnMeta($i);
 
             // Pull off the DECLARED type of format e.g. VARCHAR(200) or DECIMAL(5,3)
-            $fullType = $meta["sqlite:decl_type"] ?? "VARCHAR";
+            $fullType = $meta["sqlite:decl_type"] ?? self::NATIVE_TYPES_SQL_MAPPING[$meta["native_type"]] ?? "VARCHAR";
             $exploded = explode("(", $fullType);
 
             // Type is LHS of explosion

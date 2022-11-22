@@ -252,7 +252,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-    public function testCanGetColumnsFromSQLiteResultSetWhenNoDataReturned(){
+    public function testCanGetColumnsFromSQLiteResultSetWhenNoDataReturned() {
 
         $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
 
@@ -328,6 +328,52 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new ResultSetColumn("long_blob_val", "LONGBLOB"), $columns[14]);
         $this->assertEquals(new ResultSetColumn("text_val", "TEXT"), $columns[15]);
         $this->assertEquals(new ResultSetColumn("long_text_val", "LONGTEXT"), $columns[16]);
+    }
+
+
+    public function testColumnsCorrectlyDerivedFromNativeTypeIfNoSQLTypeAvailable() {
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS test_types");
+
+        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, small_int SMALLINT, big_int BIGINT, 
+            float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, long_blob_val LONGBLOB,
+            text_val TEXT, long_text_val LONGTEXT)";
+
+        $sqlite3Connection->execute($query);
+
+        $sqlite3Connection->execute("INSERT INTO test_types VALUES (25,'Hello',3,3,22,22,44,44,55.5,'2022-01-01',
+                               '10:23:00','2022-05-01 10:30:00', '2022-05-01 10:30:00', 'BIG', 'BIG', 'BIG', 'BIG')");
+
+        $query = $sqlite3Connection->query("SELECT id, min(name) name, min(tiny_int) tiny_int,min(small_int) small_int, min(big_int) big_int,
+            min(float_val) float_val, min(double_val) double_val, min(real_val) real_val, min(decimal_val) decimal_val, 
+            min(date_val) date_val, min(time_val) time_val, min(date_time) date_time, min(timestamp_val) timestamp_val,
+            min(blob_val) blob_val, min(long_blob_val) long_blob_val, min(text_val) text_val, min(long_text_val) long_text_val
+            FROM test_types GROUP BY id");
+
+        $columns = $query->getColumns();
+        $this->assertEquals(17, sizeof($columns));
+
+        $this->assertEquals(new ResultSetColumn("id", "INTEGER", null), $columns[0]);
+        $this->assertEquals(new ResultSetColumn("name", "VARCHAR", 5000), $columns[1]);
+        $this->assertEquals(new ResultSetColumn("tiny_int", "BIGINT"), $columns[2]);
+        $this->assertEquals(new ResultSetColumn("small_int", "BIGINT"), $columns[3]);
+        $this->assertEquals(new ResultSetColumn("big_int", "BIGINT"), $columns[4]);
+        $this->assertEquals(new ResultSetColumn("float_val", "DOUBLE"), $columns[5]);
+        $this->assertEquals(new ResultSetColumn("double_val", "DOUBLE"), $columns[6]);
+        $this->assertEquals(new ResultSetColumn("real_val", "DOUBLE"), $columns[7]);
+        $this->assertEquals(new ResultSetColumn("decimal_val", "DOUBLE"), $columns[8]);
+        $this->assertEquals(new ResultSetColumn("date_val", "VARCHAR",5000), $columns[9]);
+        $this->assertEquals(new ResultSetColumn("time_val", "VARCHAR",5000), $columns[10]);
+        $this->assertEquals(new ResultSetColumn("date_time", "VARCHAR",5000), $columns[11]);
+        $this->assertEquals(new ResultSetColumn("timestamp_val", "VARCHAR",5000), $columns[12]);
+        $this->assertEquals(new ResultSetColumn("blob_val", "VARCHAR",5000), $columns[13]);
+        $this->assertEquals(new ResultSetColumn("long_blob_val", "VARCHAR",5000), $columns[14]);
+        $this->assertEquals(new ResultSetColumn("text_val", "VARCHAR",5000), $columns[15]);
+        $this->assertEquals(new ResultSetColumn("long_text_val", "VARCHAR",5000), $columns[16]);
+
     }
 
 
