@@ -4,7 +4,9 @@ php:
 services:
   - mysql
 before_install:
-  - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS kinikittest CHARACTER SET utf8 COLLATE utf8_unicode_ci';
+  - sudo cp $TRAVIS_BUILD_DIR/travis-mysql.cnf /etc/mysql/conf.d/
+  - sudo service mysql restart
+  - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS kinikittest';
   - sudo mysql -e "GRANT ALL ON kinikittest.* to 'kinikittest'@'127.0.0.1' identified
     by 'kinikittest'"
 before_script: composer install; composer update; cd test
