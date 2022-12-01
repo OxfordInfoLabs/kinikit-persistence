@@ -14,6 +14,7 @@ use Kinikit\Persistence\Database\ResultSet\ResultSet;
  * @implementationConfigParam db.provider
  * @implementation sqlite3 \Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection
  * @implementation mysql \Kinikit\Persistence\Database\Vendors\MySQL\MySQLDatabaseConnection
+ * @implementation postgresql \Kinikit\Persistence\Database\Vendors\PostgreSQL\PostgreSQLDatabaseConnection
  *
  * Interface DatabaseConnection
  */

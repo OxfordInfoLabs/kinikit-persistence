@@ -10,3 +10,9 @@ mysql.db.host = 127.0.0.1
 mysql.db.database = kinikittest
 mysql.db.username = kinikittest
 mysql.db.password = kinikittest
+
+postgresql.db.provider = postgresql
+postgresql.db.host = localhost
+postgresql.db.database = kinikittest
+postgresql.db.username = kinikittest
+postgresql.db.password = kinikittest

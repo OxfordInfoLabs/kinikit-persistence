@@ -6,6 +6,7 @@ namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Core\Configuration\ConfigFile;
 use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\BulkData\DefaultBulkDataManager;
@@ -147,10 +148,6 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
         if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
             $placeholders = $placeholders[0];
         }
-
-        // Parse the SQL to ensure we catch any vendor specific dialect
-        $sql = $this->parseSQL($sql);
-
 
         // Create prepared statement for passed SQL.
         $statement = $this->createPreparedStatement($sql);
