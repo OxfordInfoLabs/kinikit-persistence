@@ -23,7 +23,7 @@ Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.name = ?
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.street_1 _X__street_1, _X.street_2 _X__street_2, _X.phone_number _X__phone_number, _X.country_code _X__country_code FROM address _X  WHERE _X.phone_number LIKE ?
-Completed in 0.0002 seconds
+Completed in 0 seconds
 SELECT COUNT(*) FROM address _X  
 Completed in 0 seconds
 SELECT COUNT(*) FROM address _X  GROUP BY _X.phone_number
@@ -503,7 +503,7 @@ Completed in 0 seconds
 SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id FROM example_child_with_parent_key _X  WHERE _X.parent_id = 12
 Completed in 0 seconds
 DELETE FROM example_many_to_many_link
-Completed in 0.0002 seconds
+Completed in 0.0003 seconds
 PRAGMA table_info('example_many_to_many_link')
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.profession _XA__profession, _XAA.id _XAA__id, _XAA.name _XAA__name, _XAA.child_id _XAA__child_id FROM example_parent _X 
@@ -531,7 +531,7 @@ Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.description _XAA__description, _XAA.parent_id _XAA__parent_id FROM example_parent _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id
 LEFT JOIN example_child_with_parent_key _XAA ON _XA.id = _XAA.parent_id WHERE _X.id = 1 AND _X.name = 'Stephanie'
-Completed in 0.0001 seconds
+Completed in 0 seconds
 SELECT _X.id _X__id, _X.description _X__description, _X.parent_id _X__parent_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_child_with_parent_key _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.id = 2 AND _X.description = 'Cycling Lanes' AND _X.parent_id = 1
 Completed in 0 seconds

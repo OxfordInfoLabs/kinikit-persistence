@@ -3,6 +3,7 @@
 namespace Kinikit\Persistence\Database\Vendors\PostgreSQL;
 
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
@@ -77,9 +78,8 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
 
         // Map the functions
         $sql = str_ireplace("IFNULL(", "COALESCE(", $sql);
-        $sql = str_ireplace("GROUP_CONCAT(?)", "STRING_AGG(?,',')", $sql);
-
-//        $sql = FunctionRewriter::rewrite($sql, "GROUP_CONCAT", "STRING_AGG($1, $2)", [null,","]);
+        $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "STRING_AGG($1, $2)", [null,","]);
+        $sql = FunctionStringRewriter::rewrite($sql, "INSTR", "POSITION($1 IN $2)", [null, null]);
 
         return $sql;
     }

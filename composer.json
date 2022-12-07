@@ -16,6 +16,9 @@
   "require": {
     "oxil/kinikit-core": "dev-master"
   },
+  "scripts": {
+    "dev": "rm -rf vendor/oxil/kini*; ln -s ../../../../kinikit/kinikit-core vendor/oxil/kinikit-core;"
+  },
   "autoload": {
     "psr-4": {
       "Kinikit\\Persistence\\": "src/"

@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
+use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
@@ -80,6 +81,12 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
         // Substitute plain VARCHAR keyword
         $sql = preg_replace("/VARCHAR([^\(]|$)/i", "VARCHAR(255)$1", $sql);
+
+        // Map functions
+        if (!strpos($sql, "SEPARATOR")) {
+            $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "GROUP_CONCAT($1 SEPARATOR $2)", [null, "','"]);
+            $sql = FunctionStringRewriter::rewrite($sql, "group_concat", "group_concat($1 SEPARATOR $2)", [null, "','"]);
+        }
 
         return $sql;
     }
