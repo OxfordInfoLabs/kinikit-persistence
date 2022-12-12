@@ -147,8 +147,6 @@ class PostgreSQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $tableColumns = $this->postgresqlDatabaseConnection->getTableColumnMetaData("test_types");
 
-        print_r($tableColumns);
-
 
         $this->assertEquals(15, sizeof($tableColumns));
         $this->assertEquals(new TableColumn("id", ResultSetColumn::SQL_BIGINT, 20, null, "nextval('test_types_id_seq'::regclass)", true, true, true), $tableColumns["id"]);
