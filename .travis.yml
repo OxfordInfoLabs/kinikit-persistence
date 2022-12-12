@@ -3,6 +3,7 @@ php:
   - '7.2'
 services:
   - mysql
+  - postgresql
 before_install:
   - sudo cp $TRAVIS_BUILD_DIR/travis-mysql.cnf /etc/mysql/conf.d/
   - sudo service mysql restart
