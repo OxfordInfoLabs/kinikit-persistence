@@ -546,7 +546,7 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $sql = "EPOCH_SECONDS(test)";
         $sql = $sqlite3Connection->parseSQL($sql);
-        $this->assertEquals("unixepoch(test)", $sql);
+        $this->assertEquals("STRFTIME('%s',test)", $sql);
 
     }
 

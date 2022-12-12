@@ -254,7 +254,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
 
 
         // Map functions
-        $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "unixepoch($1)", [0]);
+        $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "STRFTIME('%s',$1)", [0]);
 
         return $sql;
     }
