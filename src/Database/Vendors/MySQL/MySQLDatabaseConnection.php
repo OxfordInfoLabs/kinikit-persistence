@@ -85,8 +85,9 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         // Map functions
         if (!strpos($sql, "SEPARATOR")) {
             $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "GROUP_CONCAT($1 SEPARATOR $2)", [null, "','"]);
-            $sql = FunctionStringRewriter::rewrite($sql, "group_concat", "group_concat($1 SEPARATOR $2)", [null, "','"]);
         }
+
+        $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "UNIX_TIMESTAMP($1)", [0]);
 
         return $sql;
     }

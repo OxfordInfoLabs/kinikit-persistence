@@ -205,7 +205,11 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
         $sql = "SELECT group_concat(field,';') FROM test";
-        $this->assertEquals("SELECT group_concat(field SEPARATOR ';') FROM test", $this->mysqlDatabaseConnection->parseSQL($sql));
+        $this->assertEquals("SELECT GROUP_CONCAT(field SEPARATOR ';') FROM test", $this->mysqlDatabaseConnection->parseSQL($sql));
+
+
+        $sql = "EPOCH_SECONDS(test)";
+        $this->assertEquals("UNIX_TIMESTAMP(test)", $this->mysqlDatabaseConnection->parseSQL($sql));
 
     }
 

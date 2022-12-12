@@ -365,14 +365,14 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new ResultSetColumn("double_val", "DOUBLE"), $columns[6]);
         $this->assertEquals(new ResultSetColumn("real_val", "DOUBLE"), $columns[7]);
         $this->assertEquals(new ResultSetColumn("decimal_val", "DOUBLE"), $columns[8]);
-        $this->assertEquals(new ResultSetColumn("date_val", "VARCHAR",5000), $columns[9]);
-        $this->assertEquals(new ResultSetColumn("time_val", "VARCHAR",5000), $columns[10]);
-        $this->assertEquals(new ResultSetColumn("date_time", "VARCHAR",5000), $columns[11]);
-        $this->assertEquals(new ResultSetColumn("timestamp_val", "VARCHAR",5000), $columns[12]);
-        $this->assertEquals(new ResultSetColumn("blob_val", "VARCHAR",5000), $columns[13]);
-        $this->assertEquals(new ResultSetColumn("long_blob_val", "VARCHAR",5000), $columns[14]);
-        $this->assertEquals(new ResultSetColumn("text_val", "VARCHAR",5000), $columns[15]);
-        $this->assertEquals(new ResultSetColumn("long_text_val", "VARCHAR",5000), $columns[16]);
+        $this->assertEquals(new ResultSetColumn("date_val", "VARCHAR", 5000), $columns[9]);
+        $this->assertEquals(new ResultSetColumn("time_val", "VARCHAR", 5000), $columns[10]);
+        $this->assertEquals(new ResultSetColumn("date_time", "VARCHAR", 5000), $columns[11]);
+        $this->assertEquals(new ResultSetColumn("timestamp_val", "VARCHAR", 5000), $columns[12]);
+        $this->assertEquals(new ResultSetColumn("blob_val", "VARCHAR", 5000), $columns[13]);
+        $this->assertEquals(new ResultSetColumn("long_blob_val", "VARCHAR", 5000), $columns[14]);
+        $this->assertEquals(new ResultSetColumn("text_val", "VARCHAR", 5000), $columns[15]);
+        $this->assertEquals(new ResultSetColumn("long_text_val", "VARCHAR", 5000), $columns[16]);
 
     }
 
@@ -536,6 +536,17 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $results = $sqlite3Connection->query("SELECT TESTCUSTOM(5) testcustom");
         $this->assertEquals(10, $results->fetchAll()[0]["testcustom"]);
 
+
+    }
+
+
+    public function testCanParseFunctionRemappings() {
+
+        $sqlite3Connection = new SQLite3DatabaseConnection(["filename" => $this->dbLocation]);
+
+        $sql = "EPOCH_SECONDS(test)";
+        $sql = $sqlite3Connection->parseSQL($sql);
+        $this->assertEquals("unixepoch(test)", $sql);
 
     }
 

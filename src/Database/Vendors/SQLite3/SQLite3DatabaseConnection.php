@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
@@ -250,6 +251,10 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
             }
 
         }
+
+
+        // Map functions
+        $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "unixepoch($1)", [0]);
 
         return $sql;
     }
