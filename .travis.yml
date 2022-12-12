@@ -11,7 +11,7 @@ before_install:
   - sudo mysql -e "GRANT ALL ON kinikittest.* to 'kinikittest'@'127.0.0.1' identified
     by 'kinikittest'"
   - sudo psql -c "create user kinikittest with password 'kinikittest' CREATEDB;" -U postgres
-  - sudo psql -c 'create database kinikittest;' -U kinikittest
+  - sudo psql -c 'create database kinikittest;' -U postgres
 before_script: composer install; composer update; cd test
 script: phpunit .
 after_success:
