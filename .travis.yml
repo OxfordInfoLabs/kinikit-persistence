@@ -10,7 +10,7 @@ before_install:
   - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS kinikittest';
   - sudo mysql -e "GRANT ALL ON kinikittest.* to 'kinikittest'@'127.0.0.1' identified
     by 'kinikittest'"
-  - sudo psql -c "create user kinikittest with password 'kinikittest'"
+  - sudo psql -c "create user kinikittest with password 'kinikittest' CREATEDB;"
   - sudo psql -c 'create database kinikittest;' -U kinikittest
 before_script: composer install; composer update; cd test
 script: phpunit .
