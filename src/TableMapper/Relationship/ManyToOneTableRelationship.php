@@ -4,6 +4,8 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
+use Kinikit\Core\Logging\Logger;
+
 class ManyToOneTableRelationship extends BaseTableRelationship {
 
     private $parentJoinColumnNames = [];
@@ -193,7 +195,6 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
                 $rowsToDelete = array_merge($rowsToDelete, $children);
             }
         }
-
 
         if ($this->deleteCascade) {
             $this->tablePersistenceEngine->deleteRows($this->relatedTableMapping, $rowsToDelete);

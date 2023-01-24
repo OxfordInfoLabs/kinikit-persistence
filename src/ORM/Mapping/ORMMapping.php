@@ -684,7 +684,7 @@ class ORMMapping {
                     $relatedTableMapping->getPrimaryKeyColumnNames());
 
                 if (!isset($annotations["readOnly"])) {
-                    $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns, isset($annotations["saveCascade"]));
+                    $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns, isset($annotations["saveCascade"]),isset($annotations["deleteCascade"]));
 
                 }
 
