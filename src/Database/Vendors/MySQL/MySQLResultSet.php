@@ -61,7 +61,7 @@ class MySQLResultSet extends PDOResultSet {
                     $columnType = self::NATIVE_SQL_MAPPINGS[$columnMeta["native_type"]] ?? TableColumn::SQL_VARCHAR;
                     $lengthDivisor = self::LENGTH_COLUMN_DIVISORS[$columnMeta["native_type"]] ?? null;
 
-                    if ($columnType == TableColumn::SQL_BLOB && $columnMeta["len"] > 200000)
+                    if ($columnType == TableColumn::SQL_BLOB && $columnMeta["len"] > 300000)
                         $columnType = TableColumn::SQL_LONGBLOB;
 
                     $columns[] = new ResultSetColumn($columnMeta["name"], $columnType,
