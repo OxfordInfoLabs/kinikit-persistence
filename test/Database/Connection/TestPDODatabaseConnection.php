@@ -13,7 +13,7 @@ class TestPDODatabaseConnection extends PDODatabaseConnection {
     private $resultSetClass;
 
 
-    public function __construct($configParams = null, $resultSetClass) {
+    public function __construct($configParams = null, $resultSetClass = null) {
         parent::__construct($configParams);
         $this->resultSetClass = $resultSetClass;
     }

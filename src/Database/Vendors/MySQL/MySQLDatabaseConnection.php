@@ -22,6 +22,17 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
 
     /**
+     * Default type lengths
+     */
+    const DEFAULT_TYPE_LENGTHS = [
+        "INT" => 11,
+        "TINYINT" => 4,
+        "SMALLINT" => 6,
+        "BIGINT" => 20
+    ];
+
+
+    /**
      * Connect to the database.  This receives an array of normalised stripped config parameters
      * so e.g. "db.name" or "db.test.name" would be mapped to simply "name" for convenience of handling.
      *
@@ -153,6 +164,8 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
                 if (sizeof($explodedArgs) > 1) {
                     $precision = intval($explodedArgs[1]);
                 }
+            } else {
+                $length = self::DEFAULT_TYPE_LENGTHS[$type] ?? null;
             }
 
             $columns[$result["Field"]] = new TableColumn($result["Field"], $type, $length, $precision,
