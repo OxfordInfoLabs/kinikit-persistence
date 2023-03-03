@@ -238,6 +238,8 @@ class ORM {
 
             $mapping = ORMMapping::get($class);
             $deleteRows = $mapping->mapObjectsToRows($classItems, "DELETE");
+
+
             $this->tableMapper->delete($mapping->getWriteTableMapping(), $deleteRows);
             $mapping->processPostDelete($classItems);
         }
