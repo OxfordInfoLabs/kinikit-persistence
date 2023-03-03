@@ -5,6 +5,7 @@ namespace Kinikit\Persistence\TableMapper\Mapper;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
 use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
@@ -115,8 +116,11 @@ class TableQueryEngine {
             // If we need to perform a double query, do this now and return
             if ($doubleQueryRequired) {
 
+
+
                 // Select just distinct primary keys as a first query
                 $pks = $this->query($tableMapping, "SELECT DISTINCT " . join(", ", $tableMapping->getPrimaryKeyColumnNames()) . substr($query, 8), $placeholderValues);
+
 
                 if (sizeof($pks)) {
 
@@ -181,7 +185,6 @@ class TableQueryEngine {
 
 
         $query = str_replace("FROM {$tableMapping->getTableName()}", $replacementClause, $query);
-
 
         $results = $tableMapping->getDatabaseConnection()->query($query, $placeholderValues)->fetchAll();
 

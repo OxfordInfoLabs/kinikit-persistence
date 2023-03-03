@@ -58,7 +58,12 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         if (isset($configParams["username"])) $pdoParams["username"] = $configParams["username"];
         if (isset($configParams["password"])) $pdoParams["password"] = $configParams["password"];
 
-        return parent::connect($pdoParams);
+        $connection = parent::connect($pdoParams);
+
+        // Set sql mode to allow for our distinct logic
+        $this->execute("SET @@sql_mode = (SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+
+        return $connection;
 
     }
 
