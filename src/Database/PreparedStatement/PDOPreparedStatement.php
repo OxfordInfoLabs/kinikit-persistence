@@ -57,6 +57,8 @@ class PDOPreparedStatement extends BasePreparedStatement {
         // Bind each parameter value
         foreach ($parameterValues as $index => $parameterValue) {
 
+
+            // Handle booleans as special case
             if ($parameterValue instanceof BlobWrapper) {
 
                 if ($parameterValue->getContentFileName()) {
@@ -66,7 +68,10 @@ class PDOPreparedStatement extends BasePreparedStatement {
                     $this->statement->bindValue(($index + 1), $parameterValue->getContentText(), \PDO::PARAM_LOB);
                 }
 
-            } else {
+            } else if (is_bool($parameterValue)){
+                $this->statement->bindValue(($index + 1), $parameterValue,\PDO::PARAM_BOOL);
+            }
+            else {
                 $this->statement->bindValue(($index + 1), $parameterValue);
             }
 
