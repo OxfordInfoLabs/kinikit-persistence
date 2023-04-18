@@ -9,8 +9,8 @@ before_install:
   - sudo cp $TRAVIS_BUILD_DIR/travis-mysql.cnf /etc/mysql/conf.d/
   - sudo service mysql restart
   - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS kinikittest';
-  - sudo mysql -e "GRANT ALL ON kinikittest.* to 'kinikittest'@'127.0.0.1' identified
-    by 'kinikittest'"
+  - sudo mysql -e "CREATE USER 'kinikittest'@'127.0.0.1' identified by 'kinikittest'";
+  - sudo mysql -e "GRANT ALL ON kinikittest.* to 'kinikittest'@'127.0.0.1'";
   - sudo psql -c "create user kinikittest with password 'kinikittest' CREATEDB;" -U postgres
   - sudo psql -c 'create database kinikittest;' -U postgres
 before_script: composer install; composer update; cd test
