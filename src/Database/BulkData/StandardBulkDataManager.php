@@ -44,7 +44,7 @@ class StandardBulkDataManager extends DefaultBulkDataManager {
         $joinedColumns = join(",", $escapedColumns);
 
         // Loop in batch sizes.
-        while ($slice = array_splice($rows, 0, $this->batchSize, [])) {
+        while ($slice = array_splice($rows, 0, (int)$this->batchSize, [])) {
 
             // Derive placeholders and get a prepared statement
             $placeholders = rtrim(str_repeat("?,", sizeof($insertColumns)), ",");
