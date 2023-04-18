@@ -74,7 +74,6 @@ class MySQLResultSet extends PDOResultSet {
             } catch (\PDOException $e) {
             }
         }
-        print_r($columns);
         return $columns;
     }
 }
