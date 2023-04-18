@@ -35,7 +35,7 @@ class MySQLResultSet extends PDOResultSet {
     // List of Native Types which use length
     const LENGTH_COLUMN_DIVISORS = [
         "LONG" => 1,
-        "VAR_STRING" => 3,
+        "VAR_STRING" => 4,
         "TINY" => 1,
         "SHORT" => 1,
         "LONGLONG" => 1,
@@ -74,7 +74,7 @@ class MySQLResultSet extends PDOResultSet {
             } catch (\PDOException $e) {
             }
         }
-
+        print_r($columns);
         return $columns;
     }
 }
