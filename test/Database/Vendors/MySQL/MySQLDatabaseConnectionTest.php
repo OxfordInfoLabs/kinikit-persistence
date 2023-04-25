@@ -215,14 +215,6 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $expected = "SELECT *, (UNIX_TIMESTAMP(first))-(UNIX_TIMESTAMP(second))  derived1, (UNIX_TIMESTAMP(`third`))-(UNIX_TIMESTAMP(`fourth`)) derived2 FROM test LIMIT ? OFFSET ?";
         $this->assertEquals($expected, $this->mysqlDatabaseConnection->parseSQL($sql));
 
-        $sql = "SELECT ROUND(value, precision) FROM test";
-        $expected = "SELECT TRUNCATE(ROUND(value,precision),precision) FROM test";
-        $this->assertEquals($expected, $this->mysqlDatabaseConnection->parseSQL($sql));
-
-        $sql = "SELECT ROUND(value) FROM test";
-        $expected = "SELECT TRUNCATE(ROUND(value,0),0) FROM test";
-        $this->assertEquals($expected, $this->mysqlDatabaseConnection->parseSQL($sql));
-
     }
 
 
@@ -270,6 +262,20 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new ResultSetColumn("id", TableColumn::SQL_INTEGER, 11, null), $columns[0]);
         $this->assertGreaterThan(200, $columns[1]->getLength());
 
+
+    }
+
+
+    public function testDecimalValuesAreCorrectlyMappedToNumericTypesWhenReturned() {
+        $query = "DROP TABLE IF EXISTS test_decimal; CREATE TABLE test_decimal ( int_val INTEGER )";
+        $this->mysqlDatabaseConnection->executeScript($query);
+
+        $this->mysqlDatabaseConnection->execute("INSERT INTO test_decimal VALUES (9)");
+
+        $results = $this->mysqlDatabaseConnection->query("SELECT ROUND(?/int_val, ?) val FROM test_decimal", 1, 2);
+        $row = $results->nextRow();
+
+        $this->assertSame(0.11, $row["val"]);
 
     }
 
