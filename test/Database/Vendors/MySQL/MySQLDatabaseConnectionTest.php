@@ -214,6 +214,10 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $sql = "SELECT *, (EPOCH_SECONDS(first))-(EPOCH_SECONDS(second))  derived1, (EPOCH_SECONDS(`third`))-(EPOCH_SECONDS(`fourth`)) derived2 FROM test LIMIT ? OFFSET ?";
         $expected = "SELECT *, (UNIX_TIMESTAMP(first))-(UNIX_TIMESTAMP(second))  derived1, (UNIX_TIMESTAMP(`third`))-(UNIX_TIMESTAMP(`fourth`)) derived2 FROM test LIMIT ? OFFSET ?";
         $this->assertEquals($expected, $this->mysqlDatabaseConnection->parseSQL($sql));
+
+        $sql = "SELECT ROUND(value, precision) FROM test";
+        $expected = "SELECT TRUNCATE(ROUND(value,precision),precision) FROM test";
+        $this->assertEquals($expected, $this->mysqlDatabaseConnection->parseSQL($sql));
     }
 
 

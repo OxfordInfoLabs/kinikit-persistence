@@ -53,9 +53,10 @@ interface DatabaseConnection {
      * SQL dialect (SQLite)
      *
      * @param $sql
+     * @param &$parameterValues
      * @return mixed
      */
-    public function parseSQL($sql);
+    public function parseSQL($sql, &$parameterValues = []);
 
 
     /**

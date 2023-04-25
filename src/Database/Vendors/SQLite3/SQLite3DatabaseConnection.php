@@ -142,9 +142,10 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
      * Implement parsing rules specific to SQL Lite.  Specifically Alter table commands
      *
      * @param $sql
+     * @param array &$parameterValues
      * @return mixed|void
      */
-    public function parseSQL($sql) {
+    public function parseSQL($sql, &$parameterValues = []) {
 
         // Detect an alter table
         preg_match("/^ALTER TABLE (\w+) .*(DROP PRIMARY KEY|ADD PRIMARY KEY|ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);

@@ -55,9 +55,10 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
      * Add MySQL specific parsing rules to SQL.
      *
      * @param $sql
+     * @param array &$parameterValues
      * @return mixed|void
      */
-    public function parseSQL($sql) {
+    public function parseSQL($sql, &$parameterValues = []) {
         // Substitute AUTOINCREMENT keyword
         $sql = str_ireplace("INTEGER AUTOINCREMENT", "BIGSERIAL", $sql);
         $sql = str_ireplace("INTEGER AUTO_INCREMENT", "BIGSERIAL", $sql);
@@ -78,7 +79,7 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
 
         // Map the functions
         $sql = str_ireplace("IFNULL(", "COALESCE(", $sql);
-        $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "STRING_AGG($1,$2)", [null,","]);
+        $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "STRING_AGG($1,$2)", [null, ","]);
         $sql = FunctionStringRewriter::rewrite($sql, "INSTR", "POSITION($1 IN $2)", [null, null]);
         $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "EXTRACT(EPOCH FROM $1)", [0]);
 

@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
@@ -88,9 +89,10 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * Add MySQL specific parsing rules to SQL.
      *
      * @param $sql
+     * @param array &$parameterValues
      * @return mixed|void
      */
-    public function parseSQL($sql) {
+    public function parseSQL($sql, &$parameterValues = []) {
 
         // Substitute AUTOINCREMENT keyword
         $sql = str_replace("AUTOINCREMENT", "AUTO_INCREMENT", $sql);
@@ -100,10 +102,12 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
         // Map functions
         if (!strpos($sql, "SEPARATOR")) {
-            $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "GROUP_CONCAT($1 SEPARATOR $2)", [null, "','"]);
+            $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "GROUP_CONCAT($1 SEPARATOR $2)", [null, "','"], $parameterValues);
         }
 
-        $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "UNIX_TIMESTAMP($1)", [0]);
+        $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "UNIX_TIMESTAMP($1)", [0], $parameterValues);
+
+        $sql = FunctionStringRewriter::rewrite($sql, "ROUND", "TRUNCATE(ROUND($1,$2),$2)", ["", null, null], $parameterValues);
 
         return $sql;
     }

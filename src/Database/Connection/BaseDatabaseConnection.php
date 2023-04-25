@@ -105,9 +105,10 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * Default implementation of the parseSQL method - simply returns SQL intact
      *
      * @param $sql
+     * @param array &$parameterValues
      * @return mixed|void
      */
-    public function parseSQL($sql) {
+    public function parseSQL($sql, &$parameterValues = []) {
         return $sql;
     }
 
@@ -127,7 +128,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
         }
 
         // Parse the SQL to ensure we catch any vendor specific dialect
-        $sql = $this->parseSQL($sql);
+        $sql = $this->parseSQL($sql, $placeholders);
 
 
         return $this->doQuery($sql, $placeholders);
