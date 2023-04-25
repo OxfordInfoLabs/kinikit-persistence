@@ -218,6 +218,11 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $sql = "SELECT ROUND(value, precision) FROM test";
         $expected = "SELECT TRUNCATE(ROUND(value,precision),precision) FROM test";
         $this->assertEquals($expected, $this->mysqlDatabaseConnection->parseSQL($sql));
+
+        $sql = "SELECT ROUND(value) FROM test";
+        $expected = "SELECT TRUNCATE(ROUND(value,0),0) FROM test";
+        $this->assertEquals($expected, $this->mysqlDatabaseConnection->parseSQL($sql));
+
     }
 
 

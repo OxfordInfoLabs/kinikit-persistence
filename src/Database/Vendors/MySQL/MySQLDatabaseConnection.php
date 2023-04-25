@@ -107,7 +107,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
         $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "UNIX_TIMESTAMP($1)", [0], $parameterValues);
 
-        $sql = FunctionStringRewriter::rewrite($sql, "ROUND", "TRUNCATE(ROUND($1,$2),$2)", ["", null, null], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "ROUND", "TRUNCATE(ROUND($1,$2),$2)", ["", 0], $parameterValues);
 
         return $sql;
     }
