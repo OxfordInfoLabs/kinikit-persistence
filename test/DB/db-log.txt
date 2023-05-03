@@ -371,7 +371,7 @@ LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
 LEFT JOIN note _XAAA ON _XAA.id = _XAAA.parent_note_id
 LEFT JOIN note _XAAAA ON _XAAA.id = _XAAAA.parent_note_id
 LEFT JOIN note _XAAAAA ON _XAAAA.id = _XAAAAA.parent_note_id WHERE (_X.id=?)
-Completed in 0 seconds
+Completed in 0.0001 seconds
 SELECT _X.id _X__id, _X.note _X__note, _X.parent_note_id _X__parent_note_id, _XA.id _XA__id, _XA.note _XA__note, _XA.parent_note_id _XA__parent_note_id, _XAA.id _XAA__id, _XAA.note _XAA__note, _XAA.parent_note_id _XAA__parent_note_id, _XAAA.id _XAAA__id, _XAAA.note _XAAA__note, _XAAA.parent_note_id _XAAA__parent_note_id, _XAAAA.id _XAAAA__id, _XAAAA.note _XAAAA__note, _XAAAA.parent_note_id _XAAAA__parent_note_id, _XAAAAA.id _XAAAAA__id, _XAAAAA.note _XAAAAA__note, _XAAAAA.parent_note_id _XAAAAA__parent_note_id FROM note _X 
 LEFT JOIN note _XA ON _X.id = _XA.parent_note_id
 LEFT JOIN note _XAA ON _XA.id = _XAA.parent_note_id
@@ -490,7 +490,7 @@ SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id,
 LEFT JOIN example_child2 _XA ON _X.child2_id = _XA.id WHERE _X.id = 8 AND profession = 'Dentist'
 Completed in 0 seconds
 DELETE FROM example_child_with_parent_key
-Completed in 0.0002 seconds
+Completed in 0.0003 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.description _XAA__description, _XAA.parent_id _XAA__parent_id FROM example _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id
 LEFT JOIN example_child_with_parent_key _XAA ON _XA.id = _XAA.parent_id WHERE _X.name = 'Pickachoo' AND _X.id = 4
@@ -982,6 +982,9 @@ LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _X.na
 Completed in 0 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id WHERE _XA.description = 'Walking'
+Completed in 0 seconds
+SELECT _X.id _X__id, _X.name _X__name, _X.child_id _X__child_id, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id FROM example_parent _X 
+LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id ORDER BY _XA.description
 Completed in 0 seconds
 SELECT _X.key_1 _X__key_1, _X.key_2 _X__key_2, _X.key_3 _X__key_3, _X.value _X__value, _XA.id _XA__id, _XA.value _XA__value, _XA.multi_key_1 _XA__multi_key_1, _XA.multi_key_2 _XA__multi_key_2, _XA.multi_key_3 _XA__multi_key_3 FROM example_multi_key _X 
 LEFT JOIN example_uses_multi_key _XA ON _X.key_1 = _XA.multi_key_1 AND _X.key_2 = _XA.multi_key_2 AND _X.key_3 = _XA.multi_key_3 WHERE _X.key_1 = 1 AND _X.key_2 = 1 AND _X.key_3 IS NULL

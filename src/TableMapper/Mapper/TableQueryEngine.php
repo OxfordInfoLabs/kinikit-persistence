@@ -37,8 +37,10 @@ class TableQueryEngine {
             $tableMapping = new TableMapping($tableMapping);
         }
 
+
         // Process the query parts for relationships.
         list($additionalSelectColumns, $joinClauses, $fullPathAliases) = $this->processQueryPartsForRelationships($tableMapping, "", "_X");
+
 
         $allColumns = $tableMapping->getColumnNames();
 
@@ -87,12 +89,12 @@ class TableQueryEngine {
 
                 if (sizeof($explodedFrom) > 1) {
 
-                    $explodeWhere = explode("WHERE", $explodedFrom[1]);
+                    $explodeWhere = preg_split("/(WHERE|ORDER|GROUP)/", $explodedFrom[1], 2, PREG_SPLIT_DELIM_CAPTURE);
 
                     $selectPart = preg_replace_callback("/[0-9a-zA-Z_\.]+/", $replacementFunction, $explodedFrom[0]);
                     $selectPart .= "FROM" . $explodeWhere[0];
                     if (sizeof($explodeWhere) > 1) {
-                        $selectPart .= "WHERE" . preg_replace_callback("/[0-9a-zA-Z_\.]+/", $replacementFunction, $explodeWhere[1]);
+                        $selectPart .= $explodeWhere[1] . preg_replace_callback("/[0-9a-zA-Z_\.]+/", $replacementFunction, $explodeWhere[2]);
                     }
 
                 } else {
@@ -115,7 +117,6 @@ class TableQueryEngine {
 
             // If we need to perform a double query, do this now and return
             if ($doubleQueryRequired) {
-
 
 
                 // Select just distinct primary keys as a first query

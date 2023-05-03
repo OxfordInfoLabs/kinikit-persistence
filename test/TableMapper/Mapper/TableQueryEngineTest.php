@@ -247,6 +247,12 @@ class TableQueryEngineTest extends \PHPUnit\Framework\TestCase {
         ]], array_values($queryEngine->query($tableMapping, "WHERE child1.description = 'Walking'")));
 
 
+        // Now attempt to execute a query with just an order by clause with no where
+        $orderOnlyResults = array_values($queryEngine->query($tableMapping, "ORDER BY child1.description"));
+        $this->assertEquals(["id" => 2, "name" => "Jane Walsh", "child_id" => 1, "child1" =>
+            ["id" => 3, "description" => "Cooking", "parent_id" => 2]], $orderOnlyResults[0]);
+
+
     }
 
 
