@@ -12,6 +12,7 @@ use Kinikit\Core\Reflection\ClassInspector;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Core\Reflection\Property;
 use Kinikit\Core\Util\Primitive;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableMetaData;
@@ -101,19 +102,27 @@ class ORMMapping {
      * Get an ORM Mapping by class name - maintains an array for efficiency.
      *
      * @param $className
+     * @param DatabaseConnection $databaseConnection
      * @return ORMMapping
      */
-    public static function get($className) {
+    public static function get($className, $databaseConnection = null) {
         $className = trim($className, "\\");
-        if (!isset(self::$ormMappings[$className])) {
+        $dbHash = $databaseConnection ? spl_object_hash($databaseConnection) : "DEFAULT";
+
+        if (!isset(self::$ormMappings[$dbHash]))
+            self::$ormMappings[$dbHash] = [];
+
+        if (!isset(self::$ormMappings[$dbHash][$className])) {
+
 
             // Handle mapped classes.
             $mappedClassName = Container::instance()->getClassMapping($className);
 
-            self::$ormMappings[$className] = new ORMMapping($mappedClassName);
-            self::$ormMappings[$className]->generateTableMapping();
+            self::$ormMappings[$dbHash][$className] = new ORMMapping($mappedClassName);
+            self::$ormMappings[$dbHash][$className]->generateTableMapping($databaseConnection);
         }
-        return self::$ormMappings[$className];
+
+        return self::$ormMappings[$dbHash][$className];
     }
 
 
@@ -564,7 +573,7 @@ class ORMMapping {
 
 
     // Generate the underlying table mapping
-    private function generateTableMapping() {
+    private function generateTableMapping($databaseConnection = null) {
 
 
         // Gather common items for below.
@@ -584,9 +593,8 @@ class ORMMapping {
             }
         }
 
-
-        $this->writeTableMapping = new TableMapping($tableName, [], null, $primaryKeyColumns);
-        $this->readTableMapping = new TableMapping($tableName, [], null, $primaryKeyColumns);
+        $this->writeTableMapping = new TableMapping($tableName, [], $databaseConnection, $primaryKeyColumns);
+        $this->readTableMapping = new TableMapping($tableName, [], $databaseConnection, $primaryKeyColumns);
 
 
         // Resolve any relationships for each type

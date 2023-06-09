@@ -2,13 +2,16 @@
 
 namespace Kinikit\Persistence\ORM;
 
+use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\ORM\Interceptor\ConfigFileORMInterceptor;
 use Kinikit\Persistence\ORM\Interceptor\GlobalORMInterceptor;
@@ -709,6 +712,69 @@ class ORMTest extends TestCase {
         $this->assertEquals($expected, $reNote);
     }
 
+
+    public function testCanCreateORMForExplicitDatabaseConnectionAndAllOperationsOperateOnThisConnection() {
+
+        if (file_exists("DB/adhoc.db")) {
+            unlink("DB/adhoc.db");
+        }
+
+        /**
+         * @var ObjectBinder $objectBinder
+         */
+        $objectBinder = Container::instance()->get(ObjectBinder::class);
+
+        $connection = new SQLite3DatabaseConnection([
+            "filename" => "DB/adhoc.db"
+        ]);
+
+        $connection->query("CREATE TABLE address (
+            id              INTEGER,
+            name            VARCHAR(50),
+            street_1        VARCHAR(100),
+            street_2        VARCHAR(100),
+            phone_number     VARCHAR(255),
+            country_code     VARCHAR(255),
+            PRIMARY KEY(id)
+            );");
+
+        $orm = ORM::get($connection);
+
+        // Create
+        $address = new Address(5, "John Smith", "1 Example Lane", "Non City", "123456789");
+        $orm->save($address);
+
+        $this->assertEquals([
+            'id' => 5,
+            'name' => 'John Smith',
+            'street_1' => '1 Example Lane',
+            'street_2' => 'Non City',
+            'phone_number' => '123456789',
+            'country_code' => null
+        ], $connection->query("SELECT * FROM address")->nextRow());
+
+        // Read
+        $this->assertEquals($address, $orm->filter(Address::class)[0]);
+
+        // Update
+        $address->setName("Bob Smith");
+        $address->setPhoneNumber("987654321");
+        $orm->save($address);
+
+        $this->assertEquals([
+            'id' => 5,
+            'name' => 'Bob Smith',
+            'street_1' => '1 Example Lane',
+            'street_2' => 'Non City',
+            'phone_number' => '987654321',
+            'country_code' => null
+        ], $connection->query("SELECT * FROM address")->nextRow());
+
+        // Delete
+        $orm->delete($address);
+
+        $this->assertNull($connection->query("SELECT * FROM address")->nextRow());
+    }
 
 
 

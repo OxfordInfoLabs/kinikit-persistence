@@ -2,10 +2,12 @@
 
 namespace Kinikit\Persistence\ORM;
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\ORM\Mapping\ORMMapping;
@@ -30,6 +32,11 @@ class ORM {
      */
     private $validator;
 
+    /**
+     * @var DatabaseConnection
+     */
+    private $databaseConnection = null;
+
 
     /**
      * ORM constructor.  Auto inject table mapper instance.
@@ -44,6 +51,22 @@ class ORM {
 
 
     /**
+     * Explicit database connection instance
+     *
+     * @param $databaseConnection
+     * @return ORM
+     */
+    public static function get($databaseConnection) {
+
+        /**
+         * @var $orm ORM
+         */
+        $orm = new ORM(Container::instance()->get(TableMapper::class), Container::instance()->get(Validator::class));
+        $orm->databaseConnection = $databaseConnection;
+        return $orm;
+    }
+
+    /**
      * Fetch a single object by primary key of the specified class.  The primary key is either a single value
      * or an array of values if a compound primary key.
      *
@@ -52,7 +75,7 @@ class ORM {
      * @return mixed
      */
     public function fetch($className, $primaryKeyValue) {
-        $mapping = ORMMapping::get($className);
+        $mapping = ORMMapping::get($className, $this->databaseConnection);
 
 
         try {
@@ -82,7 +105,7 @@ class ORM {
      * @param bool $ignoreMissingObjects
      */
     public function multiFetch($className, $primaryKeyValues, $ignoreMissingObjects = false) {
-        $mapping = ORMMapping::get($className);
+        $mapping = ORMMapping::get($className, $this->databaseConnection);
         try {
             $results = $this->tableMapper->multiFetch($mapping->getReadTableMapping(), $primaryKeyValues, $ignoreMissingObjects);
             return $mapping->mapRowsToObjects($results);
@@ -111,7 +134,7 @@ class ORM {
         }
 
 
-        $mapping = ORMMapping::get($className);
+        $mapping = ORMMapping::get($className, $this->databaseConnection);
         $whereClause = $mapping->replaceMembersWithColumns($whereClause);
 
         $results = $this->tableMapper->filter($mapping->getReadTableMapping(), $whereClause, $placeholderValues);
@@ -137,7 +160,7 @@ class ORM {
             $placeholderValues = $placeholderValues[0];
         }
 
-        $mapping = ORMMapping::get($className);
+        $mapping = ORMMapping::get($className, $this->databaseConnection);
         if (is_string($expressions)) {
             $expressions = $mapping->replaceMembersWithColumns($expressions);
         } else {
@@ -200,7 +223,7 @@ class ORM {
 
         // Now save in batches by class.
         foreach ($saveItems as $class => $classItems) {
-            $mapping = ORMMapping::get($class);
+            $mapping = ORMMapping::get($class, $this->databaseConnection);
             $saveRows = $mapping->mapObjectsToRows($classItems);
             $saveRows = $this->tableMapper->save($mapping->getWriteTableMapping(), $saveRows);
             $mapping->mapRowsToObjects($saveRows, $classItems);
@@ -236,7 +259,7 @@ class ORM {
         // Now save in batches by class.
         foreach ($deleteItems as $class => $classItems) {
 
-            $mapping = ORMMapping::get($class);
+            $mapping = ORMMapping::get($class, $this->databaseConnection);
             $deleteRows = $mapping->mapObjectsToRows($classItems, "DELETE");
 
 
