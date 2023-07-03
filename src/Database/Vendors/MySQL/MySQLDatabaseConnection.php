@@ -62,7 +62,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         $connection = parent::connect($pdoParams);
 
         // Set sql mode to allow for our distinct logic
-        $this->execute("SET @@sql_mode = (SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+        $this->execute("SET @@sql_mode = (SELECT REPLACE(REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''), 'STRICT_TRANS_TABLES', ''))");
 
         return $connection;
 

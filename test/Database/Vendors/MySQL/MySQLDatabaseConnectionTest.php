@@ -279,6 +279,14 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testSQLModeIsModifiedToRemoveUndesirableClauses() {
+
+        $sqlMode = $this->mysqlDatabaseConnection->query("SELECT @@sql_mode")->fetchAll()[0]["@@sql_mode"];
+        $this->assertNotContains("ONLY_FULL_GROUP_BY", $sqlMode);
+        $this->assertNotContains("STRICT_TRANS_TABLES", $sqlMode);
+
+
+    }
 
 }
 
