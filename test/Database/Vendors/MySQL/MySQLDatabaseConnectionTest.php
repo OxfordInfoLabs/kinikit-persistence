@@ -215,6 +215,23 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $expected = "SELECT *, (UNIX_TIMESTAMP(first))-(UNIX_TIMESTAMP(second))  derived1, (UNIX_TIMESTAMP(`third`))-(UNIX_TIMESTAMP(`fourth`)) derived2 FROM test LIMIT ? OFFSET ?";
         $this->assertEquals($expected, $this->mysqlDatabaseConnection->parseSQL($sql));
 
+
+        // Check aggregate totals and percentages
+        $sql = "COUNT_TOTAL(test)";
+        $this->assertEquals("SUM(COUNT(test)) OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
+
+
+        $sql = "SUM_TOTAL(test)";
+        $this->assertEquals("SUM(SUM(test)) OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
+
+
+        $sql = "COUNT_PERCENT(test)";
+        $this->assertEquals("COUNT(test) / SUM(COUNT(test)) OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
+
+
+        $sql = "SUM_PERCENT(test)";
+        $this->assertEquals("SUM(test) / SUM(SUM(test)) OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
+
     }
 
 
