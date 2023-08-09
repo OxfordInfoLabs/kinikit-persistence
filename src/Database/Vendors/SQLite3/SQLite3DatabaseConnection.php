@@ -258,8 +258,8 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "STRFTIME('%s',$1)", [0]);
 
         // Handle custom aggregate functions
-        $sql = FunctionStringRewriter::rewrite($sql, "COUNT_PERCENT", "COUNT($1) / COUNT_TOTAL($1)", [0], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "SUM_PERCENT", "SUM($1) / SUM_TOTAL($1)", [0], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "COUNT_PERCENT", "100 * COUNT($1) / COUNT_TOTAL($1)", [0], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "SUM_PERCENT", "100 * SUM($1) / SUM_TOTAL($1)", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "COUNT_TOTAL", "SUM(COUNT($1)) OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "SUM_TOTAL", "SUM(SUM($1)) OVER ()", [0], $parameterValues);
 
