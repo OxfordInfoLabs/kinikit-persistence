@@ -115,6 +115,12 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         $sql = FunctionStringRewriter::rewrite($sql, "COUNT_TOTAL", "SUM(COUNT($1)) OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "SUM_TOTAL", "SUM(SUM($1)) OVER ()", [0], $parameterValues);
 
+
+        // Handle Internet Address Conversions
+        $sql = FunctionStringRewriter::rewrite($sql, "IPV4_ADDRESS_TO_NUMBER", "INET_ATON($1)", [], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "IPV4_NUMBER_TO_ADDRESS", "INET_NTOA($1)", [], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "IPV6_ADDRESS_TO_NUMBER", "(CAST(CONV(SUBSTR(HEX(INET6_ATON($1)), 1, 16), 16, 10) as DECIMAL(65))*18446744073709551616 + CAST(CONV(SUBSTR(HEX(INET6_ATON($1)), 17, 16), 16, 10) as DECIMAL(65)))", [], $parameterValues);
+
         return $sql;
     }
 

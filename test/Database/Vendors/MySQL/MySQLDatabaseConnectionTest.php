@@ -239,6 +239,17 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("100 * test / SUM(test) OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
 
 
+        $sql = "IPV4_ADDRESS_TO_NUMBER(test)";
+        $this->assertEquals("INET_ATON(test)", $this->mysqlDatabaseConnection->parseSQL($sql));
+
+        $sql = "IPV4_NUMBER_TO_ADDRESS(test)";
+        $this->assertEquals("INET_NTOA(test)", $this->mysqlDatabaseConnection->parseSQL($sql));
+
+
+        $sql = "IPV6_ADDRESS_TO_NUMBER(test)";
+        $this->assertEquals("(CAST(CONV(SUBSTR(HEX(INET6_ATON(test)), 1, 16), 16, 10) as DECIMAL(65))*18446744073709551616 + CAST(CONV(SUBSTR(HEX(INET6_ATON(test)), 17, 16), 16, 10) as DECIMAL(65)))", $this->mysqlDatabaseConnection->parseSQL($sql));
+
+
     }
 
 
