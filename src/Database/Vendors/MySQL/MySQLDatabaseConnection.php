@@ -117,9 +117,8 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
 
         // Handle Internet Address Conversions
-        $sql = FunctionStringRewriter::rewrite($sql, "IPV4_ADDRESS_TO_NUMBER", "INET_ATON($1)", [], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "IPV4_NUMBER_TO_ADDRESS", "INET_NTOA($1)", [], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "IPV6_ADDRESS_TO_NUMBER", "(CAST(CONV(SUBSTR(HEX(INET6_ATON($1)), 1, 16), 16, 10) as DECIMAL(65))*18446744073709551616 + CAST(CONV(SUBSTR(HEX(INET6_ATON($1)), 17, 16), 16, 10) as DECIMAL(65)))", [], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "IP_ADDRESS_TO_NUMBER", "CASE WHEN $1 LIKE '%:%' THEN (CAST(CONV(SUBSTR(HEX(INET6_ATON($1)), 1, 16), 16, 10) as DECIMAL(65))*18446744073709551616 + CAST(CONV(SUBSTR(HEX(INET6_ATON($1)), 17, 16), 16, 10) as DECIMAL(65))) ELSE INET_ATON($1) END", [], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "IP_NUMBER_TO_ADDRESS", "CASE WHEN $1 LIKE '%:%' THEN NULL ELSE INET_NTOA($1) END", [], $parameterValues);
 
         return $sql;
     }
