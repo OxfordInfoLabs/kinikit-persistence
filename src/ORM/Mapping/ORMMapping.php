@@ -16,6 +16,7 @@ use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableMetaData;
+use Kinikit\Persistence\ORM\Exception\MissingMappingException;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Mapper\TableQueryEngine;
@@ -280,7 +281,7 @@ class ORMMapping {
         }
 
 
-        // If exisiting objects, we are following a save operation so run post save interceptors.
+        // If existing objects, we are following a save operation so run post save interceptors.
         // Otherwise run post map interceptors.
         if ($existingObjects) {
             $this->ormInterceptorProcessor->processPostSaveInterceptors($this->className, $returnObjects);
@@ -312,7 +313,6 @@ class ORMMapping {
             $row = [];
 
             foreach ($this->classInspector->getProperties() as $propertyName => $property) {
-
                 if ($property->isStatic())
                     continue;
 
@@ -551,6 +551,14 @@ class ORMMapping {
             } catch (ObjectBindingException $e) {
                 $propertyValue = null;
             }
+        } else if (enum_exists($property->getType())) { //Get the enum case from a string
+            $enumClass = $property->getType();
+            $cases = $enumClass::cases();
+            $matchingCases = array_filter($cases, fn($case)=>$case->name == $columnValue);
+            if (!$matchingCases){
+                throw new \Exception("No enum case $columnValue for enum $enumClass");
+            }
+            $propertyValue = array_pop($matchingCases);
         } else {
             $propertyValue = Primitive::convertToPrimitive($property->getType(), $propertyValue);
         }
@@ -559,6 +567,12 @@ class ORMMapping {
     }
 
 
+    /**
+     * @param $propertyValue
+     * @param Property $property
+     * @return false|string
+     * @throws MissingMappingException
+     */
     private function mapPropertyToColumnValue($propertyValue, $property) {
         $columnValue = $propertyValue;
         if ($propertyValue instanceof \DateTime) {
@@ -566,6 +580,13 @@ class ORMMapping {
         } else if (isset($property->getPropertyAnnotations()["json"])) {
             $columnValue = $this->objectBinder->bindToArray($propertyValue, false);
             $columnValue = json_encode($columnValue);
+            if ($columnValue === false) {
+                throw new \Exception("Failed to encode property " . $property->getPropertyName() . " to json");
+            }
+        } else if (enum_exists($property->getType())){
+            $columnValue = $propertyValue->name;
+        } else if (!Primitive::isPrimitive($propertyValue) && $propertyValue !== null){
+            throw new MissingMappingException("No relational mapping annotation found on property " . $property->getPropertyName());
         }
 
         return $columnValue;

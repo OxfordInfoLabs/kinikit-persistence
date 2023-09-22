@@ -67,8 +67,12 @@ class ManyToOneTableRelationship extends BaseTableRelationship {
         $relatedPk = $this->relatedTableMapping->getPrimaryKeyColumnNames();
         foreach ($this->parentJoinColumnNames as $index => $joinColumnName) {
 
-            if (is_numeric($index))
+            if (is_numeric($index)){
+                if ($relatedPk == []){
+                    throw new \Exception("No primary key in table " . $this->relatedTableMapping->getTableName());
+                }
                 $index = $relatedPk[$index];
+            }
 
             $lhs = "$parentAlias.$joinColumnName";
             $rhs = "$myAlias.$index";

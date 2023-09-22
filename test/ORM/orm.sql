@@ -81,3 +81,19 @@ VALUES ('Top Level Note', null),
 DROP VIEW IF EXISTS note_view;
 CREATE VIEW note_view
 AS SELECT * FROM note;
+
+DROP TABLE IF EXISTS test_missing_mapping_object;
+CREATE TABLE test_missing_mapping_object (id integer, name varchar(255), test_object varchar(255));
+
+DROP TABLE IF EXISTS test_missing_array_mapping_object;
+CREATE TABLE test_missing_array_mapping_object (test_array varchar(255));
+
+DROP TABLE IF EXISTS test_enum_object;
+CREATE TABLE test_enum_object (id integer, status varchar(255));
+
+DROP TABLE IF EXISTS test_object;
+CREATE TABLE test_object (id integer, blah varchar(255));
+
+DROP TABLE IF EXISTS test_parent_object;
+CREATE TABLE test_parent_object (id integer, test_object_id integer);
+

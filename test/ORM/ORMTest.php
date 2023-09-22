@@ -5,6 +5,8 @@ namespace Kinikit\Persistence\ORM;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
+use Kinikit\Core\Reflection\TestNullableTypedPOPO;
+use Kinikit\Core\Reflection\TestTypedPOPO;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Util\ObjectArrayUtils;
@@ -12,6 +14,7 @@ use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
+use Kinikit\Persistence\ORM\Exception\MissingMappingException;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\ORM\Interceptor\ConfigFileORMInterceptor;
 use Kinikit\Persistence\ORM\Interceptor\GlobalORMInterceptor;
@@ -608,6 +611,55 @@ class ORMTest extends TestCase {
 
     }
 
+    public function testEnumFieldsAreCorrectlyMapped() {
+        $testEnumObject = new TestEnumObject(1, FakeStatus::ACTIVE);
+        $this->orm->save($testEnumObject);
+
+        $receivedEnumObject = $this->orm->fetch(TestEnumObject::class, 1);
+
+        $this->assertEquals($testEnumObject, $receivedEnumObject);
+    }
+
+    public function testArraysOrObjectsWhichAreMissingMappingThrowException() {
+
+//        $this->orm->fetch(TestMissingMappingObject::class,1);
+
+        $testObject = new TestMissingMappingObject("Sam", new TestObject("blah"));
+        try {
+            $this->orm->save($testObject);
+            $this->fail(); // Should've thrown because object has property with missing mapping
+        } catch (MissingMappingException $e) {
+            //Correctly catches missing mapping exception
+        }
+
+        $testObject2 = new TestMissingArrayMappingObject([new TestObject("bluh")]);
+        try {
+            $this->orm->save($testObject2);
+            $this->fail();
+        } catch (MissingMappingException $e) {
+            //Correctly catches missing mapping exception
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function testCanMapAndFetchObjectsWithNullableProperties(){
+        $childObject = new TestObject("abc", 1);
+        $this->orm->save($childObject);
+        $fetchedChildObj = $this->orm->fetch(TestObject::class, 1);
+
+        $this->assertEquals($childObject, $fetchedChildObj);
+
+        $parentObject = new TestParentObject(1, $childObject);
+        $this->orm->save($parentObject);
+
+        $fetchedParentObj = $this->orm->fetch(TestParentObject::class, 1);
+
+        $this->assertEquals($fetchedParentObj, $parentObject);
+
+        $filteredParentObj = $this->orm->filter(TestParentObject::class, "where id = ?", 1)[0];
+        $this->assertEquals($filteredParentObj, $parentObject);
+    }
 
     public function testReadOnlyRelationshipsAreRespectedForReadButNotWritten() {
 

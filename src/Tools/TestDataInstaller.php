@@ -194,9 +194,7 @@ class TestDataInstaller {
             if (class_exists($targetClass)) {
 
                 $items = json_decode(file_get_contents($baseDir . "/" . $trimmedPath . ".json"), true);
-
                 $objects = $this->objectBinder->bindFromArray($items, $targetClass . "[]", false);
-
                 // Save the objects.
                 $this->orm->save($objects, true);
             }
