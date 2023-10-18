@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\ORM\Interceptor;
 
 use Kinikit\Core\Configuration\ConfigFile;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 
 /**
@@ -191,7 +192,6 @@ class ORMInterceptorProcessor {
     // Get all interceptors defined for the passed class.
     private function getInterceptorsForClass($className) {
 
-
         if (!isset($this->interceptorsByClass[$className])) {
             $interceptors = [];
 
@@ -201,8 +201,8 @@ class ORMInterceptorProcessor {
                 if (!is_array($interceptorClasses)) $interceptorClasses = [$interceptorClasses];
 
                 foreach ($interceptorClasses as $interceptorClass) {
-                    $classPattern = str_replace(["*", "/"], [".*?", "\\/"], ltrim($pattern, "/"));
-                    if (preg_match("/^" . $classPattern . "$/", $className)) {
+                    $classPattern = str_replace(["*", "/", "\\"], [".*?", "\\/", "\\\\"], ltrim($pattern, "/"));
+                    if (($pattern == $className) || preg_match("/^" . $classPattern . "$/", $className)) {
                         $interceptors[] = Container::instance()->get($interceptorClass);
                     }
                 }

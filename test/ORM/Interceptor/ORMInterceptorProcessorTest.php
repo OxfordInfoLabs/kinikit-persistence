@@ -8,6 +8,7 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\ORM\Address;
 use Kinikit\Persistence\ORM\AltAddress;
+use Kinikit\Persistence\ORM\Contact;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
@@ -305,6 +306,16 @@ class ORMInterceptorProcessorTest extends TestCase {
         $this->interceptorProcessor->addInterceptor("*", InlineORMInterceptor::class);
 
         $this->interceptorProcessor->processPostDeleteInterceptors(Address::class, $this->addresses);
+
+        $this->assertTrue($this->inlineORMInterceptor->methodWasCalled("postDelete", [$this->addresses[0]]));
+        $this->assertTrue($this->inlineORMInterceptor->methodWasCalled("postDelete", [$this->addresses[1]]));
+        $this->assertTrue($this->inlineORMInterceptor->methodWasCalled("postDelete", [$this->addresses[2]]));
+
+
+        $this->interceptorProcessor->addInterceptor(Contact::class, InlineORMInterceptor::class);
+
+
+        $this->interceptorProcessor->processPostDeleteInterceptors(Contact::class, $this->addresses);
 
         $this->assertTrue($this->inlineORMInterceptor->methodWasCalled("postDelete", [$this->addresses[0]]));
         $this->assertTrue($this->inlineORMInterceptor->methodWasCalled("postDelete", [$this->addresses[1]]));
