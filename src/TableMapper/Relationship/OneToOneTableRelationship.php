@@ -84,10 +84,13 @@ class OneToOneTableRelationship extends BaseTableRelationship {
                 $onClauses[] = "$myAlias.$splitColumnName[0] = $staticValue";
             } else {
 
-                $lhs = "$parentAlias.{$parentPrimaryKeyColumns[$index]}";
+                // If not parent column fall back to literal column
+                $parentColumn = $parentPrimaryKeyColumns[$index] ?? $index;
+
+                $lhs = "$parentAlias.{$parentColumn}";
                 $rhs = "$myAlias.$joinColumnName";
 
-                if (isset($this->nullableJoinColumns[$joinColumnName])){
+                if (isset($this->nullableJoinColumns[$joinColumnName])) {
                     $lhs = "COALESCE($lhs, '')";
                     $rhs = "COALESCE($rhs, '')";
                 }
