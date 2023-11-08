@@ -42,7 +42,7 @@ class Query {
         // Grab filter data
         list($clauses, $params) = $this->generateFilterData($filters);
 
-        $whereClause = "WHERE " . join(" AND ", $clauses);
+        $whereClause = sizeof($clauses) ? "WHERE " . join(" AND ", $clauses) : "";
 
         if ($orderings) {
             if (is_string($orderings)) $orderings = [$orderings];
@@ -72,15 +72,18 @@ class Query {
      * @param string $summariseExpression
      * @return SummarisedValue[]
      */
-    public function summariseByMember($memberName, $filters = [], $summariseExpression = "COUNT(*)") {
+    public function summariseByMember($memberName, $filters = [], $summariseExpression = "COUNT(DISTINCT(id))") {
 
         // Grab filter data
         list($clauses, $params) = $this->generateFilterData($filters);
 
-        $matches = $this->orm->values($this->className, [$memberName, $summariseExpression], "WHERE " . join(" AND ", $clauses) . " GROUP BY $memberName", $params);
+        $query = sizeof($clauses) ? "WHERE " . join(" AND ", $clauses) : "";
+
+        $matches = $this->orm->values($this->className, [$memberName, $summariseExpression], $query . " GROUP BY $memberName HAVING $memberName IS NOT NULL", $params);
 
         return array_map(function ($item) use ($memberName, $summariseExpression) {
-            return new SummarisedValue($item[$memberName] ?? null, $item[$summariseExpression] ?? null);
+            $values = array_values($item);
+            return new SummarisedValue($values[0] ?? null, $values[1] ?? null);
         }, $matches);
 
     }

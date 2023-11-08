@@ -105,17 +105,17 @@ class QueryTest extends TestCase {
         $expectedReturn = [
             [
                 "id" => 1,
-                "COUNT(*)" => 5
+                "COUNT(DISTINCT(id))" => 5
             ],
             [
                 "id" => 2,
-                "COUNT(*)" => 6
+                "COUNT(DISTINCT(id))" => 6
             ]
         ];
 
 
         $this->orm->returnValue("values", $expectedReturn, [
-            Address::class, ["id", "COUNT(*)"], "WHERE text LIKE ? GROUP BY id", ["mark%"]
+            Address::class, ["id", "COUNT(DISTINCT(id))"], "WHERE text LIKE ? GROUP BY id HAVING id IS NOT NULL", ["mark%"]
         ]);
 
         $expectedItems = [new SummarisedValue(1, 5), new SummarisedValue(2, 6)];
@@ -135,7 +135,7 @@ class QueryTest extends TestCase {
 
 
         $this->orm->returnValue("values", $expectedReturn, [
-            Address::class, ["id", "SUM(*)"], "WHERE text LIKE ? GROUP BY id", ["mark%"]
+            Address::class, ["id", "SUM(*)"], "WHERE text LIKE ? GROUP BY id HAVING id IS NOT NULL", ["mark%"]
         ]);
 
         $expectedItems = [new SummarisedValue(1, 5), new SummarisedValue(2, 6)];
