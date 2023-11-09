@@ -25,6 +25,22 @@ class QueryTest extends TestCase {
         $this->orm = MockObjectProvider::instance()->getMockInstance(ORM::class);
     }
 
+    public function testCanQueryWthNoFilters() {
+
+        $query = new Query(Address::class, $this->orm);
+
+        $expectedReturn = [new Address(12, "Mark Test", "1 Street")];
+
+        $this->orm->returnValue("filter", $expectedReturn, [
+            Address::class, "", []
+        ]);
+
+        $this->assertEquals($expectedReturn, $query->query(["street1" => [], "street2" => []]));
+
+        $this->assertEquals($expectedReturn, $query->query(["street1" => null, "street2" => null]));
+
+    }
+
     public function testCanQueryWithSimpleEqualsFiltersWhereValuePassedDirectlyAsString() {
 
         $query = new Query(Address::class, $this->orm);

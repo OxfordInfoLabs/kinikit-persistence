@@ -102,7 +102,7 @@ class Query {
         foreach ($filters as $key => $filter) {
 
             // Simplify key-value filters
-            if (is_array($filter)) {
+            if (is_array($filter) && sizeof($filter)) {
                 $filter = new InFilter($key, $filter);
             } else if (Primitive::isPrimitive($filter)) {
 
@@ -111,8 +111,11 @@ class Query {
                 $filter = str_contains($filter, "%") ? new LikeFilter($key, $filter) : new EqualsFilter($key, $filter);
             }
 
-            $clauses[] = $filter->getSQLClause();
-            $params = array_merge($params, $filter->getParameterValues() ?? []);
+            // If a filter proceed
+            if ($filter) {
+                $clauses[] = $filter->getSQLClause();
+                $params = array_merge($params, $filter->getParameterValues() ?? []);
+            }
         }
         return array($clauses, $params);
     }
