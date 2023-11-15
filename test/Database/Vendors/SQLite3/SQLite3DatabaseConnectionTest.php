@@ -565,6 +565,9 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $sql = "SUM_PERCENT(test)";
         $this->assertEquals("100 * SUM(test) / SUM(SUM(test)) OVER ()", $sqlite3Connection->parseSQL($sql));
 
+        $sql = "ROW_NUMBER()";
+        $this->assertEquals("ROW_NUMBER() OVER ()", $sqlite3Connection->parseSQL($sql));
+
 
         $sql = "TOTAL(test)";
         $this->assertEquals("SUM(test) OVER ()", $sqlite3Connection->parseSQL($sql));

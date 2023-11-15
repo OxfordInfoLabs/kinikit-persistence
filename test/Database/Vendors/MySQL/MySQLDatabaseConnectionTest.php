@@ -232,6 +232,11 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $sql = "SUM_PERCENT(test)";
         $this->assertEquals("100 * SUM(test) / SUM(SUM(test)) OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
 
+
+        $sql = "ROW_NUMBER()";
+        $this->assertEquals("ROW_NUMBER() OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
+
+
         $sql = "TOTAL(test)";
         $this->assertEquals("SUM(test) OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
 

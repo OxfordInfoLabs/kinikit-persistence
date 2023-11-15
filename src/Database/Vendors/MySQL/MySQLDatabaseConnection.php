@@ -106,6 +106,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         }
 
         $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "UNIX_TIMESTAMP($1)", [0], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "ROW_NUMBER", "ROW_NUMBER() OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "TOTAL", "SUM($1) OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "PERCENT", "100 * $1 / SUM($1) OVER ()", [0], $parameterValues);
 
