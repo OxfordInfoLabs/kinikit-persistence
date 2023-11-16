@@ -16,6 +16,10 @@ class Query {
      * @var string
      */
     private $className;
+    /**
+     * @var ORM
+     */
+    private $orm;
 
     /**
      * @param string $className

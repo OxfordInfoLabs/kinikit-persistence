@@ -1,2 +1,5 @@
 vendor
 .idea
+*.db
+test/DB/db-log.txt
+.phpunit.result.cache

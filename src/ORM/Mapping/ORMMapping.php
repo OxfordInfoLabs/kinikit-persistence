@@ -578,8 +578,8 @@ class ORMMapping {
         if ($propertyValue instanceof \DateTime) {
             $columnValue = $propertyValue->format("Y-m-d H:i:s");
         } else if (isset($property->getPropertyAnnotations()["json"])) {
-            $columnValue = $this->objectBinder->bindToArray($propertyValue, false);
-            $columnValue = json_encode($columnValue);
+            $boundValue = $this->objectBinder->bindToArray($propertyValue, false);
+            $columnValue = json_encode($boundValue, JSON_INVALID_UTF8_IGNORE);
             if ($columnValue === false) {
                 throw new \Exception("Failed to encode property " . $property->getPropertyName() . " to json");
             }
