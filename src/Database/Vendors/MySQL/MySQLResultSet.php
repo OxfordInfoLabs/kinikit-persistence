@@ -28,7 +28,8 @@ class MySQLResultSet extends PDOResultSet {
         "BLOB" => TableColumn::SQL_BLOB,
         "LONGBLOB" => TableColumn::SQL_LONGBLOB,
         "TEXT" => TableColumn::SQL_BLOB,
-        "LONGTEXT" => TableColumn::SQL_LONGBLOB
+        "LONGTEXT" => TableColumn::SQL_LONGBLOB,
+        "JSON" => TableColumn::SQL_LONGBLOB
     ];
 
 
@@ -77,8 +78,14 @@ class MySQLResultSet extends PDOResultSet {
                     if ($columnMeta) {
 
                         // Fall back to varchar
-                        $columnType = self::NATIVE_SQL_MAPPINGS[$columnMeta["native_type"]] ?? TableColumn::SQL_VARCHAR;
-                        $lengthDivisor = self::LENGTH_COLUMN_DIVISORS[$columnMeta["native_type"]] ?? null;
+                        if (isset($columnMeta["native_type"])){
+                            $columnType = self::NATIVE_SQL_MAPPINGS[$columnMeta["native_type"]] ?? TableColumn::SQL_VARCHAR;
+                            $lengthDivisor = self::LENGTH_COLUMN_DIVISORS[$columnMeta["native_type"]] ?? null;
+                        } else { // Where we have a non-native PHP type
+                            $columnType = TableColumn::SQL_LONGBLOB;
+                            $lengthDivisor = null;
+                        }
+
 
                         if ($columnType == TableColumn::SQL_BLOB && $columnMeta["len"] > 300000)
                             $columnType = TableColumn::SQL_LONGBLOB;

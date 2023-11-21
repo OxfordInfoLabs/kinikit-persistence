@@ -262,7 +262,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $query = "DROP TABLE IF EXISTS test_all_types; CREATE TABLE test_all_types (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, 
             small_int SMALLINT, big_int BIGINT, 
             float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
-            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, long_blob_val LONGBLOB, text_val TEXT, long_text_val LONGTEXT
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, long_blob_val LONGBLOB, text_val TEXT, long_text_val LONGTEXT, json_val JSON
             )";
 
         $this->mysqlDatabaseConnection->executeScript($query);
@@ -270,7 +270,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $resultSet = $this->mysqlDatabaseConnection->query("SELECT * FROM test_all_types");
         $columns = $resultSet->getColumns();
 
-        $this->assertEquals(17, sizeof($columns));
+        $this->assertEquals(18, sizeof($columns));
         $this->assertEquals(new ResultSetColumn("id", TableColumn::SQL_INTEGER, 11, null), $columns[0]);
         $this->assertGreaterThan(200, $columns[1]->getLength());
         $this->assertEquals(new ResultSetColumn("tiny_int", TableColumn::SQL_TINYINT, 4), $columns[2]);
@@ -288,6 +288,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new ResultSetColumn("long_blob_val", TableColumn::SQL_LONGBLOB), $columns[14]);
         $this->assertEquals(new ResultSetColumn("text_val", TableColumn::SQL_BLOB), $columns[15]);
         $this->assertEquals(new ResultSetColumn("long_text_val", TableColumn::SQL_LONGBLOB), $columns[16]);
+        $this->assertEquals(new ResultSetColumn("json_val", TableColumn::SQL_LONGBLOB), $columns[17]);
 
 
         // Try another query
@@ -295,7 +296,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
                                 OR (id = ? AND name = ?)", 33, "Mark", 44, "Luke");
         $columns = $resultSet->getColumns();
 
-        $this->assertEquals(17, sizeof($columns));
+        $this->assertEquals(18, sizeof($columns));
 
         $this->assertEquals(new ResultSetColumn("id", TableColumn::SQL_INTEGER, 11, null), $columns[0]);
         $this->assertGreaterThan(200, $columns[1]->getLength());
