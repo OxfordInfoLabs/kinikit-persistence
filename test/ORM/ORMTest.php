@@ -643,7 +643,7 @@ class ORMTest extends TestCase {
         $this->assertTrue(true);
     }
 
-    public function testCanMapAndFetchObjectsWithNullableProperties(){
+    public function testCanMapAndFetchObjectsWithNullableProperties() {
         $childObject = new TestObject("abc", 1);
         $this->orm->save($childObject);
         $fetchedChildObj = $this->orm->fetch(TestObject::class, 1);
@@ -827,6 +827,8 @@ class ORMTest extends TestCase {
 
         $this->assertNull($connection->query("SELECT * FROM address")->nextRow());
     }
+
+
 
 
 

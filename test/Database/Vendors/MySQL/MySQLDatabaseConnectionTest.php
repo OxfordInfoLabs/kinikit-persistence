@@ -243,14 +243,15 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $sql = "PERCENT(test)";
         $this->assertEquals("100 * test / SUM(test) OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
 
+        $sql = "ROW_COUNT()";
+        $this->assertEquals("COUNT(*) OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
+
 
         $sql = "IP_ADDRESS_TO_NUMBER(test)";
         $this->assertEquals("CASE WHEN test LIKE '%:%' THEN (CAST(CONV(SUBSTR(HEX(INET6_ATON(test)), 1, 16), 16, 10) as DECIMAL(65))*18446744073709551616 + CAST(CONV(SUBSTR(HEX(INET6_ATON(test)), 17, 16), 16, 10) as DECIMAL(65))) ELSE INET_ATON(test) END", $this->mysqlDatabaseConnection->parseSQL($sql));
 
         $sql = "IP_NUMBER_TO_ADDRESS(test)";
         $this->assertEquals("CASE WHEN test LIKE '%:%' THEN NULL ELSE INET_NTOA(test) END", $this->mysqlDatabaseConnection->parseSQL($sql));
-
-
 
 
     }
