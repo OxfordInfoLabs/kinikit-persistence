@@ -234,7 +234,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
         $sql = "ROW_NUMBER()";
-        $this->assertEquals("ROW_NUMBER() OVER ()", $this->mysqlDatabaseConnection->parseSQL($sql));
+        $this->assertEquals("ROW_NUMBER() OVER (ORDER BY 1=1,1=1)", $this->mysqlDatabaseConnection->parseSQL($sql));
 
 
         $sql = "TOTAL(test)";

@@ -256,7 +256,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
 
         // Map functions
         $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "STRFTIME('%s',$1)", [0]);
-        $sql = FunctionStringRewriter::rewrite($sql, "ROW_NUMBER", "ROW_NUMBER() OVER ()", [0], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "ROW_NUMBER", "ROW_NUMBER() OVER (ORDER BY $1,$2)", ["1=1", "1=1"], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "TOTAL", "SUM($1) OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "PERCENT", "100 * $1 / SUM($1) OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "ROW_COUNT", "COUNT(*) OVER ()", [0], $parameterValues);
