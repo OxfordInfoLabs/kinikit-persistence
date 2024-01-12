@@ -3,6 +3,7 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
@@ -102,4 +103,15 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
     public function getTableColumnMetaData($tableName) {
         // TODO: Implement getTableColumnMetaData() method.
     }
+
+    /**
+     * Return the index data for a table
+     *
+     * @param $tableName
+     * @return TableIndex[]
+     */
+    public function getTableIndexMetaData($tableName) {
+        // TODO: Implement getTableIndexMetaData() method.
+    }
+
 }

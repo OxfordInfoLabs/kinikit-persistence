@@ -6,8 +6,11 @@ use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
 use Kinikit\Persistence\Database\PreparedStatement\WrongNumberOfPreparedStatementParametersException;
+use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 
 include_once "autoloader.php";
 
@@ -164,6 +167,42 @@ class PostgreSQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new TableColumn("date_time", ResultSetColumn::SQL_DATE_TIME), $tableColumns["date_time"]);
         $this->assertEquals(new TableColumn("blob_val", TableColumn::SQL_LONGBLOB), $tableColumns["blob_val"]);
     }
+
+
+    public function testCanGetTableIndexMetaData() {
+
+
+        $this->postgresqlDatabaseConnection->execute("DROP TABLE IF EXISTS test_types");
+
+        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, 
+            small_int SMALLINT, big_int BIGINT, 
+            float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB)";
+
+        $this->postgresqlDatabaseConnection->execute($query);
+
+
+        $this->postgresqlDatabaseConnection->execute("CREATE INDEX test_index ON test_types (name, tiny_int, float_val)");
+        $this->postgresqlDatabaseConnection->execute("CREATE INDEX test_index_2 ON test_types (name, double_val)");
+
+
+        $indexes = $this->postgresqlDatabaseConnection->getTableIndexMetaData("test_types");
+
+        $this->assertEquals(2, sizeof($indexes));
+
+        $this->assertEquals(new TableIndex("test_index", [
+            new TableIndexColumn("name"),
+            new TableIndexColumn("tiny_int"),
+            new TableIndexColumn("float_val")
+        ]), $indexes[0]);
+
+        $this->assertEquals(new TableIndex("test_index_2", [
+            new TableIndexColumn("name"),
+            new TableIndexColumn("double_val")
+        ]), $indexes[1]);
+
+    }
+
 
 
     public function testExecuteScriptConvertsSQLLiteSyntaxToPostgreSQL() {

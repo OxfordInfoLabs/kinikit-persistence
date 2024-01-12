@@ -10,6 +10,8 @@ use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
@@ -121,6 +123,32 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         return $columns;
 
 
+    }
+
+
+    /**
+     * Return the index data for a table
+     *
+     * @param $tableName
+     * @return TableIndex[]
+     */
+    public function getTableIndexMetaData($tableName) {
+
+        // Grab all indexes for table
+        $indexResults = $this->query("PRAGMA index_list($tableName)");
+        $indexes = [];
+
+        // Grab all columns for each index
+        while ($index = $indexResults->nextRow()) {
+            $indexColumnResults = $this->query("PRAGMA index_info(" . $index["name"] . ")");
+            $columns = [];
+            while ($column = $indexColumnResults->nextRow()) {
+                $columns[] = new TableIndexColumn($column["name"]);
+            }
+            $indexes[] = new TableIndex($index["name"], $columns);
+        }
+
+        return $indexes;
     }
 
 
@@ -266,7 +294,6 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         $sql = FunctionStringRewriter::rewrite($sql, "SUM_PERCENT", "100 * SUM($1) / SUM_TOTAL($1)", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "COUNT_TOTAL", "SUM(COUNT($1)) OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "SUM_TOTAL", "SUM(SUM($1)) OVER ()", [0], $parameterValues);
-
 
 
         return $sql;

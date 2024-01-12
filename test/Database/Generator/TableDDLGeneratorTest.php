@@ -6,6 +6,7 @@ use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
@@ -117,6 +118,36 @@ PRIMARY KEY (id)
     }
 
 
+    public function testCreateIndexStatementsIncludedIfSuppliedAsMetaData() {
+
+        $metaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_INT),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+            new TableColumn("score", TableColumn::SQL_FLOAT, 5, 5),
+            new TableColumn("description", TableColumn::SQL_BLOB, null, null, null, null, false, true),
+            new TableColumn("start_date", TableColumn::SQL_DATE),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME)
+        ], [
+            new TableIndex("name_ind", ["name"]),
+            new TableIndex("score_ind", ["score", "start_date"])
+        ]);
+
+        $databaseConnection = new SQLite3DatabaseConnection();
+
+        $sql = $this->generator->generateTableCreateSQL($metaData, $databaseConnection);
+
+        $this->assertEquals('CREATE TABLE test (
+"id" INT,
+"name" VARCHAR(255),
+"score" FLOAT(5,5),
+"description" BLOB NOT NULL,
+"start_date" DATE,
+"last_modified" DATETIME
+);CREATE INDEX name_ind ON test (name);CREATE INDEX score_ind ON test (score,start_date);', $sql);
+
+    }
+
+
     public function testCanGenerateModifyDDLFromPreviousAndNewMetaData() {
 
         $databaseConnection = new SQLite3DatabaseConnection();
@@ -216,6 +247,45 @@ PRIMARY KEY (id)
         $this->assertStringContainsString("ALTER TABLE test", $sql);
         $this->assertStringContainsString("DROP PRIMARY KEY", $sql);
         $this->assertStringContainsString("ADD PRIMARY KEY (id, new_description)", $sql);
+
+    }
+
+
+    public function testModifySQLIncludesDropAndCreateStatementsForModifiedNewAndRemovedIndexes() {
+
+        $previousMetaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_INT),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+            new TableColumn("score", TableColumn::SQL_FLOAT, 5, 5),
+            new TableColumn("description", TableColumn::SQL_BLOB, null, null, null, null, false, true),
+            new TableColumn("start_date", TableColumn::SQL_DATE),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME)
+        ], [
+            new TableIndex("name_ind", ["name"]),
+            new TableIndex("score_ind", ["score", "start_date"]),
+            new TableIndex("date_ind", ["start_date", "last_modified"]),
+            new TableIndex("description_ind", ["description"])
+        ]);
+
+        $newMetaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_INT),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+            new TableColumn("score", TableColumn::SQL_FLOAT, 5, 5),
+            new TableColumn("description", TableColumn::SQL_BLOB, null, null, null, null, false, true),
+            new TableColumn("start_date", TableColumn::SQL_DATE),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME)
+        ], [
+            new TableIndex("new_ind", ["name"]),
+            new TableIndex("score_ind", ["score", "start_date", "description"]),
+            new TableIndex("date_ind", ["last_modified", "start_date"]),
+            new TableIndex("description_ind", ["description"])
+        ]);
+
+        $databaseConnection = new SQLite3DatabaseConnection();
+
+        $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
+        $this->assertEquals("CREATE INDEX new_ind ON test (name);DROP INDEX score_ind ON test;CREATE INDEX score_ind ON test (score,start_date,description);DROP INDEX date_ind ON test;CREATE INDEX date_ind ON test (last_modified,start_date);DROP INDEX name_ind ON test;", $sql);
+
 
     }
 

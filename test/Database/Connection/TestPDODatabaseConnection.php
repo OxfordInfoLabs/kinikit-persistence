@@ -4,6 +4,8 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 
+use Kinikit\Persistence\Database\MetaData\TableIndex;
+
 class TestPDODatabaseConnection extends PDODatabaseConnection {
 
 
@@ -27,6 +29,17 @@ class TestPDODatabaseConnection extends PDODatabaseConnection {
     public function getTableColumnMetaData($tableName) {
 
     }
+
+    /**
+     * Return the index data for a table
+     *
+     * @param $tableName
+     * @return TableIndex[]
+     */
+    public function getTableIndexMetaData($tableName) {
+        // TODO: Implement getTableIndexMetaData() method.
+    }
+
 
 
     public function getResultSetClass() {

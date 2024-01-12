@@ -46,9 +46,15 @@ class TableDDLGenerator {
             $sql .= ",\nPRIMARY KEY (" . join(",", $pks) . ")";
         }
 
-        $sql .= "\n);";
+        $sql .= "\n)";
 
-        return $sql;
+
+        // Add all column index clauses
+        foreach ($tableMetaData->getIndexes() as $index) {
+            $sql .= ";" . $this->generateCreateIndexSQL($index, $tableMetaData->getTableName());
+        }
+
+        return $sql . ";";
 
     }
 
@@ -70,6 +76,7 @@ class TableDDLGenerator {
 
 
         // Initialise clauses
+        $statements = [];
         $clauses = [];
 
         // Now loop through original columns and process any matches / missing in modified
@@ -137,10 +144,37 @@ class TableDDLGenerator {
         }
 
         if (sizeof($clauses)) {
-            return "ALTER TABLE $tableName " . join(", ", $clauses);
-        } else {
-            return "";
+            $statements[] = "ALTER TABLE $tableName " . join(", ", $clauses);
         }
+
+
+        // Grab original and modified indexes.
+        $originalIndexes = $originalTableMetaData->getIndexes();
+        $modifiedIndexes = $modifiedTableMetaData->getIndexes();
+
+        // Loop through modified indexes, drop and create accordingly
+        foreach ($modifiedIndexes as $key => $index) {
+            if (isset($originalIndexes[$key])) {
+                // If columns differ from original columns
+                if ($index->getColumns() != $originalIndexes[$key]->getColumns()) {
+                    $statements[] = "DROP INDEX $key ON $tableName";
+                    $statements[] = $this->generateCreateIndexSQL($index, $tableName);
+                }
+                unset($originalIndexes[$key]);
+            } else {
+                $statements[] = $this->generateCreateIndexSQL($index, $tableName);
+            }
+        }
+
+        // Loop through any dangling originals and drop
+        foreach ($originalIndexes as $key => $index) {
+            $statements[] = "DROP INDEX $key ON $tableName";
+        }
+
+
+        // Return statements
+        return sizeof($statements) ? join(";", $statements) . ";" : "";
+
 
     }
 
@@ -189,6 +223,20 @@ class TableDDLGenerator {
 
 
         return array($columnName, $line);
+    }
+
+    /**
+     * @param $index
+     * @param TableMetaData $tableMetaData
+     * @param $sql
+     * @return string
+     */
+    private function generateCreateIndexSQL($index, $tableName) {
+        $columnDescriptors = [];
+        foreach ($index->getColumns() as $column) {
+            $columnDescriptors[] = $column->getName() . ($column->getMaxBytesToIndex() > 0 ? "(" . $column->getMaxBytesToIndex() . ")" : "");
+        }
+        return "CREATE INDEX {$index->getName()} ON $tableName (" . join(",", $columnDescriptors) . ")";
     }
 
 

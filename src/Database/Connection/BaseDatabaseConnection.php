@@ -11,6 +11,7 @@ use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\BulkData\DefaultBulkDataManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
@@ -368,6 +369,14 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      */
     public abstract function getTableColumnMetaData($tableName);
 
+
+    /**
+     * Get table index meta data for a given table as an associative array keyed in by index name.
+     *
+     * @param $tableName
+     * @return TableIndex[]
+     */
+    public abstract function getTableIndexMetaData($tableName);
 
     /**
      * Get the bulk data manager for this database connection.

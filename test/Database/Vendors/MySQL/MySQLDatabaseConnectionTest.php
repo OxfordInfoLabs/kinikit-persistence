@@ -6,6 +6,8 @@ namespace Kinikit\Persistence\Database\Vendors\MySQL;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
 use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
@@ -150,7 +152,6 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $this->mysqlDatabaseConnection->execute($query);
 
-
         $tableColumns = $this->mysqlDatabaseConnection->getTableColumnMetaData("test_types");
 
         $this->assertEquals(14, sizeof($tableColumns));
@@ -170,6 +171,39 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new TableColumn("blob_val", "BLOB"), $tableColumns["blob_val"]);
     }
 
+
+    public function testCanGetTableIndexMetaData() {
+
+        $this->mysqlDatabaseConnection->execute("DROP TABLE IF EXISTS test_types");
+
+        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, 
+            small_int SMALLINT, big_int BIGINT, 
+            float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB)";
+
+        $this->mysqlDatabaseConnection->execute($query);
+
+
+        $this->mysqlDatabaseConnection->execute("CREATE INDEX test_index ON test_types (name, tiny_int, float_val)");
+        $this->mysqlDatabaseConnection->execute("CREATE INDEX test_index_2 ON test_types (name(50), double_val)");
+
+
+        $indexes = $this->mysqlDatabaseConnection->getTableIndexMetaData("test_types");
+
+        $this->assertEquals(2, sizeof($indexes));
+
+        $this->assertEquals(new TableIndex("test_index", [
+            new TableIndexColumn("name"),
+            new TableIndexColumn("tiny_int"),
+            new TableIndexColumn("float_val")
+        ]), $indexes[0]);
+
+        $this->assertEquals(new TableIndex("test_index_2", [
+            new TableIndexColumn("name", 50),
+            new TableIndexColumn("double_val")
+        ]), $indexes[1]);
+
+    }
 
     public function testExecuteScriptConvertsSQLLiteSyntaxToMySQL() {
 

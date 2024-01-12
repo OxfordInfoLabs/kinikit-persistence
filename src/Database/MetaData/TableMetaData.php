@@ -20,20 +20,34 @@ class TableMetaData {
 
 
     /**
+     * Array fo indexes, keyed in by name
+     *
+     * @var TableIndex[string]
+     */
+    protected $indexes = [];
+
+
+    /**
      * @var TableColumn[]
      */
     private $pkColumns = [];
 
     /**
      * TableMetaData constructor.
+     *
      * @param string $tableName
      * @param TableColumn[] $tableColumns
+     * @param TableIndex[] $indexes
      */
-    public function __construct($tableName, $tableColumns) {
+    public function __construct($tableName, $tableColumns, $indexes = []) {
         $this->tableName = $tableName;
 
         foreach ($tableColumns as $tableColumn) {
             $this->addColumn($tableColumn);
+        }
+
+        foreach ($indexes as $index) {
+            $this->indexes[$index->getName()] = $index;
         }
     }
 
@@ -45,7 +59,7 @@ class TableMetaData {
     }
 
     /**
-     * @return tablecolumn[]
+     * @return TableColumn[]
      */
     public function getColumns() {
         return $this->tableColumns;
@@ -56,6 +70,13 @@ class TableMetaData {
      */
     public function getPrimaryKeyColumns() {
         return $this->pkColumns;
+    }
+
+    /**
+     * @return TableIndex[]
+     */
+    public function getIndexes() {
+        return $this->indexes;
     }
 
 
@@ -69,5 +90,6 @@ class TableMetaData {
         if ($tableColumn->isPrimaryKey())
             $this->pkColumns[$tableColumn->getName()] = $tableColumn;
     }
+
 
 }

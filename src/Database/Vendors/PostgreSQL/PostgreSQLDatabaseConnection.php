@@ -7,6 +7,7 @@ use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
 
 /**
  * Standard PostgreSQL implementation of the database connection class
@@ -124,5 +125,50 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
 
         return $columns;
     }
+
+
+    /**
+     * Return the index data for a table
+     *
+     * @param $tableName
+     * @return TableIndex[]
+     */
+    public function getTableIndexMetaData($tableName) {
+        $indexData = $this->query(
+            "select t.relname as table_name,
+    i.relname as index_name,
+    array_to_string(array_agg(a.attname), ',') as column_names
+from
+    pg_class t,
+    pg_class i,
+    pg_index ix,
+    pg_attribute a
+where
+    t.oid = ix.indrelid
+    and i.oid = ix.indexrelid
+    and a.attrelid = t.oid
+    and a.attnum = ANY(ix.indkey)
+    and t.relkind = 'r'
+    and t.relname like ?
+group by
+    t.relname,
+    i.relname
+order by
+    t.relname,
+    i.relname", $tableName . "%");
+
+        $indexes = [];
+
+        // Loop through each index
+        while ($index = $indexData->nextRow()) {
+            if (!strpos($index["index_name"], "pkey"))
+                $indexes[] = new TableIndex($index["index_name"], explode(",", $index["column_names"]));
+        }
+
+        return $indexes;
+
+
+    }
+
 
 }

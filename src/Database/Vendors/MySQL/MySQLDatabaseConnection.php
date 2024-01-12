@@ -7,6 +7,8 @@ use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
 use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
@@ -197,6 +199,47 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
 
         return $columns;
+
+    }
+
+    /**
+     * Return the index data for a table
+     *
+     * @param $tableName
+     * @return TableIndex[]
+     */
+    public function getTableIndexMetaData($tableName) {
+
+        $results = $this->query("SHOW INDEXES FROM $tableName");
+
+        $indexes = [];
+
+        // Loop through and gather indexes
+        $currentKey = null;
+        $columns = [];
+        while ($row = $results->nextRow()) {
+            $key = $row["Key_name"];
+
+            // Ignore PK
+            if ($key == "PRIMARY") continue;
+
+            // If changing key, stash index if required
+            if ($key != $currentKey) {
+                if ($currentKey) {
+                    $indexes[] = new TableIndex($currentKey, $columns);
+                }
+                $currentKey = $key;
+                $columns = [];
+            }
+
+            $columns[] = new TableIndexColumn($row["Column_name"], $row["Sub_part"] ?? -1);
+        }
+
+        if ($currentKey) {
+            $indexes[] = new TableIndex($currentKey, $columns);
+        }
+
+        return $indexes;
 
     }
 
