@@ -3,7 +3,9 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
@@ -92,16 +94,14 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
     }
 
 
-
-
     /**
      * Get table column meta data for a given table as an associative array keyed in by column name.
      *
      * @param $tableName
-     * @return \Kinikit\Persistence\Database\MetaData\TableColumn[string]
+     * @return TableColumn[]
      */
     public function getTableColumnMetaData($tableName) {
-        // TODO: Implement getTableColumnMetaData() method.
+        return [new TableColumn("bingo", "int")];
     }
 
     /**
@@ -111,7 +111,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * @return TableIndex[]
      */
     public function getTableIndexMetaData($tableName) {
-        // TODO: Implement getTableIndexMetaData() method.
+        return [new TableIndex("testindex", [new TableIndexColumn("bingo")])];
     }
 
 }

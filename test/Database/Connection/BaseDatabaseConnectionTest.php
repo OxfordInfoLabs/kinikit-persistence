@@ -3,6 +3,10 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
+use Kinikit\Persistence\Database\MetaData\TableMetaData;
 
 include_once 'autoloader.php';
 
@@ -108,6 +112,17 @@ class BaseDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $dbConnection->commit();
         $this->assertEquals("COMMIT", $dbConnection->lastSQL);
+
+    }
+
+
+    public function testTableMetaDataCorrectlyCompiledFromColumnsAndIndexes() {
+
+        // Progressively begin and roll back savepoints.
+        $dbConnection = new TestDatabaseConnection();
+
+        $this->assertEquals(new TableMetaData("test_table", [new TableColumn("bingo", "int")],
+            [new TableIndex("testindex", [new TableIndexColumn("bingo")])]), $dbConnection->getTableMetaData("test_table"));
 
     }
 

@@ -347,7 +347,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      */
     public function getTableMetaData($tableName) {
         if (!isset($this->cachedMetaData[$tableName])) {
-            $this->cachedMetaData[$tableName] = new \Kinikit\Persistence\Database\MetaData\TableMetaData($tableName, $this->getTableColumnMetaData($tableName));
+            $this->cachedMetaData[$tableName] = new \Kinikit\Persistence\Database\MetaData\TableMetaData($tableName, $this->getTableColumnMetaData($tableName), $this->getTableIndexMetaData($tableName));
         }
         return $this->cachedMetaData[$tableName];
     }
