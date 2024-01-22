@@ -138,14 +138,22 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         $indexResults = $this->query("PRAGMA index_list($tableName)");
         $indexes = [];
 
+
         // Grab all columns for each index
         while ($index = $indexResults->nextRow()) {
+
+            // Ignore PK indexes
+            if ($index["origin"] == "pk")
+                continue;
+
             $indexColumnResults = $this->query("PRAGMA index_info(" . $index["name"] . ")");
             $columns = [];
             while ($column = $indexColumnResults->nextRow()) {
                 $columns[] = new TableIndexColumn($column["name"]);
             }
             $indexes[] = new TableIndex($index["name"], $columns);
+
+
         }
 
         return $indexes;
@@ -280,6 +288,10 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
             }
 
         }
+
+
+        // Detect drop statements with ON clause
+        $sql = preg_replace("/(DROP INDEX [a-zA-Z0-9_\-]+) ON [a-zA-Z0-9_\-]+/i", "$1", $sql);
 
 
         // Map functions

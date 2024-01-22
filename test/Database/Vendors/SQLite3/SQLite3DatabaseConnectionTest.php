@@ -345,7 +345,6 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $sqlite3Connection->execute($query);
 
-
         $sqlite3Connection->execute("CREATE INDEX test_index ON test_types (name, tiny_int, float_val)");
         $sqlite3Connection->execute("CREATE INDEX test_index_2 ON test_types (name, double_val)");
 
@@ -364,6 +363,19 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
             new TableIndexColumn("name"),
             new TableIndexColumn("double_val")
         ]), $indexes[0]);
+
+        $sqlite3Connection = new SQLite3DatabaseConnection (["filename" => $this->dbLocation]);
+
+
+        $sqlite3Connection->execute("DROP TABLE IF EXISTS test_types_2");
+
+        // Check that PK origin primary keys are ignored
+        $query = "CREATE TABLE test_types_2 (id STRING PRIMARY KEY)";
+        $sqlite3Connection->execute($query);
+
+        $metaData = $sqlite3Connection->getTableIndexMetaData("test_types_2");
+        $this->assertEquals(0, sizeof($metaData));
+
 
     }
 
@@ -573,6 +585,21 @@ class SQLite3DatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $results = $sqlite3Connection->query("SELECT TESTCUSTOM(5) testcustom");
         $this->assertEquals(10, $results->fetchAll()[0]["testcustom"]);
 
+
+    }
+
+
+    public function testDropIndexStatementsWithOnTableClausesAreTruncatedAsPartOfParseSQL() {
+
+        $sqlite3Connection = new SQLite3DatabaseConnection(["filename" => $this->dbLocation]);
+
+        // Ensure correct ones are left alone
+        $sql = "DROP INDEX my_index";
+        $this->assertEquals("DROP INDEX my_index", $sqlite3Connection->parseSQL($sql));
+
+        // Check rewrite
+        $sql = "DROP INDEX my_index ON test_table";
+        $this->assertEquals("DROP INDEX my_index", $sqlite3Connection->parseSQL($sql));
 
     }
 
