@@ -4,6 +4,7 @@
 namespace Kinikit\Persistence\Database\Generator;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
@@ -74,7 +75,6 @@ class TableDDLGenerator {
         $originalColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $originalTableMetaData->getColumns());
         $modifiedColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $modifiedTableMetaData->getColumns());
 
-
         // Initialise clauses
         $statements = [];
         $clauses = [];
@@ -133,13 +133,16 @@ class TableDDLGenerator {
             if ($originalColumn->isPrimaryKey())
                 $originalPKColumnNames[] = $originalColumn->getName();
 
-            $clauses[] = "DROP COLUMN $name";
+            $clauses[] = "DROP COLUMN " . $databaseConnection->escapeColumn($name);
         }
 
 
         // Now check if pk has changed and adjust as appropriate
         if ($originalPKColumnNames !== $modifiedPKColumnNames) {
             $clauses[] = "DROP PRIMARY KEY";
+            $modifiedPKColumnNames = array_map(function ($columnName) use ($databaseConnection) {
+                return $databaseConnection->escapeColumn($columnName);
+            }, $modifiedPKColumnNames);
             $clauses[] = "ADD PRIMARY KEY (" . join(", ", $modifiedPKColumnNames) . ")";
         }
 
@@ -171,6 +174,7 @@ class TableDDLGenerator {
             $statements[] = "DROP INDEX $key ON $tableName";
         }
 
+        Logger::log($statements);
 
         // Return statements
         return sizeof($statements) ? join(";", $statements) . ";" : "";

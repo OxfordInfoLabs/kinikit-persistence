@@ -175,7 +175,7 @@ PRIMARY KEY (id)
         $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
 
         $this->assertStringStartsWith("ALTER TABLE test", $sql);
-        $this->assertStringContainsString("DROP COLUMN name", $sql);
+        $this->assertStringContainsString("DROP COLUMN \"name\"", $sql);
         $this->assertStringContainsString('MODIFY COLUMN "score" INT', $sql);
         $this->assertStringContainsString('MODIFY COLUMN "start_date" DATE', $sql);
         $this->assertStringContainsString('ADD COLUMN "notes" VARCHAR(2000)', $sql);
@@ -210,7 +210,7 @@ PRIMARY KEY (id)
         $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
 
         $this->assertStringContainsString("ALTER TABLE test", $sql);
-        $this->assertStringContainsString("DROP COLUMN name", $sql);
+        $this->assertStringContainsString("DROP COLUMN \"name\"", $sql);
         $this->assertStringContainsString('CHANGE COLUMN "description" "new_description" BLOB NOT NULL', $sql);
         $this->assertStringContainsString('CHANGE COLUMN "score" "updated_score" INT', $sql);
         $this->assertStringContainsString('MODIFY COLUMN "start_date" DATE', $sql);
@@ -246,7 +246,7 @@ PRIMARY KEY (id)
 
         $this->assertStringContainsString("ALTER TABLE test", $sql);
         $this->assertStringContainsString("DROP PRIMARY KEY", $sql);
-        $this->assertStringContainsString("ADD PRIMARY KEY (id, new_description)", $sql);
+        $this->assertStringContainsString("ADD PRIMARY KEY (\"id\", \"new_description\")", $sql);
 
     }
 
