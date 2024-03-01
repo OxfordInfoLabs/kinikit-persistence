@@ -95,6 +95,26 @@ PRIMARY KEY ("id")
     }
 
 
+    public function testPreviousColumnNamesAreIgnoredInUpdatableColumnMetaDataIfSuppliedForCreate() {
+
+        $metaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_INT),
+            new UpdatableTableColumn("name", TableColumn::SQL_VARCHAR, 255, null,null,false,false,false,"other_name")
+        ]);
+
+        $databaseConnection = new SQLite3DatabaseConnection();
+
+        $sql = $this->generator->generateTableCreateSQL($metaData, $databaseConnection);
+
+        $this->assertEquals('CREATE TABLE test (
+"id" INT,
+"name" VARCHAR(255)
+);', $sql);
+
+    }
+
+
+
     public function testColumnNamesCorrectlyEscapedInCreateDDL() {
         $databaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
         $databaseConnection->returnValue("escapeColumn", "id", ["id"]);

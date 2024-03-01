@@ -174,7 +174,6 @@ class TableDDLGenerator {
             $statements[] = "DROP INDEX $key ON $tableName";
         }
 
-        Logger::log($statements);
 
         // Return statements
         return sizeof($statements) ? join(";", $statements) . ";" : "";
@@ -202,7 +201,7 @@ class TableDDLGenerator {
     private function createColumnDefinitionString($column, $databaseConnection, $create = false): array {
         $columnName = $databaseConnection->escapeColumn($column->getName());
 
-        if ($column instanceof UpdatableTableColumn && $column->getPreviousName()) {
+        if ($column instanceof UpdatableTableColumn && $column->getPreviousName() && !$create) {
             $line = $databaseConnection->escapeColumn($column->getPreviousName()) . " " . $columnName;
         } else {
             $line = $columnName;
