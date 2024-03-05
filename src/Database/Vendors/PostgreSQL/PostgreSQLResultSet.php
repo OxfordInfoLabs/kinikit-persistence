@@ -21,15 +21,14 @@ class PostgreSQLResultSet extends PDOResultSet {
         "time" => TableColumn::SQL_TIME,
         "timestamp" => TableColumn::SQL_DATE_TIME,
         "text" => TableColumn::SQL_BLOB,
-        "bytea" => TableColumn::SQL_LONGBLOB
+        "bytea" => TableColumn::SQL_LONGBLOB,
+        "vector" => TableColumn::SQL_VECTOR
     ];
 
     const LENGTH_MAPPINGS = [
-        "int2" => 6,
-        "int4" => 11,
-        "int8" => 20,
         "float4" => 0,
-        "float8" => 0
+        "float8" => 0,
+        "vector" => 1536
     ];
 
     public function getColumns() {

@@ -46,6 +46,7 @@ class ResultSetColumn {
     const SQL_BLOB = "BLOB";
     const SQL_LONGBLOB = "LONGBLOB";
     const SQL_UNKNOWN = "UNKNOWN";
+    const SQL_VECTOR = "VECTOR";
 
 
     /**

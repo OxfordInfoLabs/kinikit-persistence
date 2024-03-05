@@ -5,9 +5,13 @@ namespace Kinikit\Persistence\Database\Vendors\PostgreSQL;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
-use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
+use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
+use phpseclib3\Crypt\EC\Curves\prime192v1;
 
 /**
  * Standard PostgreSQL implementation of the database connection class
@@ -60,6 +64,129 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
      * @return mixed|void
      */
     public function parseSQL($sql, &$parameterValues = []) {
+
+        // Map alter table statements
+
+        // MODIFY COLUMN [[name]] [[type]] --> ALTER COLUMN [[name]] TYPE [[type]]
+        // CHANGE COLUMN [[name]] [[new_name]] VARCHAR(200) --> RENAME COLUMN [[name]] TO [[new_name]] type????
+        preg_match("/^ALTER TABLE (\w+) .*(DROP PRIMARY KEY|ADD PRIMARY KEY|ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);
+
+        if (sizeof($alterMatches)) {
+
+            // Grab table and meta data
+            $table = $alterMatches[1];
+            $tableMetaData = $this->getTableMetaData($table);
+
+            // Rename the existing table
+            $this->execute("DROP TABLE IF EXISTS __$table");
+            $this->execute("ALTER TABLE $table RENAME TO __$table");
+
+            preg_match_all("/(ADD|DROP|MODIFY|CHANGE) COLUMN (.*?)(,|$)/i", $sql, $operationMatches, PREG_SET_ORDER);
+
+            // Loop through all matches and update modified, add and remove arrays
+            $modifiedColumns = [];
+            $addColumns = [];
+            $dropColumns = [];
+            foreach ($operationMatches ?? [] as $matches) {
+                $operation = $matches[1];
+
+                // Grab column name as special
+                $spec = explode(" ", $matches[2]);
+                $previousColumnName = array_shift($spec);
+                $newSpec = join(" ", $spec);
+
+                switch ($operation) {
+                    case "CHANGE":
+                        $splitSpec = explode(" ", trim($newSpec));
+                        $newColumnName = array_shift($splitSpec);
+                        $newSpec = join(" ", $splitSpec);
+                        $modifiedColumns[$previousColumnName] = TableColumn::createFromStringSpec($newColumnName . " " . $newSpec);
+                        break;
+                    case "MODIFY":
+                        $newColumnName = $previousColumnName;
+                        $modifiedColumns[$previousColumnName] = TableColumn::createFromStringSpec($newColumnName . " " . $newSpec);
+                        break;
+                    case "ADD":
+                        $addColumns[] = TableColumn::createFromStringSpec($previousColumnName . " " . $newSpec);
+                        break;
+                    case "DROP":
+                        $dropColumns[$previousColumnName] = 1;
+                        break;
+
+                }
+            }
+
+            // Register if we are dropping pk
+            $dropPK = strpos(strtoupper($sql), "DROP PRIMARY KEY");
+
+            if ($dropPK) {
+                $sql = str_replace("DROP PRIMARY KEY", "DROP CONSTRAINT {$table}_pkey", $sql);
+            }
+
+            // Grab any add primary key matches
+            preg_match("/ADD PRIMARY KEY \((.*?)\)/", $sql, $addPKMatches);
+
+            $pkColumns = [];
+            if (sizeof($addPKMatches ?? []) > 0) {
+                $pkColumns = explode(",", str_replace(" ", "", $addPKMatches[1]));
+            }
+
+            // Now make global array
+            $newColumns = [];
+            $selectColumnNames = [];
+            $insertColumnNames = [];
+            foreach ($tableMetaData->getColumns() as $column) {
+                $newColumn = null;
+                if ($modifiedColumns[$column->getName()] ?? null) {
+                    $newColumn = UpdatableTableColumn::createFromTableColumn($modifiedColumns[$column->getName()]);
+                    $selectColumnNames[] = $column->getName();
+                    $insertColumnNames[] = $modifiedColumns[$column->getName()]->getName();
+                } else if (!isset($dropColumns[$column->getName()])) {
+                    $newColumn = UpdatableTableColumn::createFromTableColumn($column);
+                    $selectColumnNames[] = $column->getName();
+                    $insertColumnNames[] = $column->getName();
+                }
+
+                // Deal with primary keys
+                if ($newColumn) {
+                    if (in_array($newColumn->getName(), $pkColumns)) {
+                        $newColumn->setPrimaryKey(true);
+                    } else if ($dropPK || sizeof($pkColumns)) {
+                        $newColumn->setPrimaryKey(false);
+                    }
+                    $newColumns[] = $newColumn;
+                }
+
+            }
+
+            // Add any new columns
+            $newColumns = array_merge($newColumns, $addColumns);
+
+            $newMetaData = new TableMetaData($table, $newColumns);
+            $ddlGenerator = new TableDDLGenerator();
+
+
+            try {
+                $newString = $ddlGenerator->generateTableCreateSQL($newMetaData, $this);
+                $newString = $this->sanitiseAutoIncrementString($newString);
+
+                $this->executeScript($newString);
+
+                // Perform an insert using select and insert column names to synchronise the data
+                $insertSQL = "INSERT INTO $table (" . join(",", $insertColumnNames) . ") SELECT " . join(",", $selectColumnNames) . " FROM __$table";
+                $this->execute($insertSQL);
+
+                $sql = "DROP TABLE __$table";
+            } catch (SQLException $e) {
+
+                // Reset the table if an error occurs
+                $this->execute("DROP TABLE IF EXISTS $table");
+                $this->execute("ALTER TABLE __$table RENAME TO $table");
+                throw ($e);
+            }
+
+        }
+
         // Substitute AUTOINCREMENT keyword
         $sql = str_ireplace("INTEGER AUTOINCREMENT", "BIGSERIAL", $sql);
         $sql = str_ireplace("INTEGER AUTO_INCREMENT", "BIGSERIAL", $sql);
@@ -99,6 +226,10 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
             WHERE table_name = '$tableName'
         ")->fetchAll();
 
+        if (sizeof($results) == 0) {
+            throw new SQLException("table $tableName does not exist");
+        }
+
         $primaryKeys = $this->query("SELECT a.attname AS data_type
                                           FROM pg_index i
                                           JOIN pg_attribute a ON a.attrelid = i.indrelid
@@ -109,19 +240,24 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
         $columns = [];
         foreach ($results as $result) {
             $defaultValue = is_numeric($result["column_default"]) ? intval($result["column_default"]) : $result["column_default"] ?? null;
-            $autoIncrement = $defaultValue == "nextval('" . $tableName . "_id_seq'::regclass)";
+            if (str_contains($defaultValue ?? "", "nextval('" . $tableName . "_id_seq")) {
+                $defaultValue = null;
+                $autoIncrement = true;
+            } else {
+                $autoIncrement = false;
+            }
+
             $type = PostgreSQLResultSet::NATIVE_SQL_MAPPINGS[$result["udt_name"]] ?? TableColumn::SQL_VARCHAR;
             $columnName = $result["column_name"];
             $primaryKey = in_array(["data_type" => $columnName], $primaryKeys);
             $notNull = !($result["is_nullable"] == "YES");
 
-            $length = $result["character_maximum_length"] ?? PostgreSQLResultSet::LENGTH_MAPPINGS[$result["udt_name"]] ?? $result["numeric_scale"] ?? null;
+            $length = $result["character_maximum_length"] ?? PostgreSQLResultSet::LENGTH_MAPPINGS[$result["udt_name"]] ?? null;
 
             $precision = isset(PostgreSQLResultSet::LENGTH_MAPPINGS[$result["udt_name"]]) ? null : $result["numeric_precision"];
 
             $columns[$columnName] = new TableColumn($columnName, $type, $length, $precision, $defaultValue, $primaryKey, $autoIncrement, $notNull);
         }
-
 
         return $columns;
     }
@@ -167,8 +303,25 @@ order by
 
         return $indexes;
 
-
     }
 
+    /**
+     * @param string $string
+     * @return string
+     */
+    public function sanitiseAutoIncrementString(string $string): string {
+
+        preg_match_all("/(['|\"]?\w+['|\"]?) [A-Z]*INT[A-Z]* ([\w\s]*)AUTOINCREMENT/", $string, $matches, PREG_SET_ORDER);
+
+        if (!$matches)
+            return $string;
+
+        $newString = $matches[0][1] . " BIGSERIAL";
+        if (str_contains($matches[0][2], "PRIMARY KEY"))
+            $newString .= " PRIMARY KEY";
+
+        return str_replace($matches[0][0], $newString, $string);
+
+    }
 
 }
