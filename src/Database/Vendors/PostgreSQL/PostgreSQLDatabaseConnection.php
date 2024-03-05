@@ -6,12 +6,8 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
-use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
-use Kinikit\Persistence\Database\MetaData\TableMetaData;
-use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
-use phpseclib3\Crypt\EC\Curves\prime192v1;
 
 /**
  * Standard PostgreSQL implementation of the database connection class
@@ -66,123 +62,79 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
     public function parseSQL($sql, &$parameterValues = []) {
 
         // Map alter table statements
-
-        // MODIFY COLUMN [[name]] [[type]] --> ALTER COLUMN [[name]] TYPE [[type]]
-        // CHANGE COLUMN [[name]] [[new_name]] VARCHAR(200) --> RENAME COLUMN [[name]] TO [[new_name]] type????
         preg_match("/^ALTER TABLE (\w+) .*(DROP PRIMARY KEY|ADD PRIMARY KEY|ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);
 
         if (sizeof($alterMatches)) {
 
             // Grab table and meta data
             $table = $alterMatches[1];
-            $tableMetaData = $this->getTableMetaData($table);
-
-            // Rename the existing table
-            $this->execute("DROP TABLE IF EXISTS __$table");
-            $this->execute("ALTER TABLE $table RENAME TO __$table");
 
             preg_match_all("/(ADD|DROP|MODIFY|CHANGE) COLUMN (.*?)(,|$)/i", $sql, $operationMatches, PREG_SET_ORDER);
 
-            // Loop through all matches and update modified, add and remove arrays
-            $modifiedColumns = [];
-            $addColumns = [];
-            $dropColumns = [];
+            // Loop through all matches and rewrite clauses
+
             foreach ($operationMatches ?? [] as $matches) {
+
+                $oldClause = $matches[0];
                 $operation = $matches[1];
 
-                // Grab column name as special
                 $spec = explode(" ", $matches[2]);
-                $previousColumnName = array_shift($spec);
+                $previousColumnName = trim(array_shift($spec), "\"");
                 $newSpec = join(" ", $spec);
+
+                $notNull = str_contains($newSpec, "NOT NULL");
+                if ($notNull)
+                    $newSpec = str_ireplace(" NOT NULL", "", $newSpec);
 
                 switch ($operation) {
                     case "CHANGE":
                         $splitSpec = explode(" ", trim($newSpec));
                         $newColumnName = array_shift($splitSpec);
                         $newSpec = join(" ", $splitSpec);
-                        $modifiedColumns[$previousColumnName] = TableColumn::createFromStringSpec($newColumnName . " " . $newSpec);
+                        $newClause = "ALTER COLUMN $newColumnName TYPE $newSpec";
+                        $renameClauses[] = "RENAME COLUMN $previousColumnName TO $newColumnName";
+                        if ($notNull)
+                            $newClause .= ", ALTER COLUMN $newColumnName SET NOT NULL";
+                        else
+                            $newClause .= ", ALTER COLUMN $newColumnName DROP NOT NULL";
+
+                        $newClause .= $matches[3];
                         break;
                     case "MODIFY":
-                        $newColumnName = $previousColumnName;
-                        $modifiedColumns[$previousColumnName] = TableColumn::createFromStringSpec($newColumnName . " " . $newSpec);
-                        break;
-                    case "ADD":
-                        $addColumns[] = TableColumn::createFromStringSpec($previousColumnName . " " . $newSpec);
+                        $newClause = "ALTER COLUMN $previousColumnName TYPE $newSpec";
+                        if ($notNull)
+                            $newClause .= ", ALTER COLUMN $previousColumnName SET NOT NULL";
+                        else
+                            $newClause .= ", ALTER COLUMN $previousColumnName DROP NOT NULL";
+
+                        $newClause .= $matches[3];
                         break;
                     case "DROP":
-                        $dropColumns[$previousColumnName] = 1;
+                    case "ADD":
+                        $newClause = $oldClause;
                         break;
-
-                }
-            }
-
-            // Register if we are dropping pk
-            $dropPK = strpos(strtoupper($sql), "DROP PRIMARY KEY");
-
-            if ($dropPK) {
-                $sql = str_replace("DROP PRIMARY KEY", "DROP CONSTRAINT {$table}_pkey", $sql);
-            }
-
-            // Grab any add primary key matches
-            preg_match("/ADD PRIMARY KEY \((.*?)\)/", $sql, $addPKMatches);
-
-            $pkColumns = [];
-            if (sizeof($addPKMatches ?? []) > 0) {
-                $pkColumns = explode(",", str_replace(" ", "", $addPKMatches[1]));
-            }
-
-            // Now make global array
-            $newColumns = [];
-            $selectColumnNames = [];
-            $insertColumnNames = [];
-            foreach ($tableMetaData->getColumns() as $column) {
-                $newColumn = null;
-                if ($modifiedColumns[$column->getName()] ?? null) {
-                    $newColumn = UpdatableTableColumn::createFromTableColumn($modifiedColumns[$column->getName()]);
-                    $selectColumnNames[] = $column->getName();
-                    $insertColumnNames[] = $modifiedColumns[$column->getName()]->getName();
-                } else if (!isset($dropColumns[$column->getName()])) {
-                    $newColumn = UpdatableTableColumn::createFromTableColumn($column);
-                    $selectColumnNames[] = $column->getName();
-                    $insertColumnNames[] = $column->getName();
                 }
 
-                // Deal with primary keys
-                if ($newColumn) {
-                    if (in_array($newColumn->getName(), $pkColumns)) {
-                        $newColumn->setPrimaryKey(true);
-                    } else if ($dropPK || sizeof($pkColumns)) {
-                        $newColumn->setPrimaryKey(false);
-                    }
-                    $newColumns[] = $newColumn;
-                }
+                $sql = str_replace($oldClause, $newClause, $sql);
+
 
             }
 
-            // Add any new columns
-            $newColumns = array_merge($newColumns, $addColumns);
+            // Create and execute a new statement to rename columns
+            if ($renameClauses ?? "") {
+                $renaming = join(", ", $renameClauses);
+                $renaming = "ALTER TABLE $table " . $renaming;
+                $this->execute($renaming);
+            }
 
-            $newMetaData = new TableMetaData($table, $newColumns);
-            $ddlGenerator = new TableDDLGenerator();
-
-
-            try {
-                $newString = $ddlGenerator->generateTableCreateSQL($newMetaData, $this);
-                $newString = $this->sanitiseAutoIncrementString($newString);
-
-                $this->executeScript($newString);
-
-                // Perform an insert using select and insert column names to synchronise the data
-                $insertSQL = "INSERT INTO $table (" . join(",", $insertColumnNames) . ") SELECT " . join(",", $selectColumnNames) . " FROM __$table";
-                $this->execute($insertSQL);
-
-                $sql = "DROP TABLE __$table";
-            } catch (SQLException $e) {
-
-                // Reset the table if an error occurs
-                $this->execute("DROP TABLE IF EXISTS $table");
-                $this->execute("ALTER TABLE __$table RENAME TO $table");
-                throw ($e);
+            // Rewrite the drop primary keys statement
+            if ($alterMatches[2] ?? null == "DROP PRIMARY KEY") {
+                $primaryKeyName = $this->query("SELECT conname AS primary_key
+FROM pg_constraint
+WHERE contype = 'p'
+  AND connamespace = 'public'::regnamespace
+  AND conrelid::regclass::text = '$table';")->fetchAll()[0]["primary_key"];
+                $sql = str_replace("DROP PRIMARY KEY", "DROP CONSTRAINT \"{$primaryKeyName}\"", $sql);
             }
 
         }
@@ -211,6 +163,7 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
         $sql = FunctionStringRewriter::rewrite($sql, "INSTR", "POSITION($1 IN $2)", [null, null]);
         $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "EXTRACT(EPOCH FROM $1)", [0]);
 
+        Logger::log($sql);
         return $sql;
     }
 

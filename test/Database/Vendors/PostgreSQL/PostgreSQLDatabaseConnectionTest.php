@@ -273,7 +273,7 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
         $this->assertEquals(3, sizeof($columns));
         $this->assertEquals(new TableColumn("id", "BIGINT", null, 64, null, true, true, false), $columns["id"]);
         $this->assertEquals(new TableColumn("big_name", "VARCHAR", 200, null, null, false, false, true), $columns["big_name"]);
-        $this->assertEquals(new TableColumn("small_int", "DOUBLE", 0, null, null, false, false, false), $columns["small_int"]);
+        $this->assertEquals(new TableColumn("small_int", "DOUBLE", 0, null, 33, false, false, false), $columns["small_int"]);
 
         $results = $postgreSQLConnection->query("SELECT * FROM test_types WHERE 1 = 1")->fetchAll();
         $this->assertEquals([
