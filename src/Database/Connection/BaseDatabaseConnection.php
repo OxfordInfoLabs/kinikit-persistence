@@ -12,6 +12,7 @@ use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\BulkData\DefaultBulkDataManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
@@ -52,7 +53,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
 
 
     /**
-     * @var \Kinikit\Persistence\Database\MetaData\TableMetaData[string]
+     * @var TableMetaData[string]
      */
     protected $cachedMetaData = [];
 
@@ -146,7 +147,6 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * @throws SQLException
      */
     public function execute($sql, ...$placeholders) {
-
         if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
             $placeholders = $placeholders[0];
         }
@@ -343,11 +343,11 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
 
     /**
      * @param $tableName
-     * @return TableMetaData|\Kinikit\Persistence\Database\MetaData\TableMetaData|void
+     * @return TableMetaData|null
      */
     public function getTableMetaData($tableName) {
         if (!isset($this->cachedMetaData[$tableName])) {
-            $this->cachedMetaData[$tableName] = new \Kinikit\Persistence\Database\MetaData\TableMetaData($tableName, $this->getTableColumnMetaData($tableName), $this->getTableIndexMetaData($tableName));
+            $this->cachedMetaData[$tableName] = new TableMetaData($tableName, $this->getTableColumnMetaData($tableName), $this->getTableIndexMetaData($tableName));
         }
         return $this->cachedMetaData[$tableName];
     }
