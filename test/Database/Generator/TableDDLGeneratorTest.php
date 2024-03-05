@@ -73,7 +73,7 @@ class TableDDLGeneratorTest extends \PHPUnit\Framework\TestCase {
         $sql = $this->generator->generateTableCreateSQL($metaData, $databaseConnection);
 
         $this->assertEquals('CREATE TABLE test (
-"id" INT,
+"id" INT NOT NULL,
 "name" VARCHAR(255),
 PRIMARY KEY ("id")
 );', $sql);
@@ -87,7 +87,7 @@ PRIMARY KEY ("id")
         $sql = $this->generator->generateTableCreateSQL($metaData, $databaseConnection);
 
         $this->assertEquals('CREATE TABLE test (
-"id" INT PRIMARY KEY AUTOINCREMENT,
+"id" INT NOT NULL PRIMARY KEY AUTOINCREMENT,
 "name" VARCHAR(255)
 );', $sql);
 
@@ -110,7 +110,7 @@ PRIMARY KEY ("id")
         $sql = $this->generator->generateTableCreateSQL($metaData, $databaseConnection);
 
         $this->assertEquals("CREATE TABLE test (
-id INT,
+id INT NOT NULL,
 name''s VARCHAR(255),
 PRIMARY KEY (id)
 );", $sql);

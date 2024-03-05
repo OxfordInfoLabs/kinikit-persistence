@@ -47,7 +47,7 @@ class TableColumn extends ResultSetColumn {
         $this->defaultValue = $defaultValue;
         $this->primaryKey = $primaryKey;
         $this->autoIncrement = $autoIncrement;
-        $this->notNull = $notNull;
+        $this->notNull = $notNull || $primaryKey;
     }
 
 
