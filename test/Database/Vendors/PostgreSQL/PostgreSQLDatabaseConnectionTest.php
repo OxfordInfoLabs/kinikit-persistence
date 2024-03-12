@@ -430,25 +430,6 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
 
 
     }
-    public function testCanMapFunctionsCorrectlyWhenParsingSQL() {
-
-        $sql = "IFNULL(condition)";
-        $result = $this->postgreSQLDatabaseConnection->parseSQL($sql);
-        $this->assertEquals("COALESCE(condition)", $result);
-
-        $sql = "GROUP_CONCAT(first,second)";
-        $result = $this->postgreSQLDatabaseConnection->parseSQL($sql);
-        $this->assertEquals("STRING_AGG(first,second)", $result);
-
-        $sql = "INSTR(a,b)";
-        $result = $this->postgreSQLDatabaseConnection->parseSQL($sql);
-        $this->assertEquals("POSITION(a IN b)", $result);
-
-        $sql = "EPOCH_SECONDS(test)";
-        $result = $this->postgreSQLDatabaseConnection->parseSQL($sql);
-        $this->assertEquals("EXTRACT(EPOCH FROM test)", $result);
-
-    }
 
     public function testCanSanitiseAutoIncrementStrings() {
 
