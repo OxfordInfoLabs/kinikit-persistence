@@ -56,9 +56,9 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
 
     }
 
-    public function testCanExecuteAPreparedStatementInMysql() {
+    public function testCanExecuteAPreparedStatementInPostgreSQL() {
 
-        // Get the mysql connection object
+        // Get the postgresql connection object
         $postgresqlDatabaseConnection = $this->postgreSQLDatabaseConnection;
 
         // Now create a prepared statement to execute
@@ -75,9 +75,9 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
 
     }
 
-    public function testPreparedStatementsWithBlobObjectsAreHandledCorrectlyAndStreamedToMysqlUsingSendLargeData() {
+    public function testPreparedStatementsWithBlobObjectsAreHandledCorrectlyAndStreamedToPostgreSQLUsingSendLargeData() {
 
-        // Get the mysql connection object
+        // Get the postgreSQL connection object
         $postgresqlDatabaseConnection = $this->postgreSQLDatabaseConnection;
 
         $postgresqlDatabaseConnection->execute("DROP TABLE IF EXISTS test_with_blob");
@@ -105,7 +105,7 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
 
     public function testSQLExceptionThrownCorrectlyIfBadPreparedStatementExecuted() {
 
-        // Get the mysql connection object
+        // Get the postgreSQL connection object
         $this->postgresqlDatabaseConnection1 = $this->postgreSQLDatabaseConnection;
         $postgresqlDatabaseConnection = $this->postgresqlDatabaseConnection1;
 
@@ -138,20 +138,18 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
 
         $this->postgreSQLDatabaseConnection->execute("DROP TABLE IF EXISTS test_types");
 
-        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, 
-            small_int SMALLINT, normal_int INTEGER, big_int BIGINT, 
-            float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(2,1), date_val DATE,
-            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB)";
+        $query = "CREATE TABLE test_types (id BIGSERIAL PRIMARY KEY, name VARCHAR(500), small_int SMALLINT NOT NULL DEFAULT 33, 
+            normal_int INTEGER, big_int BIGINT, float_val FLOAT, double_val DOUBLE PRECISION, real_val REAL, decimal_val DECIMAL(2,1),
+            date_val DATE, time_val TIME, timestamp_val TIMESTAMP, blob_val BYTEA)";
 
         $this->postgreSQLDatabaseConnection->execute($query);
 
         $tableColumns = $this->postgreSQLDatabaseConnection->getTableColumnMetaData("test_types");
 
-        $this->assertEquals(15, sizeof($tableColumns));
+        $this->assertEquals(13, sizeof($tableColumns));
         $this->assertEquals(new TableColumn("id", ResultSetColumn::SQL_BIGINT, null, 64, null, true, true, true), $tableColumns["id"]);
         $this->assertEquals(new TableColumn("name", ResultSetColumn::SQL_VARCHAR, 500), $tableColumns["name"]);
-        $this->assertEquals(new TableColumn("tiny_int", ResultSetColumn::SQL_SMALLINT, null, 16, 33, false, false, true), $tableColumns["tiny_int"]);
-        $this->assertEquals(new TableColumn("small_int", ResultSetColumn::SQL_SMALLINT, null, 16), $tableColumns["small_int"]);
+        $this->assertEquals(new TableColumn("small_int", ResultSetColumn::SQL_SMALLINT, null, 16, 33, false, false, true), $tableColumns["small_int"]);
         $this->assertEquals(new TableColumn("normal_int", ResultSetColumn::SQL_INTEGER, null, 32), $tableColumns["normal_int"]);
         $this->assertEquals(new TableColumn("big_int", ResultSetColumn::SQL_BIGINT, null, 64), $tableColumns["big_int"]);
         $this->assertEquals(new TableColumn("float_val", ResultSetColumn::SQL_DOUBLE), $tableColumns["float_val"]);
@@ -160,7 +158,6 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
         $this->assertEquals(new TableColumn("decimal_val", ResultSetColumn::SQL_DECIMAL, null, 2), $tableColumns["decimal_val"]);
         $this->assertEquals(new TableColumn("date_val", ResultSetColumn::SQL_DATE), $tableColumns["date_val"]);
         $this->assertEquals(new TableColumn("time_val", ResultSetColumn::SQL_TIME), $tableColumns["time_val"]);
-        $this->assertEquals(new TableColumn("date_time", ResultSetColumn::SQL_DATE_TIME), $tableColumns["date_time"]);
         $this->assertEquals(new TableColumn("blob_val", TableColumn::SQL_LONGBLOB), $tableColumns["blob_val"]);
 
         // No id this time
@@ -181,15 +178,14 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
 
         $this->postgreSQLDatabaseConnection->execute("DROP TABLE IF EXISTS test_types");
 
-        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, 
-            small_int SMALLINT, big_int BIGINT, 
-            float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
-            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB)";
+        $query = "CREATE TABLE test_types (id BIGSERIAL PRIMARY KEY, name VARCHAR(500), small_int SMALLINT NOT NULL DEFAULT 33, 
+            big_int BIGINT, float_val FLOAT, double_val DOUBLE PRECISION, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
+            time_val TIME, timestamp_val TIMESTAMP, blob_val BYTEA)";
 
         $this->postgreSQLDatabaseConnection->execute($query);
 
 
-        $this->postgreSQLDatabaseConnection->execute("CREATE INDEX test_index ON test_types (name, tiny_int, float_val)");
+        $this->postgreSQLDatabaseConnection->execute("CREATE INDEX test_index ON test_types (name, small_int, float_val)");
         $this->postgreSQLDatabaseConnection->execute("CREATE INDEX test_index_2 ON test_types (name, double_val)");
 
 
@@ -199,7 +195,7 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
 
         $this->assertEquals(new TableIndex("test_index", [
             new TableIndexColumn("name"),
-            new TableIndexColumn("tiny_int"),
+            new TableIndexColumn("small_int"),
             new TableIndexColumn("float_val")
         ]), $indexes[0]);
 
@@ -216,10 +212,10 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
 
         $script = "
             CREATE TABLE test_create (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id BIGSERIAL PRIMARY KEY,
                 number INTEGER,
                 value VARCHAR,
-                last_modifed DATETIME
+                last_modifed TIMESTAMP
             ) ;
         ";
 
@@ -240,7 +236,7 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
         $postgreSQLConnection->execute("DROP TABLE IF EXISTS test_types");
         $postgreSQLConnection->execute("DROP TABLE IF EXISTS __test_types");
 
-        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), small_int SMALLINT NOT NULL DEFAULT 33)";
+        $query = "CREATE TABLE test_types (id BIGSERIAL PRIMARY KEY, name VARCHAR(500), small_int SMALLINT NOT NULL DEFAULT 33)";
         $postgreSQLConnection->execute($query);
         $postgreSQLConnection->execute("INSERT INTO test_types (id, name, small_int) VALUES (1, 'Mark', 25), (2, 'John', 66)");
 
@@ -291,7 +287,7 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
         $postgreSQLConnection->execute("DROP TABLE IF EXISTS test_types");
         $postgreSQLConnection->execute("DROP TABLE IF EXISTS __test_types");
 
-        $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(500), small_int SMALLINT NOT NULL DEFAULT 33)";
+        $query = "CREATE TABLE test_types (id BIGSERIAL PRIMARY KEY, name VARCHAR(500), small_int SMALLINT NOT NULL DEFAULT 33)";
         $postgreSQLConnection->execute($query);
         $postgreSQLConnection->execute("INSERT INTO test_types (id, name, small_int) VALUES (1, 'Mark', 25), (2, 'John', 66)");
 
@@ -383,13 +379,12 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
 
     }
 
-    public function testResultSetForQueriedMySQLReturnsValidResultSetColumnObjects() {
+    public function testResultSetForQueriedPostgreSQLReturnsValidResultSetColumnObjects() {
 
 
-        $query = "DROP TABLE IF EXISTS test_all_types; CREATE TABLE test_all_types (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, 
-            small_int SMALLINT, big_int BIGINT, 
-            float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
-            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, long_blob_val LONGBLOB, text_val TEXT, long_text_val LONGTEXT
+        $query = "DROP TABLE IF EXISTS test_all_types; CREATE TABLE test_all_types (id BIGSERIAL PRIMARY KEY, name VARCHAR(500), small_int SMALLINT NOT NULL DEFAULT 33, 
+            big_int BIGINT,  float_val FLOAT, double_val DOUBLE PRECISION, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE, time_val TIME, timestamp_val TIMESTAMP,
+            text_val TEXT, long_text_val BYTEA
             )";
 
         $this->postgreSQLDatabaseConnection->executeScript($query);
@@ -398,24 +393,20 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
         $columns = $resultSet->getColumns();
 
 
-        $this->assertEquals(17, sizeof($columns));
+        $this->assertEquals(13, sizeof($columns));
         $this->assertEquals(new ResultSetColumn("id", TableColumn::SQL_BIGINT, null, null), $columns[0]);
         $this->assertEquals(new ResultSetColumn("name", TableColumn::SQL_VARCHAR, 500), $columns[1]);
-        $this->assertEquals(new ResultSetColumn("tiny_int", TableColumn::SQL_SMALLINT), $columns[2]);
-        $this->assertEquals(new ResultSetColumn("small_int", TableColumn::SQL_SMALLINT), $columns[3]);
-        $this->assertEquals(new ResultSetColumn("big_int", TableColumn::SQL_BIGINT), $columns[4]);
-        $this->assertEquals(new ResultSetColumn("float_val", TableColumn::SQL_DOUBLE), $columns[5]);
-        $this->assertEquals(new ResultSetColumn("double_val", TableColumn::SQL_DOUBLE), $columns[6]);
-        $this->assertEquals(new ResultSetColumn("real_val", TableColumn::SQL_REAL), $columns[7]);
-        $this->assertEquals(new ResultSetColumn("decimal_val", TableColumn::SQL_DECIMAL), $columns[8]);
-        $this->assertEquals(new ResultSetColumn("date_val", TableColumn::SQL_DATE), $columns[9]);
-        $this->assertEquals(new ResultSetColumn("time_val", TableColumn::SQL_TIME), $columns[10]);
-        $this->assertEquals(new ResultSetColumn("date_time", TableColumn::SQL_DATE_TIME), $columns[11]);
-        $this->assertEquals(new ResultSetColumn("timestamp_val", TableColumn::SQL_DATE_TIME), $columns[12]);
-        $this->assertEquals(new ResultSetColumn("blob_val", TableColumn::SQL_LONGBLOB), $columns[13]);
-        $this->assertEquals(new ResultSetColumn("long_blob_val", TableColumn::SQL_LONGBLOB), $columns[14]);
-        $this->assertEquals(new ResultSetColumn("text_val", TableColumn::SQL_BLOB), $columns[15]);
-        $this->assertEquals(new ResultSetColumn("long_text_val", TableColumn::SQL_BLOB), $columns[16]);
+        $this->assertEquals(new ResultSetColumn("small_int", TableColumn::SQL_SMALLINT), $columns[2]);
+        $this->assertEquals(new ResultSetColumn("big_int", TableColumn::SQL_BIGINT), $columns[3]);
+        $this->assertEquals(new ResultSetColumn("float_val", TableColumn::SQL_DOUBLE), $columns[4]);
+        $this->assertEquals(new ResultSetColumn("double_val", TableColumn::SQL_DOUBLE), $columns[5]);
+        $this->assertEquals(new ResultSetColumn("real_val", TableColumn::SQL_REAL), $columns[6]);
+        $this->assertEquals(new ResultSetColumn("decimal_val", TableColumn::SQL_DECIMAL), $columns[7]);
+        $this->assertEquals(new ResultSetColumn("date_val", TableColumn::SQL_DATE), $columns[8]);
+        $this->assertEquals(new ResultSetColumn("time_val", TableColumn::SQL_TIME), $columns[9]);
+        $this->assertEquals(new ResultSetColumn("timestamp_val", TableColumn::SQL_DATE_TIME), $columns[10]);
+        $this->assertEquals(new ResultSetColumn("text_val", TableColumn::SQL_BLOB), $columns[11]);
+        $this->assertEquals(new ResultSetColumn("long_text_val", TableColumn::SQL_LONGBLOB), $columns[12]);
 
 
         // Try another query
@@ -423,7 +414,7 @@ class PostgreSQLDatabaseConnectionTest extends TestCase {
                                 OR (id = ? AND name = ?)", 33, "Mark", 44, "Luke");
         $columns = $resultSet->getColumns();
 
-        $this->assertEquals(17, sizeof($columns));
+        $this->assertEquals(13, sizeof($columns));
 
         $this->assertEquals(new ResultSetColumn("id", TableColumn::SQL_BIGINT), $columns[0]);
         $this->assertEquals(new ResultSetColumn("name", TableColumn::SQL_VARCHAR, 500), $columns[1]);

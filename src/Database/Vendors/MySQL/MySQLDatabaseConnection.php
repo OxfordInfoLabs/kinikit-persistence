@@ -96,9 +96,6 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      */
     public function parseSQL($sql, &$parameterValues = []) {
 
-        // Substitute AUTOINCREMENT keyword
-        $sql = str_replace("AUTOINCREMENT", "AUTO_INCREMENT", $sql);
-
         // Substitute plain VARCHAR keyword
         $sql = preg_replace("/VARCHAR([^\(]|$)/i", "VARCHAR(255)$1", $sql);
 
@@ -230,6 +227,11 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         return new StandardBulkDataManager($this);
     }
 
-
+    /**
+     * @return MySQLDDLManager
+     */
+    public function getDDLManager() {
+        return new MySQLDDLManager();
+    }
 }
 

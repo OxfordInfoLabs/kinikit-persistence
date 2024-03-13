@@ -309,6 +309,12 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
 
     }
 
+    /**
+     * @return SQLite3DDLManager
+     */
+    public function getDDLManager() {
+        return new SQLite3DDLManager();
+    }
 
 }
 

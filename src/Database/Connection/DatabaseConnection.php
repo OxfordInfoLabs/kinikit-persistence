@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Connection;
 
 
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
+use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
@@ -175,6 +176,13 @@ interface DatabaseConnection {
      * @return BulkDataManager
      */
     public function getBulkDataManager();
+
+    /**
+     * Get the DDL mnage for this database connection
+     *
+     * @return DDLManager
+     */
+    public function getDDLManager();
 
 
 }
