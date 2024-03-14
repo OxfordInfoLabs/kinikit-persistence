@@ -5,11 +5,16 @@ namespace Kinikit\Persistence\Database\Generator;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\DDL\ColumnAlterations;
+use Kinikit\Persistence\Database\DDL\DDLManager;
+use Kinikit\Persistence\Database\DDL\IndexAlterations;
+use Kinikit\Persistence\Database\DDL\TableAlteration;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
+use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
@@ -19,7 +24,7 @@ include_once "autoloader.php";
  *
  * Class TableDDLGeneratorTest
  */
-class TableDDLGeneratorTest extends \PHPUnit\Framework\TestCase {
+class TableDDLGeneratorTest extends TestCase {
 
     /**
      * @var TableDDLGenerator
@@ -99,7 +104,7 @@ PRIMARY KEY ("id")
 
         $metaData = new TableMetaData("test", [
             new TableColumn("id", TableColumn::SQL_INT),
-            new UpdatableTableColumn("name", TableColumn::SQL_VARCHAR, 255, null,null,false,false,false,"other_name")
+            new UpdatableTableColumn("name", TableColumn::SQL_VARCHAR, 255, null, null, false, false, false, "other_name")
         ]);
 
         $databaseConnection = new SQLite3DatabaseConnection();
@@ -112,7 +117,6 @@ PRIMARY KEY ("id")
 );', $sql);
 
     }
-
 
 
     public function testColumnNamesCorrectlyEscapedInCreateDDL() {
@@ -168,10 +172,13 @@ PRIMARY KEY (id)
     }
 
 
-    public function testCanGenerateModifyDDLFromPreviousAndNewMetaData() {
+    public function testCanGenerateModifyTableObjectFromPreviousAndNewMetaData() {
 
-        $databaseConnection = new SQLite3DatabaseConnection();
+        $databaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(DDLManager::class);
 
+        $databaseConnection->returnValue("getDDLManager", $ddlGenerator, []);
+        $ddlGenerator->returnValue("generateModifyTableSQL", "");
 
         $previousMetaData = new TableMetaData("test", [
             new TableColumn("id", TableColumn::SQL_INT),
@@ -194,19 +201,35 @@ PRIMARY KEY (id)
 
         $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
 
-        $this->assertStringStartsWith("ALTER TABLE test", $sql);
-        $this->assertStringContainsString("DROP COLUMN \"name\"", $sql);
-        $this->assertStringContainsString('MODIFY COLUMN "score" INT', $sql);
-        $this->assertStringContainsString('MODIFY COLUMN "start_date" DATE', $sql);
-        $this->assertStringContainsString('ADD COLUMN "notes" VARCHAR(2000)', $sql);
+        $expectedObject = new TableAlteration("test", null,
+            new ColumnAlterations([
+                new TableColumn("notes", TableColumn::SQL_VARCHAR, 2000)
+            ], [
+                new TableColumn("start_date", TableColumn::SQL_DATE_TIME),
+                new TableColumn("score", TableColumn::SQL_INT),
+            ], [
+                "name"
+            ]),
+            new IndexAlterations(null, [], [], []));
+
+        $this->assertEquals($expectedObject, $ddlGenerator->getMethodCallHistory("generateModifyTableSQL")[0][0]);
+
+//        $this->assertStringStartsWith("ALTER TABLE test", $sql);
+//        $this->assertStringContainsString("DROP COLUMN \"name\"", $sql);
+//        $this->assertStringContainsString('MODIFY COLUMN "score" INT', $sql);
+//        $this->assertStringContainsString('MODIFY COLUMN "start_date" DATE', $sql);
+//        $this->assertStringContainsString('ADD COLUMN "notes" VARCHAR(2000)', $sql);
 
     }
 
 
     public function testIfUpdatableTableColumnSuppliedWithPreviousNameFieldColumnIsRenamed() {
 
-        $databaseConnection = new SQLite3DatabaseConnection();
+        $databaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(DDLManager::class);
 
+        $databaseConnection->returnValue("getDDLManager", $ddlGenerator, []);
+        $ddlGenerator->returnValue("generateModifyTableSQL", "");
 
         $previousMetaData = new TableMetaData("test", [
             new TableColumn("id", TableColumn::SQL_INT),
@@ -229,19 +252,36 @@ PRIMARY KEY (id)
 
         $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
 
-        $this->assertStringContainsString("ALTER TABLE test", $sql);
-        $this->assertStringContainsString("DROP COLUMN \"name\"", $sql);
-        $this->assertStringContainsString('CHANGE COLUMN "description" "new_description" BLOB NOT NULL', $sql);
-        $this->assertStringContainsString('CHANGE COLUMN "score" "updated_score" INT', $sql);
-        $this->assertStringContainsString('MODIFY COLUMN "start_date" DATE', $sql);
-        $this->assertStringContainsString('ADD COLUMN "notes" VARCHAR(2000)', $sql);
+        $expectedObject = new TableAlteration("test", null,
+            new ColumnAlterations([
+                new TableColumn("notes", TableColumn::SQL_VARCHAR, 2000)
+            ], [
+                new UpdatableTableColumn("new_description", TableColumn::SQL_BLOB, null, null, null, null, false, true, "description"),
+                new TableColumn("start_date", TableColumn::SQL_DATE_TIME),
+                new UpdatableTableColumn("updated_score", TableColumn::SQL_INT, null, null, null, false, false, false, "score")
+            ], [
+                "name"
+            ]),
+            new IndexAlterations(null, [], [], []));
+
+        $this->assertEquals($expectedObject, $ddlGenerator->getMethodCallHistory("generateModifyTableSQL")[0][0]);
+
+//        $this->assertStringContainsString("ALTER TABLE test", $sql);
+//        $this->assertStringContainsString("DROP COLUMN \"name\"", $sql);
+//        $this->assertStringContainsString('CHANGE COLUMN "description" "new_description" BLOB NOT NULL', $sql);
+//        $this->assertStringContainsString('CHANGE COLUMN "score" "updated_score" INT', $sql);
+//        $this->assertStringContainsString('MODIFY COLUMN "start_date" DATE', $sql);
+//        $this->assertStringContainsString('ADD COLUMN "notes" VARCHAR(2000)', $sql);
     }
 
 
     public function testIfPrimaryKeyHasChangedItIsRegeneratedAsPartOfModifySQL() {
 
-        $databaseConnection = new SQLite3DatabaseConnection();
+        $databaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(DDLManager::class);
 
+        $databaseConnection->returnValue("getDDLManager", $ddlGenerator, []);
+        $ddlGenerator->returnValue("generateModifyTableSQL", "");
 
         $previousMetaData = new TableMetaData("test", [
             new TableColumn("id", TableColumn::SQL_INT, null, null, null, true),
@@ -264,14 +304,34 @@ PRIMARY KEY (id)
 
         $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
 
-        $this->assertStringContainsString("ALTER TABLE test", $sql);
-        $this->assertStringContainsString("DROP PRIMARY KEY", $sql);
-        $this->assertStringContainsString("ADD PRIMARY KEY (\"id\", \"new_description\")", $sql);
+        $expectedObject = new TableAlteration("test", null,
+            new ColumnAlterations([
+                new TableColumn("notes", TableColumn::SQL_VARCHAR, 2000)
+            ], [
+                new UpdatableTableColumn("new_description", TableColumn::SQL_BLOB, null, null, null, true, false, true, "description"),
+                new TableColumn("start_date", TableColumn::SQL_DATE_TIME),
+                new UpdatableTableColumn("updated_score", TableColumn::SQL_INT, null, null, null, false, false, false, "score")
+            ], [
+                "name"
+            ]),
+            new IndexAlterations(["new_description"], [], [], []));
+
+        $this->assertEquals($expectedObject, $ddlGenerator->getMethodCallHistory("generateModifyTableSQL")[0][0]);
+
+//        $this->assertStringContainsString("ALTER TABLE test", $sql);
+//        $this->assertStringContainsString("DROP PRIMARY KEY", $sql);
+//        $this->assertStringContainsString("ADD PRIMARY KEY (\"id\", \"new_description\")", $sql);
 
     }
 
 
     public function testModifySQLIncludesDropAndCreateStatementsForModifiedNewAndRemovedIndexes() {
+
+        $databaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(DDLManager::class);
+
+        $databaseConnection->returnValue("getDDLManager", $ddlGenerator, []);
+        $ddlGenerator->returnValue("generateModifyTableSQL", "");
 
         $previousMetaData = new TableMetaData("test", [
             new TableColumn("id", TableColumn::SQL_INT),
@@ -301,11 +361,22 @@ PRIMARY KEY (id)
             new TableIndex("description_ind", ["description"])
         ]);
 
-        $databaseConnection = new SQLite3DatabaseConnection();
-
         $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
-        $this->assertEquals("CREATE INDEX new_ind ON test (name);DROP INDEX score_ind ON test;CREATE INDEX score_ind ON test (score,start_date,description);DROP INDEX date_ind ON test;CREATE INDEX date_ind ON test (last_modified,start_date);DROP INDEX name_ind ON test;", $sql);
 
+        $expectedObject = new TableAlteration("test", null,
+            new ColumnAlterations([], [], []),
+            new IndexAlterations(null, [
+                new TableIndex("new_ind", ["name"])
+            ], [
+                new TableIndex("score_ind", ["score", "start_date", "description"]),
+                new TableIndex("date_ind", ["last_modified", "start_date"])
+            ], [
+                new TableIndex("name_ind", ["name"]),
+            ]));
+
+        $this->assertEquals($expectedObject, $ddlGenerator->getMethodCallHistory("generateModifyTableSQL")[0][0]);
+
+//        $this->assertEquals("CREATE INDEX new_ind ON test (name);DROP INDEX score_ind ON test;CREATE INDEX score_ind ON test (score,start_date,description);DROP INDEX date_ind ON test;CREATE INDEX date_ind ON test (last_modified,start_date);DROP INDEX name_ind ON test;", $sql);
 
     }
 

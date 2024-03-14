@@ -3,6 +3,7 @@
 namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
 use Kinikit\Persistence\Database\DDL\DDLManager;
+use Kinikit\Persistence\Database\DDL\TableAlteration;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
@@ -55,6 +56,16 @@ class SQLite3DDLManager implements DDLManager {
     }
 
     /**
+     * Generate the SQL for an alter table statement
+     *
+     * @param TableAlteration $tableAlteration
+     * @return string
+     */
+    public function generateModifyTableSQL(TableAlteration $tableAlteration): string {
+        // TODO: Implement generateAlterTableSQL() method.
+    }
+
+    /**
      * Generate the SQL for a drop table statement
      *
      * @param string $tableName
@@ -62,17 +73,6 @@ class SQLite3DDLManager implements DDLManager {
      */
     public function generateTableDropSQL(string $tableName): string {
         return "DROP TABLE $tableName;";
-    }
-
-    /**
-     * Generate the SQL for an alter table statement
-     *
-     * @param TableMetaData $originalTableMetaData
-     * @param TableMetaData $newTableMetaData
-     * @return string
-     */
-    public function generateAlterTableSQL(TableMetaData $originalTableMetaData, TableMetaData $newTableMetaData): string {
-        // TODO: Implement generateAlterTableSQL() method.
     }
 
     /**

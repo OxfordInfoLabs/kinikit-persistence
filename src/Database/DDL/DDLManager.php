@@ -19,10 +19,9 @@ interface DDLManager {
     public function generateTableDropSQL(string $tableName): string;
 
     /**
-     * @param TableMetaData $originalTableMetaData
-     * @param TableMetaData $newTableMetaData
+     * @param TableAlteration $tableAlteration
      * @return string
      */
-    public function generateAlterTableSQL(TableMetaData $originalTableMetaData, TableMetaData $newTableMetaData): string;
+    public function generateModifyTableSQL(TableAlteration $tableAlteration): string;
 
 }

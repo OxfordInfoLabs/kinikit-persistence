@@ -3,6 +3,7 @@
 namespace Kinikit\Persistence\Database\Vendors\PostgreSQL;
 
 use Kinikit\Persistence\Database\DDL\DDLManager;
+use Kinikit\Persistence\Database\DDL\TableAlteration;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
@@ -72,20 +73,19 @@ class PostgreSQLDDLManager implements DDLManager {
     }
 
     /**
+     * @param TableAlteration $tableAlteration
+     * @return string
+     */
+    public function generateModifyTableSQL(TableAlteration $tableAlteration): string {
+        // TODO: Implement generateAlterTableSQL() method.
+    }
+
+    /**
      * @param string $tableName
      * @return string
      */
     public function generateTableDropSQL(string $tableName): string {
         return "DROP TABLE $tableName;";
-    }
-
-    /**
-     * @param TableMetaData $originalTableMetaData
-     * @param TableMetaData $newTableMetaData
-     * @return string
-     */
-    public function generateAlterTableSQL(TableMetaData $originalTableMetaData, TableMetaData $newTableMetaData): string {
-        // TODO: Implement generateAlterTableSQL() method.
     }
 
     /**

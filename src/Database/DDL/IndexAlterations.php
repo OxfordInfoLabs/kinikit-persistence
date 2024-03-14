@@ -7,53 +7,68 @@ use Kinikit\Persistence\Database\MetaData\TableIndex;
 class IndexAlterations {
 
     /**
-     * @var TableIndex
+     * @var ?string[]
      */
-    private TableIndex $addIndexes;
+    private ?array $newPrimaryKeyColumns;
 
     /**
-     * @var TableIndex
+     * @var TableIndex[]
      */
-    private TableIndex $dropIndexes;
+    private array $addIndexes;
 
     /**
-     * @var TableIndex
+     * @var TableIndex[]
      */
-    private TableIndex $modifyIndexes;     // May not use??
+    private array $modifyIndexes;
 
     /**
-     * @param TableIndex $addIndexes
-     * @param TableIndex $dropIndexes
-     * @param TableIndex $modifyIndexes
+     * @var TableIndex[]
      */
-    public function __construct(TableIndex $addIndexes, TableIndex $dropIndexes, TableIndex $modifyIndexes) {
+    private array $dropIndexes;
+
+    /**
+     * @param string[] $newPrimaryKeyColumns
+     * @param TableIndex[] $addIndexes
+     * @param TableIndex[] $modifyIndexes
+     * @param TableIndex[] $dropIndexes
+     */
+    public function __construct(?array $newPrimaryKeyColumns, array $addIndexes, array $modifyIndexes, array $dropIndexes) {
+        $this->newPrimaryKeyColumns = $newPrimaryKeyColumns;
         $this->addIndexes = $addIndexes;
-        $this->dropIndexes = $dropIndexes;
         $this->modifyIndexes = $modifyIndexes;
+        $this->dropIndexes = $dropIndexes;
     }
 
-    public function getAddIndexes(): TableIndex {
+    public function getNewPrimaryKeyColumns(): array {
+        return $this->newPrimaryKeyColumns;
+    }
+
+    public function setNewPrimaryKeyColumns(?array $newPrimaryKeyColumns): void {
+        $this->newPrimaryKeyColumns = $newPrimaryKeyColumns;
+    }
+
+    public function getAddIndexes(): array {
         return $this->addIndexes;
     }
 
-    public function setAddIndexes(TableIndex $addIndexes): void {
+    public function setAddIndexes(array $addIndexes): void {
         $this->addIndexes = $addIndexes;
     }
 
-    public function getDropIndexes(): TableIndex {
-        return $this->dropIndexes;
-    }
-
-    public function setDropIndexes(TableIndex $dropIndexes): void {
-        $this->dropIndexes = $dropIndexes;
-    }
-
-    public function getModifyIndexes(): TableIndex {
+    public function getModifyIndexes(): array {
         return $this->modifyIndexes;
     }
 
-    public function setModifyIndexes(TableIndex $modifyIndexes): void {
+    public function setModifyIndexes(array $modifyIndexes): void {
         $this->modifyIndexes = $modifyIndexes;
+    }
+
+    public function getDropIndexes(): array {
+        return $this->dropIndexes;
+    }
+
+    public function setDropIndexes(array $dropIndexes): void {
+        $this->dropIndexes = $dropIndexes;
     }
 
 }

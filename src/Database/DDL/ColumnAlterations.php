@@ -9,11 +9,6 @@ class ColumnAlterations {
     /**
      * @var TableColumn[]
      */
-    private array $dropColumns;
-
-    /**
-     * @var TableColumn[]
-     */
     private array $addColumns;
 
     /**
@@ -22,21 +17,18 @@ class ColumnAlterations {
     private array $modifyColumns;
 
     /**
-     * @param TableColumn[] $dropColumns
+     * @var string[]
+     */
+    private array $dropColumns;
+
+    /**
      * @param TableColumn[] $addColumns
      * @param TableColumn[] $modifyColumns
+     * @param string[] $dropColumns
      */
-    public function __construct(array $dropColumns, array $addColumns, array $modifyColumns) {
-        $this->dropColumns = $dropColumns;
+    public function __construct(array $addColumns, array $modifyColumns, array $dropColumns) {
         $this->addColumns = $addColumns;
         $this->modifyColumns = $modifyColumns;
-    }
-
-    public function getDropColumns(): array {
-        return $this->dropColumns;
-    }
-
-    public function setDropColumns(array $dropColumns): void {
         $this->dropColumns = $dropColumns;
     }
 
@@ -54,6 +46,14 @@ class ColumnAlterations {
 
     public function setModifyColumns(array $modifyColumns): void {
         $this->modifyColumns = $modifyColumns;
+    }
+
+    public function getDropColumns(): array {
+        return $this->dropColumns;
+    }
+
+    public function setDropColumns(array $dropColumns): void {
+        $this->dropColumns = $dropColumns;
     }
 
 }
