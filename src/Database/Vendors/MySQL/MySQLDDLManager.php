@@ -81,7 +81,7 @@ class MySQLDDLManager implements DDLManager {
             }
 
             foreach ($columnAlterations->getModifyColumns() as $column) {
-                $command = $column instanceof UpdatableTableColumn ? "CHANGE" : "MODIFY";
+                $command = ($column instanceof UpdatableTableColumn && $column->getPreviousName()) ? "CHANGE" : "MODIFY";
                 $columnDesc = $this->createColumnDefinitionString($column);
                 $statements[] = "$command COLUMN $columnDesc";
             }
