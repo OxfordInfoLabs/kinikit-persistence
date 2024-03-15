@@ -2,6 +2,8 @@
 
 namespace Kinikit\Persistence\Database\DDL;
 
+use Kinikit\Persistence\Database\MetaData\TableMetaData;
+
 class TableAlteration {
 
     /**
@@ -25,16 +27,25 @@ class TableAlteration {
     private IndexAlterations $indexAlterations;
 
     /**
+     * This is required as SQLite doesn't support alter column statements
+     *
+     * @var ?TableMetaData
+     */
+    private ?TableMetaData $newTableMetaData;
+
+    /**
      * @param string $tableName
      * @param string|null $newTableName
      * @param ColumnAlterations $columnAlterations
      * @param IndexAlterations $indexAlterations
+     * @param ?TableMetaData $newTableMetaData
      */
-    public function __construct(string $tableName, ?string $newTableName, ColumnAlterations $columnAlterations, IndexAlterations $indexAlterations) {
+    public function __construct(string $tableName, ?string $newTableName, ColumnAlterations $columnAlterations, IndexAlterations $indexAlterations, ?TableMetaData $newTableMetaData = null) {
         $this->tableName = $tableName;
         $this->newTableName = $newTableName;
         $this->columnAlterations = $columnAlterations;
         $this->indexAlterations = $indexAlterations;
+        $this->newTableMetaData = $newTableMetaData;
     }
 
     public function getTableName(): string {
@@ -67,6 +78,14 @@ class TableAlteration {
 
     public function setIndexAlterations(IndexAlterations $indexAlterations): void {
         $this->indexAlterations = $indexAlterations;
+    }
+
+    public function getNewTableMetaData(): ?TableMetaData {
+        return $this->newTableMetaData;
+    }
+
+    public function setNewTableMetaData(?TableMetaData $newTableMetaData): void {
+        $this->newTableMetaData = $newTableMetaData;
     }
 
 }

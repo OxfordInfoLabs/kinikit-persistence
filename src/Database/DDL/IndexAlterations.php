@@ -39,7 +39,7 @@ class IndexAlterations {
         $this->dropIndexes = $dropIndexes;
     }
 
-    public function getNewPrimaryKeyColumns(): array {
+    public function getNewPrimaryKeyColumns(): ?array {
         return $this->newPrimaryKeyColumns;
     }
 

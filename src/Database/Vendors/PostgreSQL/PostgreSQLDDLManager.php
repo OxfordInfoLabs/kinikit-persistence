@@ -2,8 +2,10 @@
 
 namespace Kinikit\Persistence\Database\Vendors\PostgreSQL;
 
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\DDL\TableAlteration;
+use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
@@ -33,6 +35,8 @@ class PostgreSQLDDLManager implements DDLManager {
     ];
 
     /**
+     * Generate the create table sql
+     *
      * @param TableMetaData $tableMetaData
      * @return string
      */
@@ -73,14 +77,76 @@ class PostgreSQLDDLManager implements DDLManager {
     }
 
     /**
+     * Generate the alter table sql
+     *
      * @param TableAlteration $tableAlteration
+     * @param ?DatabaseConnection $connection
      * @return string
      */
-    public function generateModifyTableSQL(TableAlteration $tableAlteration): string {
-        // TODO: Implement generateAlterTableSQL() method.
+    public function generateModifyTableSQL(TableAlteration $tableAlteration, ?DatabaseConnection $connection = null): string {
+
+        $tableName = $tableAlteration->getTableName();
+
+        $alterTable = "ALTER TABLE $tableName";
+        $statements = [];
+
+        // Column Modifications
+        $columnAlterations = $tableAlteration->getColumnAlterations();
+        foreach ($columnAlterations->getAddColumns() as $col) {
+            $statements[] = $alterTable . " ADD COLUMN " . $this->createColumnDefinitionString($col);
+        }
+
+        foreach ($columnAlterations->getModifyColumns() as $col) {
+            if ($col instanceof UpdatableTableColumn)
+                $statements[] = $alterTable . " RENAME COLUMN \"{$col->getPreviousName()}\" TO \"{$col->getName()}\"";
+
+            $statements[] = $alterTable . " ALTER COLUMN " . $this->createAlterColumnDefinitionString($col, $tableName);
+        }
+
+        foreach ($columnAlterations->getDropColumns() as $col) {
+            $statements[] = $alterTable . " DROP COLUMN \"$col\"";
+        }
+
+        $indexAlterations = $tableAlteration->getIndexAlterations();
+
+        // Primary keys
+        if ($pks = $indexAlterations->getNewPrimaryKeyColumns()) {
+            $pkName = $connection->query("SELECT conname AS primary_key
+FROM pg_constraint
+WHERE contype = 'p'
+  AND connamespace = 'public'::regnamespace
+  AND conrelid::regclass::text = '$tableName';")->fetchAll()[0]["primary_key"];
+
+            $pkCols = join(",", array_map(fn($col) => "\"$col\"", $pks));
+
+            $statements[] = $alterTable . " DROP CONSTRAINT $pkName";
+            $statements[] = $alterTable . " ADD PRIMARY KEY ($pkCols)";
+        }
+
+        // Indexes
+        foreach ($indexAlterations->getAddIndexes() as $index) {
+            $statements[] = $this->generateCreateIndexSQL($index, $tableName);
+        }
+
+        foreach ($indexAlterations->getModifyIndexes() as $index) {
+            $statements[] = "DROP INDEX {$index->getName()}";
+            $statements[] = $this->generateCreateIndexSQL($index, $tableName);
+        }
+
+        foreach ($indexAlterations->getDropIndexes() as $index) {
+            $statements[] = "DROP INDEX {$index->getName()}";
+        }
+
+
+        $sql = join(";", $statements);
+        $sql .= ";";
+
+        return $sql;
     }
 
     /**
+     * Generate the drop table sql
+     *
      * @param string $tableName
      * @return string
      */
@@ -124,6 +190,24 @@ class PostgreSQLDDLManager implements DDLManager {
 
         if ($column->getDefaultValue())
             $line .= " DEFAULT " . (is_numeric($column->getDefaultValue()) ? $column->getDefaultValue() : "'" . $column->getDefaultValue() . "'");
+
+        return $line;
+    }
+
+    /**
+     * Create a column definition string
+     *
+     * @param TableColumn $column
+     * @return string
+     */
+    private function createAlterColumnDefinitionString(TableColumn $column, $tableName): string {
+
+        $column = $this->mapToPostgreSQLColumn($column);
+
+        $line = '"' . $column->getName() . "\" TYPE " . $column->getType();
+
+        if ($column->isNotNull())
+            $line .= ";ALTER TABLE $tableName ALTER COLUMN \"{$column->getName()}\" SET NOT NULL";
 
         return $line;
     }

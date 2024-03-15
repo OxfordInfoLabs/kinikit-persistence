@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\DDL\TableAlteration;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
@@ -14,6 +15,8 @@ class MySQLDDLManager implements DDLManager {
 
 
     /**
+     * Generate the create table sql
+     *
      * @param TableMetaData $tableMetaData
      * @return string
      */
@@ -55,14 +58,73 @@ class MySQLDDLManager implements DDLManager {
     }
 
     /**
+     * Generate the alter table sql
+     *
      * @param TableAlteration $tableAlteration
+     * @param ?DatabaseConnection $connection
      * @return string
      */
-    public function generateModifyTableSQL(TableAlteration $tableAlteration): string {
-        // TODO: Implement generateAlterTableSQL() method.
+    public function generateModifyTableSQL(TableAlteration $tableAlteration, ?DatabaseConnection $connection = null): string {
+
+        $sql = "";
+        $tableName = $tableAlteration->getTableName();
+
+        // Generate alter table statements
+        $columnAlterations = $tableAlteration->getColumnAlterations();
+        if ($columnAlterations->getAddColumns() || $columnAlterations->getModifyColumns() || $columnAlterations->getDropColumns()) {
+
+            $statements = [];
+
+            foreach ($columnAlterations->getAddColumns() as $column) {
+                $columnDesc = $this->createColumnDefinitionString($column);
+                $statements[] = "ADD COLUMN $columnDesc";
+            }
+
+            foreach ($columnAlterations->getModifyColumns() as $column) {
+                $command = $column instanceof UpdatableTableColumn ? "CHANGE" : "MODIFY";
+                $columnDesc = $this->createColumnDefinitionString($column);
+                $statements[] = "$command COLUMN $columnDesc";
+            }
+
+            foreach ($columnAlterations->getDropColumns() as $column) {
+                $statements[] = "DROP COLUMN `$column`";
+            }
+
+            if ($pks = $tableAlteration->getIndexAlterations()->getNewPrimaryKeyColumns()) {
+                $pkCols = join(",", array_map(fn($col) => "`$col`", $pks));
+
+                $statements[] = "DROP PRIMARY KEY";
+                $statements[] = "ADD PRIMARY KEY ($pkCols)";
+            }
+
+            $sql .= "ALTER TABLE $tableName " . join(",", $statements) . ";";
+
+        }
+
+
+        // Now for the indexes
+        $indexAlterations = $tableAlteration->getIndexAlterations();
+
+        foreach ($indexAlterations->getAddIndexes() as $index) {
+            $sql .= $this->generateCreateIndexSQL($index, $tableName) . ";";
+        }
+
+        foreach ($indexAlterations->getModifyIndexes() as $index) {
+            $sql .= "DROP INDEX {$index->getName()} ON $tableName;";
+            $sql .= $this->generateCreateIndexSQL($index, $tableName) . ";";
+        }
+
+        foreach ($indexAlterations->getDropIndexes() as $index) {
+            $sql .= "DROP INDEX {$index->getName()} ON $tableName;";
+        }
+
+        return $sql;
+
     }
 
     /**
+     * Generate the drop table sql
+     *
      * @param string $tableName
      * @return string
      */

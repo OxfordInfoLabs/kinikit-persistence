@@ -547,7 +547,7 @@ SELECT _X.id _X__id, _X.description _X__description, _X.child2_id _X__child2_id,
 LEFT JOIN example_child2 _XA ON _X.child2_id = _XA.id WHERE _X.id = 8 AND profession = 'Dentist'
 Completed in 0 seconds
 DELETE FROM example_child_with_parent_key
-Completed in 0.0004 seconds
+Completed in 0.0003 seconds
 SELECT _X.id _X__id, _X.name _X__name, _X.last_modified _X__last_modified, _XA.id _XA__id, _XA.description _XA__description, _XA.parent_id _XA__parent_id, _XAA.id _XAA__id, _XAA.description _XAA__description, _XAA.parent_id _XAA__parent_id FROM example _X 
 LEFT JOIN example_child_with_parent_key _XA ON _X.id = _XA.parent_id
 LEFT JOIN example_child_with_parent_key _XAA ON _XA.id = _XAA.parent_id WHERE _X.name = 'Pickachoo' AND _X.id = 4
