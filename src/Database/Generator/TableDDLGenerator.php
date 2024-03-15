@@ -68,7 +68,7 @@ class TableDDLGenerator {
         foreach ($modifiedColumns as $name => $modifiedColumn) {
 
             // An updatable table column is certainly different
-            if ($modifiedColumn instanceof UpdatableTableColumn) {
+            if ($modifiedColumn instanceof UpdatableTableColumn && $modifiedColumn->getPreviousName()) {
                 $originalColumn = $originalColumns[$modifiedColumn->getPreviousName()];
 
                 // Deal with whether we have a change in primary key
