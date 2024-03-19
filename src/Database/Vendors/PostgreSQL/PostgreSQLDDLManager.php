@@ -5,7 +5,7 @@ namespace Kinikit\Persistence\Database\Vendors\PostgreSQL;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\DDL\TableAlteration;
-use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
@@ -14,24 +14,24 @@ use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 class PostgreSQLDDLManager implements DDLManager {
 
     const SQL_TYPE_MAPPINGS = [
-        TableColumn::SQL_VARCHAR => "VARCHAR",
-        TableColumn::SQL_TINYINT => "SMALLINT",
-        TableColumn::SQL_SMALLINT => "SMALLINT",
-        TableColumn::SQL_INT => "INT",
-        TableColumn::SQL_INTEGER => "INTEGER",
-        TableColumn::SQL_BIGINT => "BIGINT",
-        TableColumn::SQL_FLOAT => "FLOAT",
-        TableColumn::SQL_DOUBLE => "DOUBLE PRECISION",
-        TableColumn::SQL_REAL => "REAL",
-        TableColumn::SQL_DECIMAL => "DECIMAL",
-        TableColumn::SQL_DATE => "DATE",
-        TableColumn::SQL_TIME => "TIME",
-        TableColumn::SQL_DATE_TIME => "TIMESTAMP",
-        TableColumn::SQL_TIMESTAMP => "TIMESTAMP",
-        TableColumn::SQL_BLOB => "TEXT",
-        TableColumn::SQL_LONGBLOB => "BYTEA",
-        TableColumn::SQL_UNKNOWN => "UNKNOWN",
-        TableColumn::SQL_VECTOR => "VECTOR"
+        ResultSetColumn::SQL_VARCHAR => "VARCHAR",
+        ResultSetColumn::SQL_TINYINT => "SMALLINT",
+        ResultSetColumn::SQL_SMALLINT => "SMALLINT",
+        ResultSetColumn::SQL_INT => "INT",
+        ResultSetColumn::SQL_INTEGER => "INTEGER",
+        ResultSetColumn::SQL_BIGINT => "BIGINT",
+        ResultSetColumn::SQL_FLOAT => "FLOAT",
+        ResultSetColumn::SQL_DOUBLE => "DOUBLE PRECISION",
+        ResultSetColumn::SQL_REAL => "REAL",
+        ResultSetColumn::SQL_DECIMAL => "DECIMAL",
+        ResultSetColumn::SQL_DATE => "DATE",
+        ResultSetColumn::SQL_TIME => "TIME",
+        ResultSetColumn::SQL_DATE_TIME => "TIMESTAMP",
+        ResultSetColumn::SQL_TIMESTAMP => "TIMESTAMP",
+        ResultSetColumn::SQL_BLOB => "TEXT",
+        ResultSetColumn::SQL_LONGBLOB => "BYTEA",
+        ResultSetColumn::SQL_UNKNOWN => "UNKNOWN",
+        ResultSetColumn::SQL_VECTOR => "VECTOR"
     ];
 
     /**
@@ -158,9 +158,10 @@ WHERE contype = 'p'
      * Create a column definition string
      *
      * @param TableColumn $column
+     * @param bool $create
      * @return string
      */
-    private function createColumnDefinitionString(TableColumn $column, $create = false): string {
+    private function createColumnDefinitionString(TableColumn $column, bool $create = false): string {
 
         $column = $this->mapToPostgreSQLColumn($column);
 
@@ -198,9 +199,10 @@ WHERE contype = 'p'
      * Create a column definition string
      *
      * @param TableColumn $column
+     * @param string $tableName
      * @return string
      */
-    private function createAlterColumnDefinitionString(TableColumn $column, $tableName): string {
+    private function createAlterColumnDefinitionString(TableColumn $column, string $tableName): string {
 
         $column = $this->mapToPostgreSQLColumn($column);
 
@@ -219,7 +221,7 @@ WHERE contype = 'p'
      * @param string $tableName
      * @return string
      */
-    private function generateCreateIndexSQL(TableIndex $index, string $tableName) {
+    private function generateCreateIndexSQL(TableIndex $index, string $tableName): string {
         $columnDescriptors = [];
         foreach ($index->getColumns() as $column) {
             $columnDescriptors[] = $column->getName() . ($column->getMaxBytesToIndex() > 0 ? "(" . $column->getMaxBytesToIndex() . ")" : "");

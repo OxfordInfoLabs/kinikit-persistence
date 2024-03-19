@@ -101,8 +101,8 @@ class SQLite3DDLManager implements DDLManager {
                 $sql = "DROP TABLE __$tableName";
             } catch (SQLException $e) {
                 // Reset the table if an error occurs
-                $this->execute("DROP TABLE IF EXISTS $tableName");
-                $this->execute("ALTER TABLE __$tableName RENAME TO $tableName");
+                $connection->execute("DROP TABLE IF EXISTS $tableName");
+                $connection->execute("ALTER TABLE __$tableName RENAME TO $tableName");
                 throw ($e);
             }
 

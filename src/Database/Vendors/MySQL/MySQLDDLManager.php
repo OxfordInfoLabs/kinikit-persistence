@@ -9,7 +9,6 @@ use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
-use Kinikit\Persistence\Database\Vendors\PostgreSQL\PostgreSQLResultSet;
 
 class MySQLDDLManager implements DDLManager {
 
@@ -136,9 +135,10 @@ class MySQLDDLManager implements DDLManager {
      * Create a column definition string
      *
      * @param TableColumn $column
+     * @param bool $create
      * @return string
      */
-    private function createColumnDefinitionString(TableColumn $column, $create = false): string {
+    private function createColumnDefinitionString(TableColumn $column, bool $create = false): string {
 
         $columnName = "`{$column->getName()}`";
 
@@ -177,7 +177,7 @@ class MySQLDDLManager implements DDLManager {
      * @param string $tableName
      * @return string
      */
-    private function generateCreateIndexSQL(TableIndex $index, string $tableName) {
+    private function generateCreateIndexSQL(TableIndex $index, string $tableName): string {
         $columnDescriptors = [];
         foreach ($index->getColumns() as $column) {
             $columnDescriptors[] = $column->getName() . ($column->getMaxBytesToIndex() > 0 ? "(" . $column->getMaxBytesToIndex() . ")" : "");
