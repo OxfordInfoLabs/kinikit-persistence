@@ -114,4 +114,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
         return [new TableIndex("testindex", [new TableIndexColumn("bingo")])];
     }
 
+    public function getDDLManager() {
+        // TODO: Implement getDDLManager() method.
+    }
 }

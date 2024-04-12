@@ -2,8 +2,6 @@
 
 namespace Kinikit\Persistence\Database\Vendors\PostgreSQL;
 
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
@@ -139,31 +137,6 @@ WHERE contype = 'p'
 
         }
 
-        // Substitute AUTOINCREMENT keyword
-        $sql = str_ireplace("INTEGER AUTOINCREMENT", "BIGSERIAL", $sql);
-        $sql = str_ireplace("INTEGER AUTO_INCREMENT", "BIGSERIAL", $sql);
-        $sql = str_ireplace("INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY", $sql);
-        $sql = str_ireplace("INTEGER PRIMARY KEY AUTO_INCREMENT", "BIGSERIAL PRIMARY KEY", $sql);
-        $sql = str_ireplace("INT AUTOINCREMENT", "BIGSERIAL", $sql);
-        $sql = str_ireplace("INT AUTO_INCREMENT", "BIGSERIAL", $sql);
-
-
-        // Map across default types
-        $sql = str_ireplace("TINYINT", "SMALLINT", $sql);
-        $sql = preg_replace("/DOUBLE(.[^P])/", "DOUBLE PRECISION$1", $sql);
-        $sql = str_ireplace("DATETIME", "TIMESTAMP", $sql);
-        $sql = str_replace("LONGBLOB", "BYTEA", $sql);
-        $sql = str_replace("LONGTEXT", "TEXT", $sql);
-        $sql = str_replace("BLOB", "BYTEA", $sql);
-
-
-        // Map the functions
-        $sql = str_ireplace("IFNULL(", "COALESCE(", $sql);
-        $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "STRING_AGG($1,$2)", [null, ","]);
-        $sql = FunctionStringRewriter::rewrite($sql, "INSTR", "POSITION($1 IN $2)", [null, null]);
-        $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "EXTRACT(EPOCH FROM $1)", [0]);
-
-        Logger::log($sql);
         return $sql;
     }
 
@@ -275,6 +248,13 @@ order by
 
         return str_replace($matches[0][0], $newString, $string);
 
+    }
+
+    /**
+     * @return PostgreSQLDDLManager
+     */
+    public function getDDLManager() {
+        return new PostgreSQLDDLManager();
     }
 
 }

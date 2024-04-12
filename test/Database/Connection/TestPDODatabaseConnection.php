@@ -45,4 +45,8 @@ class TestPDODatabaseConnection extends PDODatabaseConnection {
     public function getResultSetClass() {
         return $this->resultSetClass;
     }
+
+    public function getDDLManager() {
+        // TODO: Implement getDDLManager() method.
+    }
 }

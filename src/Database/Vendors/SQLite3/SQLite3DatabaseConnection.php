@@ -293,21 +293,6 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         // Detect drop statements with ON clause
         $sql = preg_replace("/(DROP INDEX [a-zA-Z0-9_\-]+) ON [a-zA-Z0-9_\-]+/i", "$1", $sql);
 
-
-        // Map functions
-        $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "STRFTIME('%s',$1)", [0]);
-        $sql = FunctionStringRewriter::rewrite($sql, "ROW_NUMBER", "ROW_NUMBER() OVER (ORDER BY $1,$2)", ["1=1", "1=1"], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "TOTAL", "SUM($1) OVER ()", [0], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "PERCENT", "100 * $1 / SUM($1) OVER ()", [0], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "ROW_COUNT", "COUNT(*) OVER ()", [0], $parameterValues);
-
-        // Handle custom aggregate functions
-        $sql = FunctionStringRewriter::rewrite($sql, "COUNT_PERCENT", "100 * COUNT($1) / COUNT_TOTAL($1)", [0], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "SUM_PERCENT", "100 * SUM($1) / SUM_TOTAL($1)", [0], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "COUNT_TOTAL", "SUM(COUNT($1)) OVER ()", [0], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "SUM_TOTAL", "SUM(SUM($1)) OVER ()", [0], $parameterValues);
-
-
         return $sql;
     }
 
@@ -324,6 +309,12 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
 
     }
 
+    /**
+     * @return SQLite3DDLManager
+     */
+    public function getDDLManager() {
+        return new SQLite3DDLManager();
+    }
 
 }
 
