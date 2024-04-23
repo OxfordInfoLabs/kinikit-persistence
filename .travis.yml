@@ -1,7 +1,7 @@
 dist: focal
 language: php
 php:
-  - '8.1'
+  - '8.2'
 addons:
   postgresql: "13"
 services:
