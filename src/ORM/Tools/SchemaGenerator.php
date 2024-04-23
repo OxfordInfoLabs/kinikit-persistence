@@ -20,27 +20,6 @@ use Kinikit\Persistence\ORM\Mapping\ORMMapping;
  */
 class SchemaGenerator {
 
-    /**
-     * @var ClassInspectorProvider
-     */
-    private $classInspectorProvider;
-
-    /**
-     * @var DatabaseConnection
-     */
-    private $databaseConnection;
-
-
-    /**
-     * @var FileResolver
-     */
-    private $fileResolver;
-
-
-    /**
-     * @var TableDDLGenerator
-     */
-    private $tableDDLGenerator;
 
     /**
      * SchemaGenerator constructor.
@@ -50,11 +29,11 @@ class SchemaGenerator {
      * @param FileResolver $fileResolver
      * @param TableDDLGenerator $tableDDLGenerator
      */
-    public function __construct($classInspectorProvider, $databaseConnection, $fileResolver, $tableDDLGenerator) {
-        $this->classInspectorProvider = $classInspectorProvider;
-        $this->databaseConnection = $databaseConnection;
-        $this->fileResolver = $fileResolver;
-        $this->tableDDLGenerator = $tableDDLGenerator;
+    public function __construct(
+        private $classInspectorProvider,
+        private $databaseConnection,
+        private $fileResolver,
+        private $tableDDLGenerator) {
     }
 
 
@@ -136,7 +115,7 @@ class SchemaGenerator {
      * Create schema for objects starting at the root path and namespace.
      *
      * @param string $rootPath
-     * @param null $rootPathNamespace
+     * @param bool $dropIfExists
      */
     public function createSchemaForPath($rootPath = "./Objects", $dropIfExists = true) {
 
