@@ -554,8 +554,8 @@ class ORMMapping {
         } else if (enum_exists($property->getType())) { //Get the enum case from a string
             $enumClass = $property->getType();
             $cases = $enumClass::cases();
-            $matchingCases = array_filter($cases, fn($case)=>$case->name == $columnValue);
-            if (!$matchingCases){
+            $matchingCases = array_filter($cases, fn($case) => $case->name == $columnValue);
+            if (!$matchingCases) {
                 throw new \Exception("No enum case $columnValue for enum $enumClass");
             }
             $propertyValue = array_pop($matchingCases);
@@ -583,9 +583,9 @@ class ORMMapping {
             if ($columnValue === false) {
                 throw new \Exception("Failed to encode property " . $property->getPropertyName() . " to json");
             }
-        } else if (enum_exists($property->getType())){
+        } else if (enum_exists($property->getType())) {
             $columnValue = $propertyValue->name;
-        } else if (!Primitive::isPrimitive($propertyValue) && $propertyValue !== null){
+        } else if (!Primitive::isPrimitive($propertyValue) && $propertyValue !== null) {
             throw new MissingMappingException("No relational mapping annotation found on property " . $property->getPropertyName());
         }
 
@@ -713,7 +713,7 @@ class ORMMapping {
                     $relatedTableMapping->getPrimaryKeyColumnNames());
 
                 if (!isset($annotations["readOnly"])) {
-                    $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns, isset($annotations["saveCascade"]),isset($annotations["deleteCascade"]));
+                    $writeRelationships[] = new ManyToOneTableRelationship($relatedTableMapping, $field, $relatedColumns, isset($annotations["saveCascade"]), isset($annotations["deleteCascade"]));
 
                 }
 
@@ -754,6 +754,10 @@ class ORMMapping {
                 if (sizeof($splitColumn) == 2) {
                     $relatedColumns[$splitColumn[1]] = $splitColumn[0];
                 } else {
+
+                    // Do any substitutions we require - Class name one in particular
+                    $splitColumn[0] = str_replace("CLASSNAME", $this->className, $splitColumn[0]);
+
                     $relatedColumns[] = $splitColumn[0];
                 }
             }
