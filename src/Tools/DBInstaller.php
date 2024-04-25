@@ -20,33 +20,16 @@ class DBInstaller {
 
 
     /**
-     * @var DatabaseConnection
-     */
-    private $databaseConnection;
-
-
-    /**
-     * @var SchemaGenerator
-     */
-    private $schemaGenerator;
-
-
-    /**
-     * @var FileResolver
-     */
-    private $fileResolver;
-
-    /**
      * DBInstaller constructor.
      *
      * @param DatabaseConnection $databaseConnection
      * @param SchemaGenerator $schemaGenerator
      * @param FileResolver $fileResolver
      */
-    public function __construct($databaseConnection, $schemaGenerator, $fileResolver) {
-        $this->databaseConnection = $databaseConnection;
-        $this->schemaGenerator = $schemaGenerator;
-        $this->fileResolver = $fileResolver;
+    public function __construct(
+        private $databaseConnection,
+        private $schemaGenerator,
+        private $fileResolver) {
     }
 
     /**
