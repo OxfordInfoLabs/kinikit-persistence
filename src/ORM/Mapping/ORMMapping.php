@@ -756,8 +756,7 @@ class ORMMapping {
                 } else {
 
                     // Do any substitutions we require - Class name one in particular
-                    $splitColumn[0] = str_replace("CLASSNAME", $this->className, $splitColumn[0]);
-
+                    $splitColumn[0] = str_replace("CLASSNAME", str_replace('\\', '\\\\', $this->className), $splitColumn[0]);
                     $relatedColumns[] = $splitColumn[0];
                 }
             }

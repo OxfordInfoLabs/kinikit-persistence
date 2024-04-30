@@ -139,7 +139,7 @@ class ORMMappingTest extends TestCase {
         $relationship = $tableMapping->getRelationships()[0];
 
         $this->assertEquals(2, sizeof($relationship->getChildJoinColumnNames()));
-        $this->assertEquals("blah=" . TestOneToManyWithClassname::class, $relationship->getChildJoinColumnNames()[1]);
+        $this->assertEquals("blah=" . str_replace("\\", "\\\\", TestOneToManyWithClassname::class), $relationship->getChildJoinColumnNames()[1]);
 
     }
 
