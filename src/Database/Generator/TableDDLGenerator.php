@@ -61,8 +61,8 @@ class TableDDLGenerator {
         $modifyIndexes = [];
         $dropIndexes = [];
 
-        $originalPKColumnNames = [];
-        $modifiedPKColumnNames = [];
+        $originalPKColumns = [];
+        $modifiedPKColumns = [];
 
         // Loop through the modified columns to identify changes
         foreach ($modifiedColumns as $name => $modifiedColumn) {
@@ -73,10 +73,10 @@ class TableDDLGenerator {
 
                 // Deal with whether we have a change in primary key
                 if ($modifiedColumn->isPrimaryKey() && !$originalColumn->isPrimaryKey())
-                    $modifiedPKColumnNames[] = $modifiedColumn->getName();
+                    $modifiedPKColumns[] = $modifiedColumn;
 
                 if ($originalColumn->isPrimaryKey())
-                    $originalPKColumnNames = $originalColumn->getName();
+                    $originalPKColumns = $originalColumn;
 
                 // Unset the previous
                 unset($originalColumns[$modifiedColumn->getPreviousName()]);
@@ -106,8 +106,8 @@ class TableDDLGenerator {
 
             // If original column was part of PK, add it in.
             if ($originalColumn->isPrimaryKey()) {
-                $originalPKColumnNames[] = $originalColumn->getName();
-                $modifiedPKColumnNames[] = $originalColumn->getName();
+                $originalPKColumns[] = $originalColumn;
+                $modifiedPKColumns[] = $originalColumn;
             }
 
             // Remove the original column from the list
@@ -121,7 +121,7 @@ class TableDDLGenerator {
         }
 
         // Check if we have a new primary key
-        $primaryKeyColumnNames = $originalPKColumnNames == $modifiedPKColumnNames ? null : $modifiedPKColumnNames;
+        $primaryKeyColumns = $originalPKColumns == $modifiedPKColumns ? null : $modifiedPKColumns;
 
         // Now to deal with indexes
         // Get the original and modified indexes.
@@ -151,7 +151,7 @@ class TableDDLGenerator {
         }
 
         $columnAlterations = new ColumnAlterations($addColumns, $modifyColumns, $dropColumns);
-        $indexAlterations = new IndexAlterations($primaryKeyColumnNames, $addIndexes, $modifyIndexes, $dropIndexes);
+        $indexAlterations = new IndexAlterations($primaryKeyColumns, $addIndexes, $modifyIndexes, $dropIndexes);
         $tableAlteration = new TableAlteration($tableName, $newTableName, $columnAlterations, $indexAlterations);
 
         $ddlGenerator = $databaseConnection->getDDLManager();

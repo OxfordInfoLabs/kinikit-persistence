@@ -180,7 +180,7 @@ class TableDDLGeneratorTest extends TestCase {
             ], [
                 "name"
             ]),
-            new IndexAlterations(["id", "new_description"], [], [], []));
+            new IndexAlterations([new TableColumn("id", TableColumn::SQL_INT,null,null,null,true,false,true),  new UpdatableTableColumn("new_description", TableColumn::SQL_BLOB, null, null, null, true, false, true, "description")], [], [], []));
 
         $this->assertEquals($expectedObject, $ddlManager->getMethodCallHistory("generateModifyTableSQL")[0][0]);
 

@@ -32,8 +32,14 @@ class MySQLDDLManager implements DDLManager {
             if ($column->isPrimaryKey()) {
                 if ($column->isAutoIncrement())
                     $line .= ' PRIMARY KEY';
-                else
-                    $pks[] = '`' . $column->getName() . '`';
+                else {
+                    $pkSuffix = ($column->getType() == TableColumn::SQL_BLOB
+                        || $column->getType() == TableColumn::SQL_LONGBLOB
+                        || strtolower($column->getType()) == "text"
+                        || strtolower($column->getType()) == "longtext"
+                    ) ? "(255)" : "";
+                    $pks[] = '`' . $column->getName() . '`' . $pkSuffix;
+                }
             }
             if ($column->isAutoIncrement()) $line .= ' AUTO_INCREMENT';
 
@@ -90,7 +96,16 @@ class MySQLDDLManager implements DDLManager {
             }
 
             if ($pks = $tableAlteration->getIndexAlterations()->getNewPrimaryKeyColumns()) {
-                $pkCols = join(",", array_map(fn($col) => "`$col`", $pks));
+                $pkCols = join(",", array_map(function ($col) {
+
+                    $pkSuffix = ($col->getType() == TableColumn::SQL_BLOB
+                        || $col->getType() == TableColumn::SQL_LONGBLOB
+                        || strtolower($col->getType()) == "text"
+                        || strtolower($col->getType()) == "longtext"
+                    ) ? "(255)" : "";
+
+                    return "`{$col->getName()}`" . $pkSuffix;
+                }, $pks));
 
                 $statements[] = "DROP PRIMARY KEY";
                 $statements[] = "ADD PRIMARY KEY ($pkCols)";

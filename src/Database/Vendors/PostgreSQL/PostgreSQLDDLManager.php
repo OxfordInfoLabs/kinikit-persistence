@@ -117,7 +117,7 @@ WHERE contype = 'p'
   AND connamespace = 'public'::regnamespace
   AND conrelid::regclass::text = '$tableName';")->fetchAll()[0]["primary_key"];
 
-            $pkCols = join(",", array_map(fn($col) => "\"$col\"", $pks));
+            $pkCols = join(",", array_map(fn($col) => "\"{$col->getName()}\"", $pks));
 
             $statements[] = $alterTable . " DROP CONSTRAINT $pkName";
             $statements[] = $alterTable . " ADD PRIMARY KEY ($pkCols)";

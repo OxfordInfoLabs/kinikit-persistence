@@ -11,6 +11,7 @@ use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
+use mysql_xdevapi\Table;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
@@ -142,7 +143,7 @@ PRIMARY KEY ("id")
     }
 
 
-    public function testIfSimpleTableAlterationCorrectlyConvertedToSQLiteSyntax() {
+    public function testIfSimpleTableAlterationCorrectlyConvertedToPostgreSQLSyntax() {
 
         $tableAlteration = new TableAlteration("test", null,
             new ColumnAlterations([
@@ -167,7 +168,7 @@ PRIMARY KEY ("id")
     }
 
 
-    public function testIfTableAlterationWithColumnRenamingConvertedToSQLiteSyntaxCorrectly() {
+    public function testIfTableAlterationWithColumnRenamingConvertedToPostgreSQLSyntaxCorrectly() {
 
         $tableAlteration = new TableAlteration("test", null,
             new ColumnAlterations([
@@ -196,7 +197,7 @@ PRIMARY KEY ("id")
     }
 
 
-    public function testIfTableAlterationWithPrimaryKeyChangesIsConvertedToSQLiteSyntaxCorrectly() {
+    public function testIfTableAlterationWithPrimaryKeyChangesIsConvertedToPostgreSQLSyntaxCorrectly() {
 
         $connection = MockObjectProvider::instance()->getMockInstance(PostgreSQLDatabaseConnection::class);
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
@@ -213,7 +214,7 @@ PRIMARY KEY ("id")
             ], [
                 "name"
             ]),
-            new IndexAlterations(["id", "new_description"], [], [], []));
+            new IndexAlterations([new TableColumn("id", TableColumn::SQL_INT), new TableColumn("new_description", TableColumn::SQL_BLOB)], [], [], []));
 
         $sql = $this->ddlManager->generateModifyTableSQL($tableAlteration, $connection);
 
@@ -224,7 +225,7 @@ PRIMARY KEY ("id")
     }
 
 
-    public function testIfTableAlterationWithIndexAlterationsIsConvertedToSQLiteSyntaxCorrectly() {
+    public function testIfTableAlterationWithIndexAlterationsIsConvertedToPostgreSQLSyntaxCorrectly() {
 
         $tableAlteration = new TableAlteration("test", null,
             new ColumnAlterations([], [], []),
