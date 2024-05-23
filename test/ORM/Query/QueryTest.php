@@ -69,6 +69,21 @@ class QueryTest extends TestCase {
 
     }
 
+    public function testNullCaseAddedExplicitlyIfIncludedInValuesArray(){
+
+        $query = new Query(Address::class, $this->orm);
+
+        $expectedReturn = [new Address(12, "Mark Test", "1 Street")];
+
+        $this->orm->returnValue("filter", $expectedReturn, [
+            Address::class, "WHERE (street1 IN (?,?) OR street1 IS NULL) AND street2 = ?", ["SOMEWHERE", "SOMEWHERE3", "NOWHERE"]
+        ]);
+
+        $this->assertEquals($expectedReturn, $query->query(["street1" => ["SOMEWHERE", null, "SOMEWHERE3"], "street2" => "NOWHERE"]));
+
+    }
+
+
     public function testCanQueryUsingLikeFilterIfWildcardsPassedInDirectString() {
 
         $query = new Query(Address::class, $this->orm);

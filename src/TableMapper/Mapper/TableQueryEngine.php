@@ -187,7 +187,6 @@ class TableQueryEngine {
 
         $query = str_replace("FROM {$tableMapping->getTableName()}", $replacementClause, $query);
 
-
         $results = $tableMapping->getDatabaseConnection()->query($query, $placeholderValues)->fetchAll();
 
         if ($requiresMapping) {
