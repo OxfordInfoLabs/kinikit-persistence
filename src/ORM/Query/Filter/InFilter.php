@@ -40,11 +40,19 @@ class InFilter implements Filter {
             array_splice($this->values, $nullPos, 1);
         }
 
-        $directive = $this->negated ? "NOT IN" : "IN";
-        $sql = $this->member . " $directive (?" . str_repeat(",?", sizeof($this->values) - 1) . ")";
+        $sql = "";
+        if (sizeof($this->values)) {
+            $directive = $this->negated ? "NOT IN" : "IN";
+            $sql = $this->member . " $directive (?" . str_repeat(",?", sizeof($this->values) - 1) . ")";
+        }
 
         if (is_numeric($nullPos)) {
-            $sql = "(" . $sql . " " . ($this->negated ? "AND" : "OR") . " " . $this->member . ($this->negated ? " IS NOT NULL" : " IS NULL") . ")";
+            $nullClause = $this->member . ($this->negated ? " IS NOT NULL" : " IS NULL");
+
+            if ($sql)
+                $sql = "(" . $sql . " " . ($this->negated ? "AND" : "OR") . " " . $nullClause . ")";
+            else
+                $sql = $nullClause;
         }
 
         return $sql;
