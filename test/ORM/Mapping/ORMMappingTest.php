@@ -10,6 +10,8 @@ use Kinikit\Persistence\ORM\Contact;
 use Kinikit\Persistence\ORM\PhoneNumber;
 use Kinikit\Persistence\ORM\Profile;
 use Kinikit\Persistence\ORM\Address;
+use Kinikit\Persistence\ORM\TestOneToManyWithClassname;
+use Kinikit\Persistence\TableMapper\Relationship\OneToManyTableRelationship;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
@@ -124,5 +126,22 @@ class ORMMappingTest extends TestCase {
 
 
     }
+
+
+    public function testSpecialClassNameStaticExpressionsAreMappedThroughCorrectlyIfSuppliedInMarkup() {
+
+        $ormMapping = ORMMapping::get(TestOneToManyWithClassname::class);
+        $tableMapping = $ormMapping->getReadTableMapping();
+
+        /**
+         * @var OneToManyTableRelationship $relationship
+         */
+        $relationship = $tableMapping->getRelationships()[0];
+
+        $this->assertEquals(2, sizeof($relationship->getChildJoinColumnNames()));
+        $this->assertEquals("blah=" . str_replace("\\", "\\\\", TestOneToManyWithClassname::class), $relationship->getChildJoinColumnNames()[1]);
+
+    }
+
 
 }
