@@ -251,7 +251,7 @@ PRIMARY KEY ("id")
             ], [
                 "name"
             ]),
-            new IndexAlterations(["new_description"], [], [], []), $newMetaData);
+            new IndexAlterations([new TableColumn("new_description", TableColumn::SQL_VARCHAR)], [], [], []), $newMetaData);
 
         $sql = $this->ddlManager->generateModifyTableSQL($tableAlteration, $this->connection);
 

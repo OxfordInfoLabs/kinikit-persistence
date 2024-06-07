@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
+use Cassandra\Table;
 use Kinikit\Persistence\Database\DDL\ColumnAlterations;
 use Kinikit\Persistence\Database\DDL\IndexAlterations;
 use Kinikit\Persistence\Database\DDL\TableAlteration;
@@ -78,6 +79,71 @@ PRIMARY KEY (`id`)
 
     }
 
+
+    public function testCanGenerateCreateStatementFromMetaDataWithBlobBasedPrimaryKeyAndKeyIsPrefixedWithLength() {
+
+
+        // Try regular blob
+        $metaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_BLOB, null, null, null, true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+        ]);
+
+        $sql = $this->ddlManager->generateTableCreateSQL($metaData);
+
+        $this->assertEquals('CREATE TABLE test (
+`id` BLOB NOT NULL,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`(255))
+);', $sql);
+
+        // Try long blob
+        $metaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_LONGBLOB, null, null, null, true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+        ]);
+
+        $sql = $this->ddlManager->generateTableCreateSQL($metaData);
+
+        $this->assertEquals('CREATE TABLE test (
+`id` LONGBLOB NOT NULL,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`(255))
+);', $sql);
+
+
+        // Try text
+        $metaData = new TableMetaData("test", [
+            new TableColumn("id", "TEXT", null, null, null, true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+        ]);
+
+        $sql = $this->ddlManager->generateTableCreateSQL($metaData);
+
+        $this->assertEquals('CREATE TABLE test (
+`id` TEXT NOT NULL,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`(255))
+);', $sql);
+
+
+        // Try longtext
+        $metaData = new TableMetaData("test", [
+            new TableColumn("id", "LONGTEXT", null, null, null, true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+        ]);
+
+        $sql = $this->ddlManager->generateTableCreateSQL($metaData);
+
+        $this->assertEquals('CREATE TABLE test (
+`id` LONGTEXT NOT NULL,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`(255))
+);', $sql);
+
+    }
+
+
     public function testPreviousColumnNamesAreIgnoredInUpdatableColumnMetaDataIfSuppliedForCreate() {
 
         $metaData = new TableMetaData("test", [
@@ -139,7 +205,7 @@ PRIMARY KEY (`id`)
 
     }
 
-    public function testIfSimpleTableAlterationCorrectlyConvertedToSQLiteSyntax() {
+    public function testIfSimpleTableAlterationCorrectlyConvertedToMySQLSyntax() {
 
         $tableAlteration = new TableAlteration("test", null,
             new ColumnAlterations([
@@ -164,7 +230,7 @@ PRIMARY KEY (`id`)
     }
 
 
-    public function testIfTableAlterationWithColumnRenamingConvertedToSQLiteSyntaxCorrectly() {
+    public function testIfTableAlterationWithColumnRenamingConvertedToMySQLSyntaxCorrectly() {
 
         $tableAlteration = new TableAlteration("test", null,
             new ColumnAlterations([
@@ -191,7 +257,7 @@ PRIMARY KEY (`id`)
     }
 
 
-    public function testIfTableAlterationWithPrimaryKeyChangesIsConvertedToSQLiteSyntaxCorrectly() {
+    public function testIfTableAlterationWithPrimaryKeyChangesIsConvertedToMySQLSyntaxCorrectly() {
 
         $tableAlteration = new TableAlteration("test", null,
             new ColumnAlterations([
@@ -203,18 +269,40 @@ PRIMARY KEY (`id`)
             ], [
                 "name"
             ]),
-            new IndexAlterations(["id", "new_description"], [], [], []));
+            new IndexAlterations([new TableColumn("id", TableColumn::SQL_INT), new TableColumn("updated_score", TableColumn::SQL_INT)], [], [], []));
 
         $sql = $this->ddlManager->generateModifyTableSQL($tableAlteration);
 
         $this->assertStringContainsString("ALTER TABLE test", $sql);
         $this->assertStringContainsString("DROP PRIMARY KEY,", $sql);
-        $this->assertStringContainsString("ADD PRIMARY KEY (`id`,`new_description`);", $sql);
+        $this->assertStringContainsString("ADD PRIMARY KEY (`id`,`updated_score`);", $sql);
+
+    }
+
+    public function testIfTableAlterationWithPrimaryKeyChangesToBlobPKIsConvertedToMySQLSyntaxCorrectly() {
+
+        $tableAlteration = new TableAlteration("test", null,
+            new ColumnAlterations([
+                new TableColumn("notes", TableColumn::SQL_VARCHAR, 2000)
+            ], [
+                new UpdatableTableColumn("new_description", TableColumn::SQL_BLOB, null, null, null, true, false, true, "description"),
+                new TableColumn("start_date", TableColumn::SQL_DATE_TIME),
+                new UpdatableTableColumn("updated_score", TableColumn::SQL_INT, null, null, null, false, false, false, "score")
+            ], [
+                "name"
+            ]),
+            new IndexAlterations([new TableColumn("id", TableColumn::SQL_INT), new TableColumn("new_description", TableColumn::SQL_BLOB)], [], [], []));
+
+        $sql = $this->ddlManager->generateModifyTableSQL($tableAlteration);
+
+        $this->assertStringContainsString("ALTER TABLE test", $sql);
+        $this->assertStringContainsString("DROP PRIMARY KEY,", $sql);
+        $this->assertStringContainsString("ADD PRIMARY KEY (`id`,`new_description`(255));", $sql);
 
     }
 
 
-    public function testIfTableAlterationWithIndexAlterationsIsConvertedToSQLiteSyntaxCorrectly() {
+    public function testIfTableAlterationWithIndexAlterationsIsConvertedToMySQLSyntaxCorrectly() {
 
         $tableAlteration = new TableAlteration("test", null,
             new ColumnAlterations([], [], []),

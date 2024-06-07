@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\DDL;
 
+use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 
 class IndexAlterations {
@@ -27,7 +28,7 @@ class IndexAlterations {
     private array $dropIndexes;
 
     /**
-     * @param string[] $newPrimaryKeyColumns
+     * @param TableColumn[] $newPrimaryKeyColumns
      * @param TableIndex[] $addIndexes
      * @param TableIndex[] $modifyIndexes
      * @param TableIndex[] $dropIndexes
