@@ -316,7 +316,12 @@ class ORMMapping {
                 if ($property->isStatic())
                     continue;
 
-                $propertyValue = $property->get($object);
+                try {
+                    $propertyValue = $property->get($object);
+                } catch (\ReflectionException $e){
+                    continue;
+                }
+
                 $isArray = strpos($property->getType(), "[");
 
                 if (isset($this->relatedEntities[$propertyName])) {
