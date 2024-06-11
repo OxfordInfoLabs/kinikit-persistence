@@ -159,28 +159,66 @@ class TableDDLGeneratorTest extends TestCase {
         ]);
 
         $newMetaData = new TableMetaData("test", [
-            new TableColumn("id", TableColumn::SQL_INT, null, null, null, true),
-            new UpdatableTableColumn("new_description", TableColumn::SQL_BLOB, null, null, null, true, false, true, "description"),
-            new TableColumn("start_date", TableColumn::SQL_DATE_TIME),
-            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME),
-            new TableColumn("notes", TableColumn::SQL_VARCHAR, 2000),
-            new UpdatableTableColumn("updated_score", TableColumn::SQL_INT, null, null, null, false, false, false, "score")
+            new TableColumn("id", TableColumn::SQL_INT, null, null, null, false),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, null, true),
+            new TableColumn("score", TableColumn::SQL_FLOAT, 5, 5),
+            new TableColumn("description", TableColumn::SQL_BLOB, null, null, null, null, false, true),
+            new TableColumn("start_date", TableColumn::SQL_DATE),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME)
         ]);
 
 
-        $sql = $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
+        $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
 
         $expectedObject = new TableAlteration("test", null,
             new ColumnAlterations([
-                new TableColumn("notes", TableColumn::SQL_VARCHAR, 2000)
             ], [
-                new UpdatableTableColumn("new_description", TableColumn::SQL_BLOB, null, null, null, true, false, true, "description"),
-                new TableColumn("start_date", TableColumn::SQL_DATE_TIME),
-                new UpdatableTableColumn("updated_score", TableColumn::SQL_INT, null, null, null, false, false, false, "score")
+                new TableColumn("id", TableColumn::SQL_INT, null, null, null, false),
+                new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, null, true),
             ], [
-                "name"
-            ]),
-            new IndexAlterations([new TableColumn("id", TableColumn::SQL_INT,null,null,null,true,false,true),  new UpdatableTableColumn("new_description", TableColumn::SQL_BLOB, null, null, null, true, false, true, "description")], [], [], []));
+            ]), new IndexAlterations([ new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, null, true)], [], [], []));
+
+        $this->assertEquals($expectedObject, $ddlManager->getMethodCallHistory("generateModifyTableSQL")[0][0]);
+
+    }
+
+
+    public function testIfPrimaryKeyHasChangedToNewColumnItIsRegeneratedAsPartOfModifySQL() {
+
+        $databaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
+        $ddlManager = MockObjectProvider::instance()->getMockInstance(DDLManager::class);
+
+        $databaseConnection->returnValue("getDDLManager", $ddlManager, []);
+        $ddlManager->returnValue("generateModifyTableSQL", "");
+
+        $previousMetaData = new TableMetaData("test", [
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null,null,true),
+            new TableColumn("score", TableColumn::SQL_FLOAT, 5, 5),
+            new TableColumn("description", TableColumn::SQL_BLOB, null, null, null, null, false, true),
+            new TableColumn("start_date", TableColumn::SQL_DATE),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME)
+        ]);
+
+        $newMetaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_INT, null, null, null, true,true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, null, false),
+            new TableColumn("score", TableColumn::SQL_FLOAT, 5, 5),
+            new TableColumn("description", TableColumn::SQL_BLOB, null, null, null, null, false, true),
+            new TableColumn("start_date", TableColumn::SQL_DATE),
+            new TableColumn("last_modified", TableColumn::SQL_DATE_TIME)
+        ]);
+
+
+        $this->generator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
+
+        $expectedObject = new TableAlteration("test", null,
+            new ColumnAlterations([
+                new TableColumn("id", TableColumn::SQL_INT, null, null, null, true,true),
+
+            ], [
+                new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, null, false),
+            ], [
+            ]), new IndexAlterations([  new TableColumn("id", TableColumn::SQL_INT, null, null, null, true,true)], [], [], []));
 
         $this->assertEquals($expectedObject, $ddlManager->getMethodCallHistory("generateModifyTableSQL")[0][0]);
 

@@ -67,51 +67,45 @@ class TableDDLGenerator {
         // Loop through the modified columns to identify changes
         foreach ($modifiedColumns as $name => $modifiedColumn) {
 
-            // An updatable table column is certainly different
-            if ($modifiedColumn instanceof UpdatableTableColumn && $modifiedColumn->getPreviousName()) {
-                $originalColumn = $originalColumns[$modifiedColumn->getPreviousName()];
+            if ($modifiedColumn instanceof UpdatableTableColumn){
+                $originalColumn =  $originalColumns[$modifiedColumn->getPreviousName()] ?? $originalColumns[$name] ?? null;
+            } else {
+                $originalColumn = $originalColumns[$name] ?? null;
+            }
+
+
+            if ($originalColumn) {
 
                 // Deal with whether we have a change in primary key
                 if ($modifiedColumn->isPrimaryKey() && !$originalColumn->isPrimaryKey())
                     $modifiedPKColumns[] = $modifiedColumn;
 
                 if ($originalColumn->isPrimaryKey())
-                    $originalPKColumns = $originalColumn;
-
-                // Unset the previous
-                unset($originalColumns[$modifiedColumn->getPreviousName()]);
-                $modifyColumns[] = $modifiedColumn;
-                continue;
-            }
+                    $originalPKColumns[] = $originalColumn;
 
 
-            // Calculate the original column as required
-            $originalColumn = $originalColumns[$name] ?? null;
+                // If a change is required, make it
+                if (($originalColumn->getName() != $modifiedColumn->getName()) ||
+                    ($originalColumn->getType() != $modifiedColumn->getType()) ||
+                    ($originalColumn->getLength() != $modifiedColumn->getLength()) ||
+                    ($originalColumn->getPrecision() != $modifiedColumn->getPrecision()) ||
+                    ($originalColumn->isNotNull() != $modifiedColumn->isNotNull())) {
 
-            // If no original, then it is a new column
-            if (!$originalColumn) {
+                    $modifyColumns[] = $modifiedColumn;
+
+                }
+
+                // Remove the original column from the list
+                unset($originalColumns[$originalColumn->getName()]);
+
+
+            } else {
                 $addColumns[] = $modifiedColumn;
-                continue;
+
+                if ($modifiedColumn->isPrimaryKey())
+                    $modifiedPKColumns[] = $modifiedColumn;
             }
 
-            // If a change is required, make it
-            if (($originalColumn->getType() != $modifiedColumn->getType()) ||
-                ($originalColumn->getLength() != $modifiedColumn->getLength()) ||
-                ($originalColumn->getPrecision() != $modifiedColumn->getPrecision()) ||
-                ($originalColumn->isNotNull() != $modifiedColumn->isNotNull())) {
-
-                $modifyColumns[] = $modifiedColumn;
-
-            }
-
-            // If original column was part of PK, add it in.
-            if ($originalColumn->isPrimaryKey()) {
-                $originalPKColumns[] = $originalColumn;
-                $modifiedPKColumns[] = $originalColumn;
-            }
-
-            // Remove the original column from the list
-            unset($originalColumns[$originalColumn->getName()]);
 
         }
 
