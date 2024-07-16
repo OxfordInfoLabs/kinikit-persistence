@@ -175,7 +175,7 @@ WHERE contype = 'p'
 
         $line .= " " . $column->getType();
 
-        if ($column->getLength() && !$column->isAutoIncrement()) {
+        if ($column->getLength()) {
             $line .= "(" . $column->getLength();
             if ($column->getPrecision()) {
                 $line .= "," . $column->getPrecision();
