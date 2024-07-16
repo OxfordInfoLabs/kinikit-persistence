@@ -68,7 +68,7 @@ PRIMARY KEY ("id")
 
 
         $metaData = new TableMetaData("test", [
-            new TableColumn("id", TableColumn::SQL_INT, null, null, null, true, true),
+            new TableColumn("id", TableColumn::SQL_INT, 11, null, null, true, true),
             new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
         ]);
 
