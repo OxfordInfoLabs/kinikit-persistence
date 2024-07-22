@@ -172,7 +172,7 @@ class MySQLDDLManager implements DDLManager {
 
         $line .= " " . $column->getType();
 
-        if ($column->getLength()) {
+        if ($column->getLength() && !$column->isAutoIncrement()) {
             $line .= "(" . $column->getLength();
             if ($column->getPrecision()) {
                 $line .= "," . $column->getPrecision();
