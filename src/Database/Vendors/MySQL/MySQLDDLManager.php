@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\DDL\TableAlteration;
@@ -37,6 +38,7 @@ class MySQLDDLManager implements DDLManager {
                         || $column->getType() == TableColumn::SQL_LONGBLOB
                         || strtolower($column->getType()) == "text"
                         || strtolower($column->getType()) == "longtext"
+                        || ((strtolower($column->getType()) == "varchar") && $column->getLength() > 255)
                     ) ? "(255)" : "";
                     $pks[] = '`' . $column->getName() . '`' . $pkSuffix;
                 }
@@ -48,6 +50,7 @@ class MySQLDDLManager implements DDLManager {
 
         $sql .= join(",\n", $columnLines);
 
+
         if (sizeof($pks) > 0) {
             $sql .= ",\nPRIMARY KEY (" . join(",", $pks) . ")";
         }
@@ -58,6 +61,9 @@ class MySQLDDLManager implements DDLManager {
         foreach ($tableMetaData->getIndexes() as $index) {
             $sql .= ";" . $this->generateCreateIndexSQL($index, $tableMetaData->getTableName());
         }
+
+        Logger::log($sql);
+
 
         return $sql . ";";
     }
@@ -102,6 +108,7 @@ class MySQLDDLManager implements DDLManager {
                         || $col->getType() == TableColumn::SQL_LONGBLOB
                         || strtolower($col->getType()) == "text"
                         || strtolower($col->getType()) == "longtext"
+                        || ((strtolower($col->getType()) == "varchar") && $col->getLength() > 255)
                     ) ? "(255)" : "";
 
                     return "`{$col->getName()}`" . $pkSuffix;

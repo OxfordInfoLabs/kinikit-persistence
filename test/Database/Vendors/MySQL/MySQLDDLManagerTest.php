@@ -80,6 +80,26 @@ PRIMARY KEY (`id`)
     }
 
 
+    public function testCanGenerateCreateStatementFromMetaDataWithPrimaryKeysBasedOnLongStringColumns(){
+
+        // Try regular blob
+        $metaData = new TableMetaData("test", [
+            new TableColumn("id", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+        ]);
+
+        $sql = $this->ddlManager->generateTableCreateSQL($metaData);
+
+        $this->assertEquals('CREATE TABLE test (
+`id` VARCHAR(2000) NOT NULL,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`(255))
+);', $sql);
+
+
+    }
+
+
     public function testCanGenerateCreateStatementFromMetaDataWithBlobBasedPrimaryKeyAndKeyIsPrefixedWithLength() {
 
 
@@ -300,6 +320,29 @@ PRIMARY KEY (`id`)
         $this->assertStringContainsString("ADD PRIMARY KEY (`id`,`new_description`(255));", $sql);
 
     }
+
+    public function testIfTableAlterationWithPrimaryKeyChangesToLongStringPKIsConvertedToMySQLSyntaxCorrectly() {
+
+        $tableAlteration = new TableAlteration("test", null,
+            new ColumnAlterations([
+                new TableColumn("notes", TableColumn::SQL_VARCHAR, 2000)
+            ], [
+                new UpdatableTableColumn("new_description", TableColumn::SQL_VARCHAR, 2000, null, null, true, false, true, "description"),
+                new TableColumn("start_date", TableColumn::SQL_DATE_TIME),
+                new UpdatableTableColumn("updated_score", TableColumn::SQL_INT, null, null, null, false, false, false, "score")
+            ], [
+                "name"
+            ]),
+            new IndexAlterations([new TableColumn("id", TableColumn::SQL_INT), new TableColumn("new_description", TableColumn::SQL_VARCHAR,2000)], [], [], []));
+
+        $sql = $this->ddlManager->generateModifyTableSQL($tableAlteration);
+
+        $this->assertStringContainsString("ALTER TABLE test", $sql);
+        $this->assertStringContainsString("DROP PRIMARY KEY,", $sql);
+        $this->assertStringContainsString("ADD PRIMARY KEY (`id`,`new_description`(255));", $sql);
+
+    }
+
 
 
     public function testIfTableAlterationWithIndexAlterationsIsConvertedToMySQLSyntaxCorrectly() {
