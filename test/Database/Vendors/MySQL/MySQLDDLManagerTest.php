@@ -6,6 +6,7 @@ use Cassandra\Table;
 use Kinikit\Persistence\Database\DDL\ColumnAlterations;
 use Kinikit\Persistence\Database\DDL\IndexAlterations;
 use Kinikit\Persistence\Database\DDL\TableAlteration;
+use Kinikit\Persistence\Database\Exception\MultiplePrimaryKeysException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
@@ -80,7 +81,7 @@ PRIMARY KEY (`id`)
     }
 
 
-    public function testCanGenerateCreateStatementFromMetaDataWithPrimaryKeysBasedOnLongStringColumns(){
+    public function testCanGenerateCreateStatementFromMetaDataWithPrimaryKeysBasedOnLongStringColumns() {
 
         // Try regular blob
         $metaData = new TableMetaData("test", [
@@ -96,12 +97,10 @@ PRIMARY KEY (`id`)
 PRIMARY KEY (`id`(255))
 );', $sql);
 
-
     }
 
 
     public function testCanGenerateCreateStatementFromMetaDataWithBlobBasedPrimaryKeyAndKeyIsPrefixedWithLength() {
-
 
         // Try regular blob
         $metaData = new TableMetaData("test", [
@@ -150,7 +149,7 @@ PRIMARY KEY (`id`(255))
         // Try longtext
         $metaData = new TableMetaData("test", [
             new TableColumn("id", "LONGTEXT", null, null, null, true),
-            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null)
         ]);
 
         $sql = $this->ddlManager->generateTableCreateSQL($metaData);
@@ -163,6 +162,36 @@ PRIMARY KEY (`id`(255))
 
     }
 
+    public function testCorrectExceptionsAreThrownWhenMultiplePrimaryKeysSupplied() {
+
+        // Test if more than one column is auto_increment
+        $tableMetaData = new TableMetaData("test", [
+            new TableColumn(name: "first", type: TableColumn::SQL_INT, autoIncrement: true),
+            new TableColumn(name: "second", type: TableColumn::SQL_INT, autoIncrement: true),
+            new TableColumn(name: "other", type: TableColumn::SQL_VARCHAR, length: 255)
+        ]);
+
+        try {
+            $this->ddlManager->generateTableCreateSQL($tableMetaData);
+            $this->fail();
+        } catch (MultiplePrimaryKeysException $e) {
+            $this->assertEquals("Table structure has more than one auto increment column", $e->getMessage());
+        }
+
+        // Test if there exists an auto increment column, and a column-defined primary key
+        $tableMetaData = new TableMetaData("test", [
+            new TableColumn(name: "id", type: TableColumn::SQL_INT, autoIncrement: true),
+            new TableColumn(name: "key", type: TableColumn::SQL_INT, primaryKey: true),
+            new TableColumn(name: "other", type: TableColumn::SQL_VARCHAR, length: 255)
+        ]);
+
+        try {
+            $this->ddlManager->generateTableCreateSQL($tableMetaData);
+            $this->fail();
+        } catch (MultiplePrimaryKeysException $e) {
+            $this->assertEquals("Table structure cannot have an autoincrement columns and other primary key columns", $e->getMessage());
+        }
+    }
 
     public function testPreviousColumnNamesAreIgnoredInUpdatableColumnMetaDataIfSuppliedForCreate() {
 
@@ -333,7 +362,7 @@ PRIMARY KEY (`id`)
             ], [
                 "name"
             ]),
-            new IndexAlterations([new TableColumn("id", TableColumn::SQL_INT), new TableColumn("new_description", TableColumn::SQL_VARCHAR,2000)], [], [], []));
+            new IndexAlterations([new TableColumn("id", TableColumn::SQL_INT), new TableColumn("new_description", TableColumn::SQL_VARCHAR, 2000)], [], [], []));
 
         $sql = $this->ddlManager->generateModifyTableSQL($tableAlteration);
 
@@ -342,7 +371,6 @@ PRIMARY KEY (`id`)
         $this->assertStringContainsString("ADD PRIMARY KEY (`id`,`new_description`(255));", $sql);
 
     }
-
 
 
     public function testIfTableAlterationWithIndexAlterationsIsConvertedToMySQLSyntaxCorrectly() {

@@ -6,6 +6,7 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\DDL\TableAlteration;
+use Kinikit\Persistence\Database\Exception\MultiplePrimaryKeysException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
@@ -25,27 +26,35 @@ class MySQLDDLManager implements DDLManager {
 
         $columnLines = [];
         $pks = [];
+        $hasAutoIncrement = false;
 
         foreach ($tableMetaData->getColumns() as $column) {
 
             $line = $this->createColumnDefinitionString($column, true);
 
-            if ($column->isPrimaryKey()) {
-                if ($column->isAutoIncrement())
-                    $line .= ' PRIMARY KEY';
-                else {
-                    $pkSuffix = ($column->getType() == TableColumn::SQL_BLOB
-                        || $column->getType() == TableColumn::SQL_LONGBLOB
-                        || strtolower($column->getType()) == "text"
-                        || strtolower($column->getType()) == "longtext"
-                        || ((strtolower($column->getType()) == "varchar") && $column->getLength() > 255)
-                    ) ? "(255)" : "";
-                    $pks[] = '`' . $column->getName() . '`' . $pkSuffix;
-                }
+            if ($column->isPrimaryKey() && !$column->isAutoIncrement()) {
+                $pkSuffix = ($column->getType() == TableColumn::SQL_BLOB
+                    || $column->getType() == TableColumn::SQL_LONGBLOB
+                    || strtolower($column->getType()) == "text"
+                    || strtolower($column->getType()) == "longtext"
+                    || ((strtolower($column->getType()) == "varchar") && $column->getLength() > 255)
+                ) ? "(255)" : "";
+                $pks[] = '`' . $column->getName() . '`' . $pkSuffix;
             }
-            if ($column->isAutoIncrement()) $line .= ' AUTO_INCREMENT';
+
+            if ($column->isAutoIncrement()) {
+                if ($hasAutoIncrement)
+                    throw new MultiplePrimaryKeysException("Table structure has more than one auto increment column");
+                $line .= ' PRIMARY KEY AUTO_INCREMENT';
+                $hasAutoIncrement = true;
+            }
 
             $columnLines[] = $line;
+        }
+
+        // Check primary keys are valid
+        if ($hasAutoIncrement && $pks) {
+            throw new MultiplePrimaryKeysException("Table structure cannot have an autoincrement columns and other primary key columns");
         }
 
         $sql .= join(",\n", $columnLines);
@@ -63,7 +72,6 @@ class MySQLDDLManager implements DDLManager {
         }
 
         Logger::log($sql);
-
 
         return $sql . ";";
     }
