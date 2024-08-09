@@ -58,7 +58,7 @@ interface BulkDataManager {
 
     /**
      * Replace the passed rows in the database table.  Unlike update,
-     * this will replace the whole row with the new row data so it is
+     * this will replace the whole row with the new row data, so it is
      * not safe to send partial data unless you intend for some columns
      * to be nulled.
      *
@@ -80,7 +80,7 @@ interface BulkDataManager {
      * Delete the rows in the database table matching the array of pk values passed.
      *
      * @param string $tableName
-     * @param string[] $pkValues
+     * @param array[] $pkValues
      *
      * @param null $matchColumns
      * @throws SQLException
