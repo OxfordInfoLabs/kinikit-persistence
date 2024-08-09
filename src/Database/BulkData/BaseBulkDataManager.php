@@ -153,7 +153,7 @@ abstract class BaseBulkDataManager implements BulkDataManager {
      * Implement delete to do standard cleaning and defer to doDelete on child implementation
      *
      * @param string $tableName
-     * @param string[] $pkValues
+     * @param array[] $pkValues
      * @param null $matchColumns
      */
     public function delete($tableName, $pkValues, $matchColumns = null) {
