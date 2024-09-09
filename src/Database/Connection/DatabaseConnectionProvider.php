@@ -26,19 +26,8 @@ class DatabaseConnectionProvider {
      */
     private $explicitConfigurations = [];
 
-    /**
-     * @var InterfaceResolver
-     */
-    private $interfaceResolver;
-
-
-    /**
-     * DatabaseConnectionProvider constructor.
-     *
-     * @param InterfaceResolver $interfaceResolver
-     */
-    public function __construct($interfaceResolver) {
-        $this->interfaceResolver = $interfaceResolver;
+    public function __construct(
+        private InterfaceResolver $interfaceResolver) {
     }
 
 

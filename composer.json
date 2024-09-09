@@ -16,6 +16,9 @@
   "require": {
     "oxil/kinikit-core": "dev-master"
   },
+  "require-dev": {
+    "phpunit/phpunit": "^9"
+  },
   "scripts": {
     "dev": "rm -rf vendor/oxil/kini*; ln -s ../../../../kinikit/kinikit-core vendor/oxil/kinikit-core;"
   },

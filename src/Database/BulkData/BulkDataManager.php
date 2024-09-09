@@ -79,10 +79,18 @@ interface BulkDataManager {
     /**
      * Delete the rows in the database table matching the array of pk values passed.
      *
+     * Explicitly label non primary key columns in the $matchColumns parameter!!
+     *
+     * For example,
+     *   $bulkDataManager->delete("crm_tasks", ["id" => 1], ["id"])
+     * should be parsed to:
+     *   DELETE FROM "crm_tasks" WHERE (id = 1);
+     * (see tests)
+     *
      * @param string $tableName
      * @param array[] $pkValues
      *
-     * @param null $matchColumns
+     * @param string[] $matchColumns
      * @throws SQLException
      */
     public function delete($tableName, $pkValues, $matchColumns = null);

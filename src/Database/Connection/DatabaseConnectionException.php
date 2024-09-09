@@ -9,7 +9,7 @@ namespace Kinikit\Persistence\Database\Connection;
 class DatabaseConnectionException extends \Exception {
 
     public function __construct($message = null) {
-        parent::__construct($message ? $message : "There was a problem connecting to the database.");
+        parent::__construct($message ?: "There was a problem connecting to the database.");
     }
 
 }
