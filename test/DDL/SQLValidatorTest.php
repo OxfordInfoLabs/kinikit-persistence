@@ -52,8 +52,8 @@ class SQLValidatorTest extends \PHPUnit\Framework\TestCase {
         $expectedInvalidTableNames = [
             "",
             "; drop",
-            "index-1",
-            "idx!name",
+            "table-1",
+            "tbl!name",
             "1112_2",
             "11"
         ];
