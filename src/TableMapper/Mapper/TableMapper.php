@@ -22,27 +22,16 @@ use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
  */
 class TableMapper {
 
-
-    /**
-     * @var TableQueryEngine
-     */
-    private $queryEngine;
-
-
-    /**
-     * @var TablePersistenceEngine
-     */
-    private $persistenceEngine;
-
     /**
      * TableMapper constructor - designed for autowiring of dependencies.
      *
      * @param TableQueryEngine $queryEngine
      * @param TablePersistenceEngine $persistenceEngine
      */
-    public function __construct($queryEngine, $persistenceEngine) {
-        $this->queryEngine = $queryEngine;
-        $this->persistenceEngine = $persistenceEngine;
+    public function __construct(
+        private TableQueryEngine $queryEngine,
+        private TablePersistenceEngine $persistenceEngine
+    ) {
     }
 
 

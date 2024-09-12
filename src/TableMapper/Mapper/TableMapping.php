@@ -5,6 +5,7 @@ namespace Kinikit\Persistence\TableMapper\Mapper;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\DDL\SQLValidator;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
 
@@ -63,7 +64,7 @@ class TableMapping {
      * @param TableRelationship[] $relationships
      */
     public function __construct($tableName, $relationships = [], $databaseConnection = null, $primaryKeyColumnNames = null) {
-        $this->tableName = $tableName;
+        $this->tableName = SQLValidator::validateTableName($tableName);
 
         // Use built in database connection if none supplied.
         if (!$databaseConnection)

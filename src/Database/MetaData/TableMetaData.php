@@ -4,6 +4,8 @@
 namespace Kinikit\Persistence\Database\MetaData;
 
 
+use Kinikit\Persistence\Database\DDL\SQLValidator;
+
 class TableMetaData {
 
     /**
@@ -40,7 +42,7 @@ class TableMetaData {
      * @param TableIndex[] $indexes
      */
     public function __construct($tableName, $tableColumns, $indexes = []) {
-        $this->tableName = $tableName;
+        $this->tableName = SQLValidator::validateTableName($tableName);
 
         foreach ($tableColumns as $tableColumn) {
             $this->addColumn($tableColumn);
