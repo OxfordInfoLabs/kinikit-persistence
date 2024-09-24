@@ -71,7 +71,7 @@ class MySQLDDLManager implements DDLManager {
             $sql .= ";" . $this->generateCreateIndexSQL($index, $tableMetaData->getTableName());
         }
 
-        Logger::log($sql);
+        Logger::log($sql, 6);
 
         return $sql . ";";
     }
