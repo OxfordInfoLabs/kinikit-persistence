@@ -5,16 +5,19 @@ namespace Kinikit\Persistence\DDL;
 use Kinikit\Persistence\Database\DDL\InvalidIndexNameException;
 use Kinikit\Persistence\Database\DDL\InvalidTableNameException;
 use Kinikit\Persistence\Database\DDL\SQLValidator;
+use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
-class SQLValidatorTest extends \PHPUnit\Framework\TestCase {
-    public function testCanValidateIndexes(){
+class SQLValidatorTest extends TestCase {
+
+    public function testCanValidateIndexes() {
         $expectedCorrectIndexNames = [
             "domain_name_idx",
             "index_1",
             "MY_INDEX",
-            "idx123"
+            "idx123",
+            "this.that"
         ];
         foreach ($expectedCorrectIndexNames as $indexName) {
             $this->assertSame($indexName, SQLValidator::validateIndexName($indexName));
@@ -31,19 +34,20 @@ class SQLValidatorTest extends \PHPUnit\Framework\TestCase {
         foreach ($expectedInvalidIndexNames as $indexName) {
             try {
                 $x = SQLValidator::validateIndexName($indexName);
-                $this->fail("Index allowed: ". $indexName);
+                $this->fail("Index allowed: " . $indexName);
             } catch (InvalidIndexNameException $e) {
                 // Success
             }
         }
     }
 
-    public function testCanValidateTableNames(){
+    public function testCanValidateTableNames() {
         $expectedCorrectTableNames = [
             "flagged_url",
             "chunks_document_data_set_8_1721",
             "MY_TABLE",
-            "123tbl"
+            "123tbl",
+            "schema.table"
         ];
         foreach ($expectedCorrectTableNames as $tableName) {
             $this->assertSame($tableName, SQLValidator::validateTableName($tableName));
@@ -60,7 +64,7 @@ class SQLValidatorTest extends \PHPUnit\Framework\TestCase {
         foreach ($expectedInvalidTableNames as $tableName) {
             try {
                 $x = SQLValidator::validateTableName($tableName);
-                $this->fail("Table allowed: ". $tableName);
+                $this->fail("Table allowed: " . $tableName);
             } catch (InvalidTableNameException $e) {
                 // Success
             }
