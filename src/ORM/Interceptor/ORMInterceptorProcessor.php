@@ -4,7 +4,6 @@ namespace Kinikit\Persistence\ORM\Interceptor;
 
 use Kinikit\Core\Configuration\ConfigFile;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 
 /**

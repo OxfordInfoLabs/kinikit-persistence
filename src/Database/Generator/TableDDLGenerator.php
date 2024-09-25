@@ -4,7 +4,6 @@
 namespace Kinikit\Persistence\Database\Generator;
 
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\DDL\ColumnAlterations;

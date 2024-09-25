@@ -4,7 +4,6 @@
 namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\ResultSet\PDOResultSet;
 

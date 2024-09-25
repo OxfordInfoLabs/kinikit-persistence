@@ -2,7 +2,6 @@
 
 namespace Kinikit\Persistence\Database\Vendors\PostgreSQL;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\ResultSet\PDOResultSet;

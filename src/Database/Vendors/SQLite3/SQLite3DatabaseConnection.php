@@ -2,24 +2,17 @@
 
 namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
-use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
+use Kinikit\Persistence\Database\Connection\DatabaseConnectionException;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
+use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
-use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
 use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
-use Kinikit\Persistence\Database\Connection\DatabaseConnectionException;
-use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
-use Kinikit\Persistence\Database\ResultSet\ResultSet;
-use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Vendors\SQLite3\CustomFunctions\Concat;
 use Kinikit\Persistence\Database\Vendors\SQLite3\CustomFunctions\Day;
 use Kinikit\Persistence\Database\Vendors\SQLite3\CustomFunctions\Month;

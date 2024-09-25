@@ -4,12 +4,9 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 
-use Kinikit\Core\Exception\MethodNotImplementedException;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\PDOPreparedStatement;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
-use Kinikit\Persistence\Database\ResultSet\PDOResultSet;
 
 abstract class PDODatabaseConnection extends BaseDatabaseConnection {
 

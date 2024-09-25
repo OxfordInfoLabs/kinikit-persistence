@@ -4,8 +4,6 @@
 namespace Kinikit\Persistence\TableMapper\Exception;
 
 
-use Throwable;
-
 class WrongJoinColumnsLengthException extends \Exception {
 
     public function __construct($message) {

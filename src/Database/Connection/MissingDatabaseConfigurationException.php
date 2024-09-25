@@ -4,8 +4,6 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 
-use Throwable;
-
 class MissingDatabaseConfigurationException extends \Exception {
 
 

@@ -2,19 +2,13 @@
 
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
+use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
-use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
 use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
-use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
-
-use Kinikit\Persistence\Database\Exception\SQLException;
-use Kinikit\Persistence\Database\PreparedStatement\WrongNumberOfPreparedStatementParametersException;
 
 /**
  * Standard MYSQL implementation of the database connection class

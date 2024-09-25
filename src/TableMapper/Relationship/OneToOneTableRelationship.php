@@ -4,7 +4,6 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
-use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Mapper\TablePersistenceEngine;
 use Kinikit\Persistence\TableMapper\Mapper\TableRelationshipSaveData;
 

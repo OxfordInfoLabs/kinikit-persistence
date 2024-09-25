@@ -3,9 +3,7 @@
 namespace Kinikit\Persistence\Database\ResultSet;
 
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
-use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 
 abstract class PDOResultSet extends BaseResultSet {

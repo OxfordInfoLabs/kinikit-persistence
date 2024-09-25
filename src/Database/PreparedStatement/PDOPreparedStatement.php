@@ -4,7 +4,6 @@
 namespace Kinikit\Persistence\Database\PreparedStatement;
 
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
 
 class PDOPreparedStatement extends BasePreparedStatement {

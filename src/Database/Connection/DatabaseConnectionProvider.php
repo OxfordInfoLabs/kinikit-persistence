@@ -4,7 +4,6 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Core\Configuration\Configuration;
-use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\DependencyInjection\InterfaceResolver;
 
 /**

@@ -2,15 +2,8 @@
 
 namespace Kinikit\Persistence\TableMapper\Mapper;
 
-use Kinikit\Core\Binding\ObjectBinder;
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Persistence\Database\BulkData\BulkDataManager;
-use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\TableMapper\Exception\PrimaryKeyRowNotFoundException;
 use Kinikit\Persistence\TableMapper\Exception\WrongPrimaryKeyLengthException;
-use Kinikit\Persistence\TableMapper\Relationship\ManyToManyTableRelationship;
-use Kinikit\Persistence\TableMapper\Relationship\ManyToOneTableRelationship;
-use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
 
 
 /**

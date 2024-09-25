@@ -5,7 +5,6 @@ namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinikit\Persistence\TableMapper\Mapper\TablePersistenceEngine;
 

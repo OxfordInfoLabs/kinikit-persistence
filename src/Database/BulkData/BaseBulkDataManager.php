@@ -5,7 +5,6 @@ namespace Kinikit\Persistence\Database\BulkData;
 
 
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
-use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 
 /**

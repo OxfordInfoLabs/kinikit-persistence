@@ -5,7 +5,6 @@ namespace Kinikit\Persistence\Tools;
 use DirectoryIterator;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Bootstrapper;
 use Kinikit\Core\Init;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Tools\SchemaGenerator;

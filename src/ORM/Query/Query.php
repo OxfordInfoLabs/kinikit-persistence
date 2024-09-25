@@ -8,7 +8,6 @@ use Kinikit\Persistence\ORM\ORM;
 use Kinikit\Persistence\ORM\Query\Filter\EqualsFilter;
 use Kinikit\Persistence\ORM\Query\Filter\InFilter;
 use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
-use PHPUnit\Util\Filter;
 
 class Query {
 

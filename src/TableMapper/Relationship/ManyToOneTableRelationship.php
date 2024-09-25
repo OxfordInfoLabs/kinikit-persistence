@@ -4,8 +4,6 @@
 namespace Kinikit\Persistence\TableMapper\Relationship;
 
 
-use Kinikit\Core\Logging\Logger;
-
 class ManyToOneTableRelationship extends BaseTableRelationship {
 
     private $parentJoinColumnNames = [];

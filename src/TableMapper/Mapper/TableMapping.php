@@ -6,7 +6,6 @@ namespace Kinikit\Persistence\TableMapper\Mapper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\DDL\SQLValidator;
-use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
 
 /**

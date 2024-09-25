@@ -2,9 +2,7 @@
 
 namespace Kinikit\Persistence\ORM\Tools;
 
-use DirectoryIterator;
 use Kiniauth\DB\DBInstaller;
-use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;

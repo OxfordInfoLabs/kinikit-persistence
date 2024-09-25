@@ -4,13 +4,6 @@
 namespace Kinikit\Persistence\TableMapper\Mapper;
 
 
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Persistence\Database\Connection\DatabaseConnection;
-use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
-use Kinikit\Persistence\TableMapper\Relationship\TableRelationship;
-
-
 /**
  * Query engine for a given table configured optionally with relationships and a database connection
  *

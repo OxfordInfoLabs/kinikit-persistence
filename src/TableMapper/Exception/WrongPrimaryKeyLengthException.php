@@ -4,8 +4,6 @@
 namespace Kinikit\Persistence\TableMapper\Exception;
 
 
-use Throwable;
-
 class WrongPrimaryKeyLengthException extends \Exception {
 
     public function __construct($tableName, $primaryKey, $expectedValues) {

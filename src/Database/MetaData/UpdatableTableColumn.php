@@ -4,8 +4,6 @@
 namespace Kinikit\Persistence\Database\MetaData;
 
 
-use Kinikit\Core\Logging\Logger;
-
 /**
  * Updatable version of a table column.  This allows for setting of all properties as well
  * as providing ability to rename a column by allowing for a previous name field.
