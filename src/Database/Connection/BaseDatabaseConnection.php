@@ -75,12 +75,6 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
 
         }
 
-        $connected = $this->connect($configParams);
-
-        if (!$connected)
-            throw new DatabaseConnectionException();
-
-
         if (isset($configParams["logFile"]))
             $this->logFile = $configParams["logFile"];
 
@@ -88,7 +82,10 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
         $this->configParams = $configParams;
 
         // Connect using the filtered params.
-        $this->connect($configParams);
+        $connected = $this->connect($configParams);
+
+        if (!$connected)
+            throw new DatabaseConnectionException();
 
     }
 
