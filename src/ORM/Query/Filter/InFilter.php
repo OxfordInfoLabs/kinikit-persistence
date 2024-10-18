@@ -35,15 +35,24 @@ class InFilter implements Filter {
      * @return string
      */
     public function getSQLClause() {
-        $nullPos = array_search(null, $this->values);
+        // $nullPos = array_search(null, $this->values);
+        // ^ Unfortunately array_search(null, [0, null]) === 0
+
+        $values = $this->values; // Make a copy of values
+        $nullPos = false;
+        foreach ($values as $key => $value) {
+            if ($value === null) {
+                $nullPos = $key;
+            }
+        }
         if (is_numeric($nullPos)) {
-            array_splice($this->values, $nullPos, 1);
+            array_splice($values, $nullPos, 1);
         }
 
         $sql = "";
-        if (sizeof($this->values)) {
+        if (sizeof($values)) {
             $directive = $this->negated ? "NOT IN" : "IN";
-            $sql = $this->member . " $directive (?" . str_repeat(",?", sizeof($this->values) - 1) . ")";
+            $sql = $this->member . " $directive (?" . str_repeat(",?", sizeof($values) - 1) . ")";
         }
 
         if (is_numeric($nullPos)) {
@@ -58,10 +67,8 @@ class InFilter implements Filter {
         return $sql;
     }
 
-    /**
-     * @return array
-     */
-    public function getParameterValues() {
-        return $this->values;
+    public function getParameterValues() : array {
+        // Ignore nulls because they're special cased in the SQL Clause
+        return [...array_filter($this->values, fn($x) => $x !== null)];
     }
 }

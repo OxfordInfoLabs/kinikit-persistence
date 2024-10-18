@@ -176,7 +176,8 @@ class TableMapper {
 
 
         // If just a where clause, handle this otherwise assume full query.
-        $results = $this->queryEngine->query($tableMapping, "SELECT * FROM {$tableName} " . $whereClause, $placeholderValues);
+        $querySQL = "SELECT * FROM {$tableName} " . $whereClause;
+        $results = $this->queryEngine->query($tableMapping, $querySQL, $placeholderValues);
         return array_values($results);
 
     }
