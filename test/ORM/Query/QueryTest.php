@@ -79,7 +79,9 @@ class QueryTest extends TestCase {
             Address::class, "WHERE (street1 IN (?,?) OR street1 IS NULL) AND street2 = ?", ["SOMEWHERE", "SOMEWHERE3", "NOWHERE"]
         ]);
 
-        $this->assertEquals($expectedReturn, $query->query(["street1" => ["SOMEWHERE", null, "SOMEWHERE3"], "street2" => "NOWHERE"]));
+        $values = $query->query(["street1" => ["SOMEWHERE", null, "SOMEWHERE3"], "street2" => "NOWHERE"]);
+
+        $this->assertEquals($expectedReturn, $values);
 
     }
 

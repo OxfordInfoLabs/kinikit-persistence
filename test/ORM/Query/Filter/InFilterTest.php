@@ -37,6 +37,9 @@ class InFilterTest extends TestCase {
         $this->assertEquals("test IS NOT NULL", $filter->getSQLClause());
         $this->assertEquals([], $filter->getParameterValues());
 
+        $filter = new InFilter("account_id", [0, NULL]);
+        $this->assertEquals("(account_id IN (?) OR account_id IS NULL)", $filter->getSQLClause());
+        $this->assertSame([0], $filter->getParameterValues());
     }
 
 }
