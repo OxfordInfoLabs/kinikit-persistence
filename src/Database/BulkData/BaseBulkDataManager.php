@@ -63,8 +63,9 @@ abstract class BaseBulkDataManager implements BulkDataManager {
      * @param string $tableName
      * @param \mixed[][] $rows
      * @param null $insertColumns
+     * @param bool $ignoreDuplicates
      */
-    public function insert($tableName, $rows, $insertColumns = null) {
+    public function insert($tableName, $rows, $insertColumns = null, $ignoreDuplicates = false) {
 
         // Exit if nothing to do.
         if (sizeof($rows) == 0) {
@@ -82,7 +83,7 @@ abstract class BaseBulkDataManager implements BulkDataManager {
         }
 
 
-        $this->doInsert($tableName, $rows, $insertColumns);
+        $this->doInsert($tableName, $rows, $insertColumns, $ignoreDuplicates);
     }
 
     /**
@@ -142,7 +143,6 @@ abstract class BaseBulkDataManager implements BulkDataManager {
             $replaceColumns = array_keys($rows[0]);
         }
 
-      
 
         $this->doReplace($tableName, $rows, $replaceColumns);
     }
@@ -178,9 +178,10 @@ abstract class BaseBulkDataManager implements BulkDataManager {
      * @param $tableName
      * @param $rows
      * @param null $insertColumns
+     * @param $ignoreDuplicates
      * @return mixed
      */
-    public abstract function doInsert($tableName, $rows, $insertColumns);
+    public abstract function doInsert($tableName, $rows, $insertColumns, $ignoreDuplicates);
 
 
     /**

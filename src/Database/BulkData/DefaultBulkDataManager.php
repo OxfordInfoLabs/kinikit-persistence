@@ -26,9 +26,10 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
      * @param string $tableName
      * @param mixed[][] $rows
      * @param null $insertColumns
+     * @param $ignoreDuplicates
      * @throws SQLException
      */
-    public function doInsert($tableName, $rows, $insertColumns) {
+    public function doInsert($tableName, $rows, $insertColumns, $ignoreDuplicates) {
 
         // Escape all insert columns
         foreach ($insertColumns as  $insertColumn) {
