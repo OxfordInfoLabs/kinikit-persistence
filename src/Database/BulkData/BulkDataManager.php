@@ -25,12 +25,17 @@ interface BulkDataManager {
      * If insert columns is supplied these will be used, otherwise the first row will be taken
      * as the blueprint for all rows.
      *
+     * If ignore duplicates is passed as true this will be used if the given database engine
+     * supports this functionality (NB: may not always be available).
+     *
      * @param string $tableName
      * @param mixed[][] $rows
      * @param string[] $insertColumns
+     * @param bool $ignoreDuplicates
+     *
      * @throws SQLException
      */
-    public function insert($tableName, $rows, $insertColumns = null);
+    public function insert($tableName, $rows, $insertColumns = null, $ignoreDuplicates = false);
 
 
     /**

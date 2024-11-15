@@ -218,7 +218,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * @return \Kinikit\Persistence\Database\BulkData\BulkDataManager|StandardBulkDataManager
      */
     public function getBulkDataManager() {
-        return new StandardBulkDataManager($this);
+        return new MySQLBulkDataManager($this);
     }
 
     /**

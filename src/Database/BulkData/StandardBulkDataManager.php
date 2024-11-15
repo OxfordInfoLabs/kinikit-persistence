@@ -21,9 +21,10 @@ class StandardBulkDataManager extends DefaultBulkDataManager {
      * @param string $tableName
      * @param \mixed[][] $rows
      * @param null $insertColumns
+     * @param $ignoreDuplicates
      * @return mixed|void
      */
-    public function doInsert($tableName, $rows, $insertColumns) {
+    public function doInsert($tableName, $rows, $insertColumns, $ignoreDuplicates) {
         $this->doInsertOrReplace($tableName, $rows, $insertColumns);
     }
 
@@ -33,7 +34,7 @@ class StandardBulkDataManager extends DefaultBulkDataManager {
 
 
     // Actually do an insert or replace (they are basically the same except for keyword difference).
-    private function doInsertOrReplace($tableName, $rows, $insertColumns, $type = "INSERT") {
+    protected function doInsertOrReplace($tableName, $rows, $insertColumns, $type = "INSERT") {
 
 
         $escapedColumns = [];
