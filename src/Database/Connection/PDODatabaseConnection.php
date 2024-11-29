@@ -4,6 +4,7 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\PDOPreparedStatement;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
@@ -102,8 +103,16 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
 
             $success = $this->executeCallableWithLogging(function () use ($statement, $placeholderValues) {
                 // Bind values - as numbers if numeric
-                foreach ($placeholderValues as $index => $value) {
-                    $statement->bindValue($index + 1, $value, is_numeric($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+                try {
+                    foreach ($placeholderValues as $index => $value) {
+                        $statement->bindValue($index + 1, $value, is_numeric($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+                    }
+                } catch (\Exception $e) {
+                    Logger::log($e);
+                    Logger::log("Placeholder Values: ");
+                    Logger::log($placeholderValues);
+                    Logger::log("Parameter Index: $index");
+                    throw $e;
                 }
                 return $statement->execute();
             }, $sql);
