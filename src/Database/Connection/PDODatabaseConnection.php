@@ -107,6 +107,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
                     foreach ($placeholderValues as $index => $value) {
                         $statement->bindValue($index + 1, $value, is_numeric($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
                     }
+                    return $statement->execute();
                 } catch (\Exception $e) {
                     Logger::log($e);
                     Logger::log("Placeholder Values: ");
@@ -114,7 +115,6 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
                     Logger::log("Parameter Index: $index");
                     throw $e;
                 }
-                return $statement->execute();
             }, $sql);
 
             if ($success) {
