@@ -1,5 +1,7 @@
 application.namespace = Kinikit\Persistence
 
+log.file = application.log
+
 # Default connection
 db.provider = sqlite3
 db.filename = DB/application.db
@@ -10,6 +12,8 @@ mysql.db.host = 127.0.0.1
 mysql.db.database = kinikittest
 mysql.db.username = kinikittest
 mysql.db.password = kinikittest
+mysql.db.logFile = DB/mysql-log.txt
+mysql.db.exceptionRetries = 2
 
 postgresql.db.provider = postgresql
 postgresql.db.host = localhost
