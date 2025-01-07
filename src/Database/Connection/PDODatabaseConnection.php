@@ -112,8 +112,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
                     Logger::log($e);
                     Logger::log("Placeholder Values: ");
                     Logger::log($placeholderValues);
-                    Logger::log("Parameter Index: $index");
-                    throw $e;
+                    throw new SQLException($e->getMessage());
                 }
             }, $sql);
 

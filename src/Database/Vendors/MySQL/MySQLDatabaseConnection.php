@@ -2,6 +2,8 @@
 
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
+use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
@@ -27,6 +29,18 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         "SMALLINT" => 6,
         "BIGINT" => 20
     ];
+
+    const QUERY_RETRY_STRINGS = [
+        "Deadlock" => 0,
+        "Lock wait" => 0,
+        "gone away" => 1
+    ];
+
+
+    /**
+     * @var int
+     */
+    private $exceptionRetries = 5;
 
 
     /**
@@ -54,6 +68,9 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         // Add username and password in.
         if (isset($configParams["username"])) $pdoParams["username"] = $configParams["username"];
         if (isset($configParams["password"])) $pdoParams["password"] = $configParams["password"];
+
+        // If exception retries, record this.
+        if (isset($configParams["exceptionRetries"])) $this->exceptionRetries = $configParams["exceptionRetries"];
 
         $connection = parent::connect($pdoParams);
 
@@ -94,6 +111,45 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         $sql = preg_replace("/VARCHAR([^\(]|$)/i", "VARCHAR(255)$1", $sql);
 
         return $sql;
+    }
+
+    /**
+     * Override Execute method to retry if necessary.
+     *
+     * @param $sql
+     * @param ...$placeholders
+     * @return bool|void
+     */
+    public function execute($sql, ...$placeholders) {
+        $retries = 1;
+        while ($retries > 0) {
+            try {
+                return parent::execute($sql, $placeholders);
+            } catch (SQLException $e) {
+                if (!$this->isRetryException($e) || $retries > $this->exceptionRetries) {
+                    throw $e;
+                }
+                Logger::log("MySQL Statement Retry $retries: " . $e->getMessage(), 6);
+                $retries++;
+            }
+        }
+    }
+
+    public function doQuery($sql, $placeholderValues) {
+
+        $retries = 1;
+        while ($retries > 0) {
+            try {
+                return parent::doQuery($sql, $placeholderValues);
+            } catch (SQLException $e) {
+                if (!$this->isRetryException($e) || $retries > $this->exceptionRetries) {
+                    throw $e;
+                }
+                Logger::log("MySQL Query Retry $retries: " . $e->getMessage(), 6);
+                $retries++;
+            }
+        }
+
     }
 
 
@@ -227,5 +283,23 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
     public function getDDLManager() {
         return new MySQLDDLManager();
     }
+
+
+    /**
+     * If the exception is a retry exception
+     *
+     * @param \Exception $exception
+     * @return bool
+     */
+    private function isRetryException($exception) {
+        foreach (self::QUERY_RETRY_STRINGS as $retryString => $sleep) {
+            if (str_contains($exception->getMessage(), $retryString)) {
+                sleep($sleep);
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 

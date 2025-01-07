@@ -67,6 +67,66 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testIfExceptionRaisedWithoutARetryStatusExecutionsAreNotRetried() {
+        if (file_exists("application.log"))
+            unlink("application.log");
+
+        try {
+            $this->mysqlDatabaseConnection->execute("INSERT BAD QUERY");
+            $this->fail("Should have thrown here");
+        } catch (SQLException $e) {
+        }
+
+        $this->assertFalse(file_exists("application.log"));
+
+    }
+
+    public function testIfExceptionRaisedWithARetryStatusExecutionsAreRetriedAccordingToNumberOfTimes() {
+
+        if (file_exists("application.log"))
+            unlink("application.log");
+
+        $configParams = Configuration::instance()->getParametersMatchingPrefix("mysql.db.", true);
+        $connection2 = new MySQLDatabaseConnection($configParams);
+        $connection2->execute("SET SESSION innodb_lock_wait_timeout = 1");
+        $this->mysqlDatabaseConnection->execute("SET SESSION innodb_lock_wait_timeout = 1");
+
+        $this->mysqlDatabaseConnection->execute("INSERT INTO test_child (id) VALUES (1)");
+
+        $connection2->beginTransaction();
+        $connection2->execute("SELECT * FROM test_child WHERE id = 1 LOCK IN SHARE MODE");
+
+
+        try {
+            $this->mysqlDatabaseConnection->beginTransaction();
+            $this->mysqlDatabaseConnection->execute("UPDATE test_child SET id = 2 WHERE id = 1");
+        } catch (SQLException $e) {
+            // We expect this but with a retry according to configured retry times
+        }
+
+        $log = file_get_contents("application.log");
+        $this->assertStringContainsString("MySQL Statement Retry 1", $log);
+        $this->assertStringContainsString("MySQL Statement Retry 2", $log);
+        $this->assertStringNotContainsString("MySQL Statement Retry 3", $log);
+
+        // Test query function as well.
+        unlink("application.log");
+
+        try {
+            $this->mysqlDatabaseConnection->query("UPDATE test_child SET id = 2 WHERE id = 1");
+        } catch (SQLException $e) {
+            // We expect this but with a retry according to configured retry times
+        }
+        $log = file_get_contents("application.log");
+        $this->assertStringContainsString("MySQL Query Retry 1", $log);
+        $this->assertStringContainsString("MySQL Query Retry 2", $log);
+        $this->assertStringNotContainsString("MySQL Query Retry 3", $log);
+
+        $this->mysqlDatabaseConnection->rollback();
+
+    }
+
+
     public function testCanExecuteAPreparedStatementInMysql() {
 
         // Get the mysql connection object
@@ -276,6 +336,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
 
 }
 

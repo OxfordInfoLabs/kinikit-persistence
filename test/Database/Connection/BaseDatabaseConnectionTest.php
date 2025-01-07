@@ -31,7 +31,8 @@ class BaseDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
         $dbConnection = new TestDatabaseConnection(Configuration::instance()->getParametersMatchingPrefix("mysql.db.", true));
         $this->assertEquals(["provider" => "mysql", "host" => "127.0.0.1",
-            "database" => "kinikittest", "username" => "kinikittest", "password" => "kinikittest"], $dbConnection->configParams);
+            "database" => "kinikittest", "username" => "kinikittest", "password" => "kinikittest", "logFile" => 'DB/mysql-log.txt',
+    'exceptionRetries' => '2'], $dbConnection->configParams);
 
 
     }
