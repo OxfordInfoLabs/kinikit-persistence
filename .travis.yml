@@ -16,7 +16,7 @@ before_install:
   - sudo psql -c "create user kinikittest with password 'kinikittest' CREATEDB;" -U postgres
   - sudo psql -c 'create database kinikittest;' -U postgres
 before_script: composer install; composer update; cd test
-script: phpunit .
+script: phpunit --exclude-group nontravis .
 after_success:
   - "../trigger_travis_build.sh kiniauth"
 env:

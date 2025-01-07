@@ -81,6 +81,13 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    /**
+     * @return void
+     * @throws SQLException
+     * @throws \Kinikit\Persistence\Database\Connection\DatabaseConnectionException
+     *
+     * @group nontravis
+     */
     public function testIfExceptionRaisedWithARetryStatusExecutionsAreRetriedAccordingToNumberOfTimes() {
 
         if (file_exists("application.log"))
