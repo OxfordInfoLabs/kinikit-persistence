@@ -121,6 +121,11 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * @return bool|void
      */
     public function execute($sql, ...$placeholders) {
+
+        if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
+            $placeholders = $placeholders[0];
+        }
+
         $retries = 1;
         while ($retries > 0) {
             try {
