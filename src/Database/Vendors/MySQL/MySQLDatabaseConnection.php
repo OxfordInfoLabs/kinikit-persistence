@@ -131,7 +131,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
             try {
                 return parent::execute($sql, $placeholders);
             } catch (SQLException $e) {
-                if (!$this->isRetryException($e) || $retries > $this->exceptionRetries) {
+                if (!self::isRetryException($e) || $retries > $this->exceptionRetries) {
                     throw $e;
                 }
                 Logger::log("MySQL Statement Retry $retries: " . $e->getMessage(), 6);
@@ -147,7 +147,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
             try {
                 return parent::doQuery($sql, $placeholderValues);
             } catch (SQLException $e) {
-                if (!$this->isRetryException($e) || $retries > $this->exceptionRetries) {
+                if (!self::isRetryException($e) || $retries > $this->exceptionRetries) {
                     throw $e;
                 }
                 Logger::log("MySQL Query Retry $retries: " . $e->getMessage(), 6);
@@ -155,6 +155,17 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
             }
         }
 
+    }
+
+    /**
+     * Do create prepared statement.
+     *
+     * @param $sql
+     * @return MySQLPreparedStatement
+     * @throws SQLException
+     */
+    public function doCreatePreparedStatement($sql) {
+        return new MySQLPreparedStatement($sql, $this->connection, $this->exceptionRetries);
     }
 
 
@@ -296,7 +307,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * @param \Exception $exception
      * @return bool
      */
-    private function isRetryException($exception) {
+    public static function isRetryException($exception) {
         foreach (self::QUERY_RETRY_STRINGS as $retryString => $sleep) {
             if (str_contains($exception->getMessage(), $retryString)) {
                 sleep($sleep);

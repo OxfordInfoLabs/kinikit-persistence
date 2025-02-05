@@ -4,6 +4,7 @@
 namespace Kinikit\Persistence\Database\BulkData;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
 
 /**
