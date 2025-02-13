@@ -7,6 +7,7 @@ namespace Kinikit\Persistence\Database\PreparedStatement;
 use Kinikit\Core\Exception\DebugException;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use PDO;
 
 class PDOPreparedStatement extends BasePreparedStatement {
 
@@ -54,6 +55,9 @@ class PDOPreparedStatement extends BasePreparedStatement {
         if (sizeof($parameterValues) != $this->boundValues) {
             throw new WrongNumberOfPreparedStatementParametersException($this->boundValues, sizeof($parameterValues));
         }
+
+
+        Logger::log($parameterValues);
 
         // Bind each parameter value
         foreach ($parameterValues as $index => $parameterValue) {

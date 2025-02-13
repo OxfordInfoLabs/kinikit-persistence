@@ -31,7 +31,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
     ];
 
     const QUERY_RETRY_STRINGS = [
-        "Deadlock" => 0,
+        "Deadlock" => 1,
         "Lock wait" => 0,
         "gone away" => 1
     ];
