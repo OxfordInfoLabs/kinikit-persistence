@@ -56,9 +56,6 @@ class PDOPreparedStatement extends BasePreparedStatement {
             throw new WrongNumberOfPreparedStatementParametersException($this->boundValues, sizeof($parameterValues));
         }
 
-
-        Logger::log($parameterValues);
-
         // Bind each parameter value
         foreach ($parameterValues as $index => $parameterValue) {
 
