@@ -6,9 +6,11 @@ namespace Kinikit\Persistence\Tools;
 
 use DirectoryIterator;
 use Kinikit\Core\Binding\ObjectBinder;
+use Kinikit\Core\Bootstrapper;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Configuration\SearchNamespaces;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
@@ -106,6 +108,7 @@ class TestDataInstaller {
             $this->databaseConnection->clearMetaDataCache();
         }
 
+        // Add test as a search path
         $directories = $this->fileResolver->getSearchPaths();
         $directories = array_reverse($directories);
 
@@ -119,10 +122,25 @@ class TestDataInstaller {
 
             if (file_exists($directory . "/../test/TestData"))
                 $this->processTestDataDirectory($directory . "/../test/TestData");
+
         }
+
 
         // Re-enable interceptors after inserting test data.
         $this->ormInterceptorProcessor->setEnabled(true);
+
+
+        // Load bootstrap scripts to ensure we are fully ready.
+        Container::instance()->get(Bootstrapper::class);
+
+        // Process any test scripts
+        foreach ($directories as $directory) {
+
+            if (file_exists($directory . "/../test/TestScripts"))
+                $this->processTestScriptsDirectory($directory, "/../test/TestScripts");
+
+        }
+
 
 
     }
@@ -204,6 +222,33 @@ class TestDataInstaller {
 
 
     }
+
+    /**
+     * Process test scripts
+     *
+     * @param mixed $directory
+     * @param string $string
+     * @return void
+     */
+    private function processTestScriptsDirectory($baseDir, $suffix = "") {
+
+        $iterator = new DirectoryIterator($baseDir . $suffix);
+        foreach ($iterator as $item) {
+
+            if ($item->isDot())
+                continue;
+
+            if ($item->isDir()) {
+                $this->processTestScriptsDirectory($baseDir, $suffix . "/" . $item->getFilename());
+                continue;
+            }
+
+            if ($item->getExtension() == "php")
+                include $baseDir . $suffix . "/" . $item->getFilename();
+
+        }
+    }
+
 
 }
 
