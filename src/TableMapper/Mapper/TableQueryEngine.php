@@ -156,7 +156,8 @@ class TableQueryEngine {
 
             $myColumns = [];
             foreach ($allColumns as $column) {
-                $myColumns[] = "_X.$column _X__$column";
+                $escapedColumn = $tableMapping->getDatabaseConnection()->escapeColumn($column);
+                $myColumns[] = "_X.$escapedColumn _X__$column";
             }
             $select .= join(", ", $myColumns);
 
@@ -179,6 +180,7 @@ class TableQueryEngine {
 
 
         $query = str_replace("FROM {$tableMapping->getTableName()}", $replacementClause, $query);
+
 
         $results = $tableMapping->getDatabaseConnection()->query($query, $placeholderValues)->fetchAll();
 
@@ -346,7 +348,8 @@ class TableQueryEngine {
 
             $columns = $relatedTableMapping->getColumnNames();
             foreach ($columns as $column) {
-                $additionalSelectColumns[] = $alias . "." . $column . " " . $relationshipAliasPrefix . $column;
+                $escapedColumn = $tableMapping->getDatabaseConnection()->escapeColumn($column);
+                $additionalSelectColumns[] = $alias . "." . $escapedColumn . " " . $relationshipAliasPrefix . $column;
             }
 
 
