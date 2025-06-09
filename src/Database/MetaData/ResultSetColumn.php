@@ -47,6 +47,7 @@ class ResultSetColumn {
     const SQL_LONGBLOB = "LONGBLOB";
     const SQL_UNKNOWN = "UNKNOWN";
     const SQL_VECTOR = "VECTOR";
+    const SQL_JSON = "JSON";
 
 
     /**
