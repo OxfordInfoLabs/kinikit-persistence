@@ -72,15 +72,9 @@ class PDOPreparedStatement extends BasePreparedStatement {
 
             } else if (is_bool($parameterValue)) {
                 $this->statement->bindValue(($index + 1), $parameterValue, \PDO::PARAM_BOOL);
+            } else if (is_array($parameterValue)) {
+                $this->statement->bindValue(($index + 1), json_encode($parameterValue));
             } else {
-                if (is_array($parameterValue)) {
-                    Logger::log("Tried binding an array in an SQL Statement");
-                    Logger::log($this->getStatementSQL());
-                    Logger::log("Parameter value:");
-                    Logger::log($parameterValue);
-                    throw new DebugException("Tried binding an array in an SQL Statement",
-                        debugMessage: "Tried binding an array in an SQL Statement: " . $this->getStatementSQL());
-                }
                 $this->statement->bindValue(($index + 1), $parameterValue);
             }
 

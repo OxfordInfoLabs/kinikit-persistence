@@ -28,7 +28,7 @@ class MySQLResultSet extends PDOResultSet {
         "LONGBLOB" => TableColumn::SQL_LONGBLOB,
         "TEXT" => TableColumn::SQL_BLOB,
         "LONGTEXT" => TableColumn::SQL_LONGBLOB,
-        "JSON" => TableColumn::SQL_LONGBLOB
+        "JSON" => TableColumn::SQL_JSON
     ];
 
 
@@ -47,6 +47,7 @@ class MySQLResultSet extends PDOResultSet {
     // Store columns for efficiency
     private $columns = null;
     private $decimalColumns = [];
+    private $jsonColumns = [];
 
     /**
      * Preload columns up front
@@ -77,7 +78,7 @@ class MySQLResultSet extends PDOResultSet {
                     if ($columnMeta) {
 
                         // Fall back to varchar
-                        if (isset($columnMeta["native_type"])){
+                        if (isset($columnMeta["native_type"])) {
                             $columnType = self::NATIVE_SQL_MAPPINGS[$columnMeta["native_type"]] ?? TableColumn::SQL_VARCHAR;
                             $lengthDivisor = self::LENGTH_COLUMN_DIVISORS[$columnMeta["native_type"]] ?? null;
                         } else { // Where we have a non-native PHP type
@@ -92,6 +93,11 @@ class MySQLResultSet extends PDOResultSet {
                         // Record decimal types for later
                         if ($columnType == TableColumn::SQL_REAL || $columnType == TableColumn::SQL_DOUBLE || $columnType == TableColumn::SQL_DECIMAL || $columnType == TableColumn::SQL_FLOAT) {
                             $this->decimalColumns[] = $columnMeta["name"];
+                        }
+
+                        // Store any JSON columns for easy access
+                        if ($columnType === TableColumn::SQL_JSON) {
+                            $this->jsonColumns[] = $columnMeta["name"];
                         }
 
 
@@ -122,6 +128,13 @@ class MySQLResultSet extends PDOResultSet {
         if ($this->decimalColumns && $row) {
             foreach ($this->decimalColumns as $decimalColumn) {
                 $row[$decimalColumn] = doubleval($row[$decimalColumn]);
+            }
+        }
+
+        // Decode any json columns
+        if ($this->jsonColumns && $row) {
+            foreach ($this->jsonColumns as $jsonColumn) {
+                $row[$jsonColumn] = json_decode($row[$jsonColumn]);
             }
         }
 
