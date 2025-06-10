@@ -4,6 +4,7 @@
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\ResultSet\PDOResultSet;
@@ -81,8 +82,9 @@ class MySQLResultSet extends PDOResultSet {
                         if (isset($columnMeta["native_type"])) {
                             $columnType = self::NATIVE_SQL_MAPPINGS[$columnMeta["native_type"]] ?? TableColumn::SQL_VARCHAR;
                             $lengthDivisor = self::LENGTH_COLUMN_DIVISORS[$columnMeta["native_type"]] ?? null;
-                        } else { // Where we have a non-native PHP type
-                            $columnType = TableColumn::SQL_LONGBLOB;
+                        } else {
+                            // Assume JSON for now
+                            $columnType = TableColumn::SQL_JSON;
                             $lengthDivisor = null;
                         }
 
@@ -134,7 +136,7 @@ class MySQLResultSet extends PDOResultSet {
         // Decode any json columns
         if ($this->jsonColumns && $row) {
             foreach ($this->jsonColumns as $jsonColumn) {
-                $row[$jsonColumn] = json_decode($row[$jsonColumn]);
+                $row[$jsonColumn] = json_decode($row[$jsonColumn],true);
             }
         }
 

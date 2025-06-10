@@ -13,6 +13,7 @@ use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\WrongNumberOfPreparedStatementParametersException;
+use mysql_xdevapi\Table;
 
 
 include_once "autoloader.php";
@@ -215,13 +216,13 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $query = "CREATE TABLE test_types (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, 
             small_int SMALLINT, big_int BIGINT, 
             float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
-            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB)";
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, json_val JSON)";
 
         $this->mysqlDatabaseConnection->execute($query);
 
         $tableColumns = $this->mysqlDatabaseConnection->getTableColumnMetaData("test_types");
 
-        $this->assertEquals(14, sizeof($tableColumns));
+        $this->assertEquals(15, sizeof($tableColumns));
         $this->assertEquals(new TableColumn("id", "INT", 11, null, null, true, true, true), $tableColumns["id"]);
         $this->assertEquals(new TableColumn("name", "VARCHAR", 500), $tableColumns["name"]);
         $this->assertEquals(new TableColumn("tiny_int", "TINYINT", 4, null, 33, false, false, true), $tableColumns["tiny_int"]);
@@ -236,6 +237,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new TableColumn("date_time", "DATETIME"), $tableColumns["date_time"]);
 //        $this->assertEquals(new TableColumn("timestamp_val", "TIMESTAMP", null, null, "current_timestamp()", false, false, true), $tableColumns["timestamp_val"]);
         $this->assertEquals(new TableColumn("blob_val", "BLOB"), $tableColumns["blob_val"]);
+        $this->assertEquals(new TableColumn("json_val", "JSON"), $tableColumns["json_val"]);
     }
 
 
@@ -279,7 +281,8 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $query = "DROP TABLE IF EXISTS test_all_types; CREATE TABLE test_all_types (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500), tiny_int TINYINT NOT NULL DEFAULT 33, 
             small_int SMALLINT, big_int BIGINT, 
             float_val FLOAT, double_val DOUBLE, real_val REAL, decimal_val DECIMAL(1,1), date_val DATE,
-            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, long_blob_val LONGBLOB, text_val TEXT, long_text_val LONGTEXT, json_val JSON
+            time_val TIME, date_time DATETIME, timestamp_val TIMESTAMP, blob_val BLOB, 
+            long_blob_val LONGBLOB, text_val TEXT, long_text_val LONGTEXT, json_val JSON
             )";
 
         $this->mysqlDatabaseConnection->executeScript($query);
@@ -305,7 +308,7 @@ class MySQLDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new ResultSetColumn("long_blob_val", TableColumn::SQL_LONGBLOB), $columns[14]);
         $this->assertEquals(new ResultSetColumn("text_val", TableColumn::SQL_BLOB), $columns[15]);
         $this->assertEquals(new ResultSetColumn("long_text_val", TableColumn::SQL_LONGBLOB), $columns[16]);
-        $this->assertEquals(new ResultSetColumn("json_val", TableColumn::SQL_LONGBLOB), $columns[17]);
+        $this->assertEquals(new ResultSetColumn("json_val", TableColumn::SQL_JSON), $columns[17]);
 
 
         // Try another query
