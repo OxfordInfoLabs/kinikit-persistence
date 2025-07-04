@@ -133,10 +133,11 @@ class MySQLResultSet extends PDOResultSet {
             }
         }
 
-        // Decode any json columns
+        // Decode any json columns if not null
         if ($this->jsonColumns && $row) {
             foreach ($this->jsonColumns as $jsonColumn) {
-                $row[$jsonColumn] = json_decode($row[$jsonColumn],true);
+                if ($row[$jsonColumn])
+                    $row[$jsonColumn] = json_decode($row[$jsonColumn],true);
             }
         }
 
