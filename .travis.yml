@@ -14,8 +14,8 @@ before_install:
   - sudo mysql -e "CREATE USER 'kinikittest'@'127.0.0.1' identified by 'kinikittest'";
   - sudo mysql -e "GRANT ALL ON kinikittest.* to 'kinikittest'@'127.0.0.1'";
 before_script:
-  - sudo psql -c "create user kinikittest with password 'kinikittest' CREATEDB;" -U postgres
-  - sudo psql -c 'create database kinikittest;' -U postgres
+  - sudo psql -c "create user kinikittest with password 'kinikittest' CREATEDB;" -U postgres -p 5433
+  - sudo psql -c 'create database kinikittest;' -U postgres -p 5433
   - composer install; composer update; cd test
 script: phpunit --exclude-group nontravis .
 after_success:
