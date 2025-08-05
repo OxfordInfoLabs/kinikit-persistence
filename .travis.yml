@@ -2,8 +2,6 @@ dist: jammy
 language: php
 php:
   - '8.2'
-addons:
-  postgresql: "13"
 services:
   - mysql
   - postgresql
@@ -13,9 +11,10 @@ before_install:
   - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS kinikittest';
   - sudo mysql -e "CREATE USER 'kinikittest'@'127.0.0.1' identified by 'kinikittest'";
   - sudo mysql -e "GRANT ALL ON kinikittest.* to 'kinikittest'@'127.0.0.1'";
+  - sudo service postgresql restart
 before_script:
-  - sudo psql -c "create user kinikittest with password 'kinikittest' CREATEDB;" -U postgres -p 5433
-  - sudo psql -c 'create database kinikittest;' -U postgres -p 5433
+  - sudo psql -c "create user kinikittest with password 'kinikittest' CREATEDB;" -U postgres
+  - sudo psql -c 'create database kinikittest;' -U postgres
   - composer install; composer update; cd test
 script: phpunit --exclude-group nontravis .
 after_success:
