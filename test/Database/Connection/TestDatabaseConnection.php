@@ -14,6 +14,8 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
     public $configParams;
     public $lastSQL;
 
+    public $executedStatements = [];
+
 
     /**
      * Connect to the database.  This receives an array of normalised stripped config parameters
@@ -66,7 +68,8 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * @return void
      */
     public function doCreatePreparedStatement($sql) {
-        // TODO: Implement executePreparedStatement() method.
+        $this->executedStatements[] = $sql;
+        return new TestPreparedStatement();
     }
 
     /**

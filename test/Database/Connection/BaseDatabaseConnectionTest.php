@@ -32,7 +32,7 @@ class BaseDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $dbConnection = new TestDatabaseConnection(Configuration::instance()->getParametersMatchingPrefix("mysql.db.", true));
         $this->assertEquals(["provider" => "mysql", "host" => "127.0.0.1",
             "database" => "kinikittest", "username" => "kinikittest", "password" => "kinikittest", "logFile" => 'DB/mysql-log.txt',
-    'exceptionRetries' => '2'], $dbConnection->configParams);
+            'exceptionRetries' => '2'], $dbConnection->configParams);
 
 
     }
@@ -126,6 +126,39 @@ class BaseDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
             [new TableIndex("testindex", [new TableIndexColumn("bingo")])]), $dbConnection->getTableMetaData("test_table"));
 
     }
+
+
+    public function testCanExecuteScriptDelimitedBySemiColons() {
+
+        $dbConnection = new TestDatabaseConnection();
+        $testScript = "INSERT INTO test VALUES (1,2,3); INSERT INTO test VALUES (4,5,6); DELETE FROM test;";
+
+        $dbConnection->executeScript($testScript);
+        $this->assertEquals([
+            "INSERT INTO test VALUES (1,2,3)",
+            "INSERT INTO test VALUES (4,5,6)",
+            "DELETE FROM test"
+        ], $dbConnection->executedStatements);
+
+
+    }
+
+
+    public function testCanExecuteScriptDelimitedBySemiColonsWithNestedExpressionsUsingCommentedSemiColons() {
+
+        $dbConnection = new TestDatabaseConnection();
+        $testScript = "INSERT INTO test VALUES (1,2,3);-- COMMIT; INSERT INTO test VALUES (4,5,6); DELETE FROM test;";
+
+        $dbConnection->executeScript($testScript);
+        $this->assertEquals([
+            "INSERT INTO test VALUES (1,2,3); COMMIT",
+            "INSERT INTO test VALUES (4,5,6)",
+            "DELETE FROM test"
+        ], $dbConnection->executedStatements);
+
+
+    }
+
 
 
 }

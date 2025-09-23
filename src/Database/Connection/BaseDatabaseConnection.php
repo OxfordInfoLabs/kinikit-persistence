@@ -208,6 +208,10 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
             $scriptContents = preg_replace("/'(.*?);(.*?)'/", "'$1||^^$2'", $scriptContents, -1, $numberProcessed);
 
 
+        // Substitute any commented semi colons.
+        $scriptContents = str_replace(";--", "!!!", $scriptContents);
+
+
         $splitStatements = explode(";", $scriptContents);
 
 
@@ -218,7 +222,10 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
                 $numberProcessed = 1;
 
                 while ($numberProcessed > 0)
-                    $statement = preg_replace("/'(.*?)\|\|\^\^(.*?)'/", "'$1;$2'", $statement, -1, $numberProcessed);
+                    $statement = trim(preg_replace("/'(.*?)\|\|\^\^(.*?)'/", "'$1;$2'", $statement, -1, $numberProcessed));
+
+                // Resubstitute commented semi colons
+                $statement = str_replace("!!!", ";", $statement);
 
                 $this->execute($statement);
 
