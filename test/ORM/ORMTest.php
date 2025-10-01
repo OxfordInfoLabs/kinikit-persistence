@@ -332,7 +332,6 @@ class ORMTest extends TestCase {
         $this->assertEquals($this->orm->fetch(Address::class, 1), $contact->getPrimaryAddress());
         $this->assertEquals(array_values($this->orm->multiFetch(PhoneNumber::class, [2, 1])), $contact->getPhoneNumbers());
 
-
         /**
          * @var Document $document
          */
@@ -780,52 +779,65 @@ class ORMTest extends TestCase {
             "filename" => "DB/adhoc.db"
         ]);
 
-        $connection->query("CREATE TABLE address (
-            id              INTEGER,
-            name            VARCHAR(50),
-            street_1        VARCHAR(100),
-            street_2        VARCHAR(100),
-            phone_number     VARCHAR(255),
-            country_code     VARCHAR(255),
-            PRIMARY KEY(id)
-            );");
+        $connection->executeScript(file_get_contents(__DIR__ . "/other-orm.sql"));
 
         $orm = ORM::get($connection);
 
         // Create
-        $address = new Address(5, "John Smith", "1 Example Lane", "Non City", "123456789");
-        $orm->save($address);
+        $person = new Person("Katie Grant", [
+            new PersonAttribute("Green Hair"),
+            new PersonAttribute("Size 12 Feet")
+        ]);
+
+        $orm->save($person);
 
         $this->assertEquals([
-            'id' => 5,
-            'name' => 'John Smith',
-            'street_1' => '1 Example Lane',
-            'street_2' => 'Non City',
-            'phone_number' => '123456789',
-            'country_code' => null
-        ], $connection->query("SELECT * FROM address")->nextRow());
+            'id' => 1,
+            'name' => 'Katie Grant'
+        ], $connection->query("SELECT * FROM person")->nextRow());
+
+
+        $attributes = $connection->query("SELECT * FROM person_attribute");
+
+        $this->assertEquals([
+            'person_id' => 1,
+            'attribute' => 'Green Hair'
+        ], $attributes->nextRow());
+
+        $this->assertEquals([
+            'person_id' => 1,
+            'attribute' => 'Size 12 Feet'
+        ], $attributes->nextRow());
 
         // Read
-        $this->assertEquals($address, $orm->filter(Address::class)[0]);
+        $this->assertEquals($person, $orm->filter(Person::class)[0]);
 
         // Update
-        $address->setName("Bob Smith");
-        $address->setPhoneNumber("987654321");
-        $orm->save($address);
+        $person->setName("Nathan Spain");
+        $orm->save($person);
 
         $this->assertEquals([
-            'id' => 5,
-            'name' => 'Bob Smith',
-            'street_1' => '1 Example Lane',
-            'street_2' => 'Non City',
-            'phone_number' => '987654321',
-            'country_code' => null
-        ], $connection->query("SELECT * FROM address")->nextRow());
+            'id' => 1,
+            'name' => 'Nathan Spain'
+        ], $connection->query("SELECT * FROM person")->nextRow());
+
+
+        $attributes = $connection->query("SELECT * FROM person_attribute");
+
+        $this->assertEquals([
+            'person_id' => 1,
+            'attribute' => 'Green Hair'
+        ], $attributes->nextRow());
+
+        $this->assertEquals([
+            'person_id' => 1,
+            'attribute' => 'Size 12 Feet'
+        ], $attributes->nextRow());
 
         // Delete
-        $orm->delete($address);
+        $orm->delete($person);
 
-        $this->assertNull($connection->query("SELECT * FROM address")->nextRow());
+        $this->assertNull($connection->query("SELECT * FROM person")->nextRow());
     }
 
 

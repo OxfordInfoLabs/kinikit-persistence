@@ -113,7 +113,6 @@ class ORMMapping {
 
         if (!isset(self::$ormMappings[$dbHash][$className])) {
 
-
             // Handle mapped classes.
             $mappedClassName = Container::instance()->getClassMapping($className);
 
@@ -316,7 +315,7 @@ class ORMMapping {
 
                 try {
                     $propertyValue = $property->get($object);
-                } catch (\ReflectionException $e){
+                } catch (\ReflectionException $e) {
                     continue;
                 }
 
@@ -632,7 +631,7 @@ class ORMMapping {
 
             $relatedType = trim($properties[$field]->getType(), "[]");
 
-            $relatedORM = self::get($relatedType);
+            $relatedORM = self::get($relatedType, $databaseConnection);
 
             if ($relatedORM) {
 
@@ -658,7 +657,7 @@ class ORMMapping {
         $toOneFields = array_merge($toOneFields, $classAnnotations->getFieldAnnotationsContainingMatchingTag("oneToOne"));
         foreach ($toOneFields as $field => $annotations) {
             $relatedType = trim($properties[$field]->getType(), "[]");
-            $relatedORM = self::get($relatedType);
+            $relatedORM = self::get($relatedType, $databaseConnection);
 
             if ($relatedORM) {
 
@@ -704,7 +703,7 @@ class ORMMapping {
         $manyToOneFields = $classAnnotations->getFieldAnnotationsContainingMatchingTag("manyToOne");
         foreach ($manyToOneFields as $field => $annotations) {
             $relatedType = trim($properties[$field]->getType(), "[]");
-            $relatedORM = self::get($relatedType);
+            $relatedORM = self::get($relatedType, $databaseConnection);
 
             if ($relatedORM) {
 
