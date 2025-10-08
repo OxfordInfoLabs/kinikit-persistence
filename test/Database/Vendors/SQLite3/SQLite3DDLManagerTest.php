@@ -143,7 +143,7 @@ PRIMARY KEY ("id")
 "description" BLOB NOT NULL,
 "start_date" DATE,
 "last_modified" DATETIME
-);CREATE INDEX name_ind ON test (name);CREATE INDEX score_ind ON test (score,start_date);', $sql);
+);CREATE INDEX name_ind ON test ("name");CREATE INDEX score_ind ON test ("score","start_date");', $sql);
 
     }
 
