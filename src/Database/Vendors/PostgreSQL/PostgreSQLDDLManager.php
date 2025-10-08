@@ -224,7 +224,7 @@ WHERE contype = 'p'
     private function generateCreateIndexSQL(TableIndex $index, string $tableName): string {
         $columnDescriptors = [];
         foreach ($index->getColumns() as $column) {
-            $columnDescriptors[] = $column->getName() . ($column->getMaxBytesToIndex() > 0 ? "(" . $column->getMaxBytesToIndex() . ")" : "");
+            $columnDescriptors[] = "\"{$column->getName()}\"" . ($column->getMaxBytesToIndex() > 0 ? "(" . $column->getMaxBytesToIndex() . ")" : "");
         }
         return "CREATE INDEX {$index->getName()} ON $tableName (" . join(",", $columnDescriptors) . ")";
     }
