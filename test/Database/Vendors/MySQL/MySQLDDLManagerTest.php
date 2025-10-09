@@ -250,7 +250,7 @@ PRIMARY KEY (`id`)
 `description` BLOB NOT NULL,
 `start_date` DATE,
 `last_modified` DATETIME
-);CREATE INDEX name_ind ON test (name);CREATE INDEX score_ind ON test (score,start_date);", $sql);
+);CREATE INDEX name_ind ON test (`name`);CREATE INDEX score_ind ON test (`score`,`start_date`);", $sql);
 
     }
 
@@ -388,7 +388,7 @@ PRIMARY KEY (`id`)
 
         $sql = $this->ddlManager->generateModifyTableSQL($tableAlteration);
 
-        $this->assertEquals("CREATE INDEX new_ind ON test (name);DROP INDEX score_ind ON test;CREATE INDEX score_ind ON test (score,start_date,description);DROP INDEX date_ind ON test;CREATE INDEX date_ind ON test (last_modified,start_date);DROP INDEX name_ind ON test;", $sql);
+        $this->assertEquals("CREATE INDEX new_ind ON test (`name`);DROP INDEX score_ind ON test;CREATE INDEX score_ind ON test (`score`,`start_date`,`description`);DROP INDEX date_ind ON test;CREATE INDEX date_ind ON test (`last_modified`,`start_date`);DROP INDEX name_ind ON test;", $sql);
 
     }
 
