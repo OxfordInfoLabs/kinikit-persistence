@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\ORM\Interceptor;
 
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kinikit\Core\Configuration\ConfigFile;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
@@ -90,13 +91,16 @@ class ORMInterceptorProcessor {
      * @param string $className
      * @param mixed[] $objects
      */
-    public function processPreSaveInterceptors($className, $objects) {
+    public function processPreSaveInterceptors($className, $objects, $databaseConnection = null) {
 
         if (!$this->enabled) return;
 
         $interceptors = $this->getInterceptorsForClass($className);
         foreach ($objects as $object) {
             foreach ($interceptors as $interceptor) {
+                if (is_a($interceptor, ActiveRecordInterceptor::class)) {
+                    $interceptor->setDatabaseConnection($databaseConnection);
+                }
                 $interceptor->preSave($object);
             }
         }

@@ -225,8 +225,7 @@ class ORMMapping {
      * @param $rowData
      * @param bool $singleItem
      */
-    public function mapRowsToObjects($rowData, $existingObjects = null) {
-
+    public function mapRowsToObjects($rowData, $existingObjects = null, $databaseConnection = null) {
 
         // Loop through each row and map it.
         $returnObjects = [];
@@ -245,14 +244,14 @@ class ORMMapping {
                     if (isset($row[$propertyName])) {
 
                         // Work out if single item.
-                        $mapper = self::get($relatedClassName);
+                        $mapper = self::get($relatedClassName, $databaseConnection);
 
 
                         $populateProperty = $property->get($populateObject);
 
                         $existingPropertyObjects = $populateProperty ? ($isArray ? $populateProperty : [$populateProperty]) : null;
 
-                        $propertyResults = $mapper->mapRowsToObjects($isArray ? $row[$propertyName] : [$row[$propertyName]], $existingPropertyObjects);
+                        $propertyResults = $mapper->mapRowsToObjects($isArray ? $row[$propertyName] : [$row[$propertyName]], $existingPropertyObjects, $databaseConnection);
 
                         $propertyValue = null;
                         if ($propertyResults) {
@@ -297,13 +296,13 @@ class ORMMapping {
      *
      * @param $objects
      */
-    public function mapObjectsToRows($objects, $operationType = "SAVE") {
+    public function mapObjectsToRows($objects, $operationType = "SAVE", $databaseConnection = null) {
 
         $rows = [];
         foreach ($objects as $object) {
 
             if ($operationType == "SAVE")
-                $this->ormInterceptorProcessor->processPreSaveInterceptors($this->className, $objects);
+                $this->ormInterceptorProcessor->processPreSaveInterceptors($this->className, $objects, $databaseConnection);
             else
                 $this->ormInterceptorProcessor->processPreDeleteInterceptors($this->className, $objects);
 
@@ -328,13 +327,13 @@ class ORMMapping {
                         continue;
 
                     $relatedClassName = $this->relatedEntities[$propertyName];
-                    $relatedMapper = self::get($relatedClassName);
+                    $relatedMapper = self::get($relatedClassName, $databaseConnection);
                     if ($isArray) {
                         $items = is_array($propertyValue) ? $propertyValue : [];
-                        $row[$propertyName] = $relatedMapper->mapObjectsToRows($items, $operationType);
+                        $row[$propertyName] = $relatedMapper->mapObjectsToRows($items, $operationType, $databaseConnection);
                     } else {
                         if ($propertyValue) {
-                            $mappedRows = $relatedMapper->mapObjectsToRows([$propertyValue], $operationType);
+                            $mappedRows = $relatedMapper->mapObjectsToRows([$propertyValue], $operationType, $databaseConnection);
                             $row[$propertyName] = $mappedRows[0];
                         } else {
                             $row[$propertyName] = null;

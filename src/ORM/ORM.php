@@ -77,7 +77,7 @@ class ORM {
 
         try {
             $results = $this->tableMapper->fetch($mapping->getReadTableMapping(), $primaryKeyValue);
-            $results = $mapping->mapRowsToObjects([$results]);
+            $results = $mapping->mapRowsToObjects([$results], null, $this->databaseConnection);
             $result = sizeof($results) ? array_pop($results) : null;
 
             // If this has been vetoed by an interceptor also throw.
@@ -105,7 +105,7 @@ class ORM {
         $mapping = ORMMapping::get($className, $this->databaseConnection);
         try {
             $results = $this->tableMapper->multiFetch($mapping->getReadTableMapping(), $primaryKeyValues, $ignoreMissingObjects);
-            return $mapping->mapRowsToObjects($results);
+            return $mapping->mapRowsToObjects($results, null, $this->databaseConnection);
         } catch (PrimaryKeyRowNotFoundException $e) {
             throw new ObjectNotFoundException($className, $primaryKeyValues);
         }
@@ -130,13 +130,12 @@ class ORM {
             $placeholderValues = $placeholderValues[0];
         }
 
-
         $mapping = ORMMapping::get($className, $this->databaseConnection);
         $whereClause = $mapping->replaceMembersWithColumns($whereClause);
 
         $results = $this->tableMapper->filter($mapping->getReadTableMapping(), $whereClause, $placeholderValues);
 
-        return array_values($mapping->mapRowsToObjects($results));
+        return array_values($mapping->mapRowsToObjects($results, null, $this->databaseConnection));
 
     }
 
@@ -221,9 +220,9 @@ class ORM {
         // Now save in batches by class.
         foreach ($saveItems as $class => $classItems) {
             $mapping = ORMMapping::get($class, $this->databaseConnection);
-            $saveRows = $mapping->mapObjectsToRows($classItems);
+            $saveRows = $mapping->mapObjectsToRows($classItems, databaseConnection: $this->databaseConnection);
             $saveRows = $this->tableMapper->save($mapping->getWriteTableMapping(), $saveRows);
-            $mapping->mapRowsToObjects($saveRows, $classItems);
+            $mapping->mapRowsToObjects($saveRows, $classItems, $this->databaseConnection);
         }
 
 
@@ -257,7 +256,7 @@ class ORM {
         foreach ($deleteItems as $class => $classItems) {
 
             $mapping = ORMMapping::get($class, $this->databaseConnection);
-            $deleteRows = $mapping->mapObjectsToRows($classItems, "DELETE");
+            $deleteRows = $mapping->mapObjectsToRows($classItems, "DELETE", $this->databaseConnection);
 
 
             $this->tableMapper->delete($mapping->getWriteTableMapping(), $deleteRows);

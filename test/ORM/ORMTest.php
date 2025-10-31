@@ -308,7 +308,8 @@ class ORMTest extends TestCase {
 
         $orm->save($address1);
 
-        $this->assertTrue($interceptorProcessor->methodWasCalled("processPreSaveInterceptors", [Address::class, [$address1]]));
+        print_r($interceptorProcessor->getMethodCallHistory("processPreSaveInterceptors"));
+        $this->assertTrue($interceptorProcessor->methodWasCalled("processPreSaveInterceptors", [Address::class, [$address1], null]));
         $this->assertTrue($interceptorProcessor->methodWasCalled("processPostSaveInterceptors", [Address::class, [$address1]]));
 
 
