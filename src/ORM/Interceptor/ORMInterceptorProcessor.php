@@ -2,7 +2,6 @@
 
 namespace Kinikit\Persistence\ORM\Interceptor;
 
-use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kinikit\Core\Configuration\ConfigFile;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspectorProvider;
@@ -98,7 +97,7 @@ class ORMInterceptorProcessor {
         $interceptors = $this->getInterceptorsForClass($className);
         foreach ($objects as $object) {
             foreach ($interceptors as $interceptor) {
-                if (is_a($interceptor, ActiveRecordInterceptor::class)) {
+                if (is_a($interceptor, DefaultORMInterceptor::class)) {
                     $interceptor->setDatabaseConnection($databaseConnection);
                 }
                 $interceptor->preSave($object);

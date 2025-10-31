@@ -3,6 +3,8 @@
 
 namespace Kinikit\Persistence\ORM\Interceptor;
 
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+
 /**
  * Default interceptor - useful when we want to only override certain interceptor functions.
  *
@@ -10,6 +12,11 @@ namespace Kinikit\Persistence\ORM\Interceptor;
  * @package Kinikit\Persistence\ORM\Interceptor
  */
 class DefaultORMInterceptor implements ORMInterceptor {
+
+    /**
+     * @var DatabaseConnection
+     */
+    private $databaseConnection = null;
 
     /**
      * Called after an object has been mapped using the ORM.  This function should return
@@ -60,6 +67,16 @@ class DefaultORMInterceptor implements ORMInterceptor {
      * @param $object
      */
     public function postDelete($object) {
+    }
+
+    /**
+     * Set the database connection. Used when the interceptor is being called on an object not from
+     * the default database
+     *
+     * @param $databaseConnection
+     */
+    public function setDatabaseConnection($databaseConnection) {
+        $this->databaseConnection = $databaseConnection;
     }
 }
 
