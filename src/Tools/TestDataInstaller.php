@@ -22,7 +22,8 @@ use Kinikit\Persistence\ORM\ORM;
  * Class TestDataInstaller
  * @package Kinikit\Persistence\Tools
  */
-class TestDataInstaller {
+class TestDataInstaller
+{
 
     /**
      * @var ObjectBinder
@@ -73,7 +74,8 @@ class TestDataInstaller {
      * @param ORMInterceptorProcessor $ormInterceptorProcessor
      * @param DatabaseConnection $databaseConnection
      */
-    public function __construct($objectBinder, $orm, $dbInstaller, $fileResolver, $searchNamespaces, $ormInterceptorProcessor, $databaseConnection) {
+    public function __construct($objectBinder, $orm, $dbInstaller, $fileResolver, $searchNamespaces, $ormInterceptorProcessor, $databaseConnection)
+    {
         $this->objectBinder = $objectBinder;
         $this->orm = $orm;
         $this->dbInstaller = $dbInstaller;
@@ -91,7 +93,8 @@ class TestDataInstaller {
      *
      * If Install DB is passed this will also install the db first.
      */
-    public function run($installDB = true, $excludeTestDataPaths = []) {
+    public function run($installDB = true, $excludeTestDataPaths = [])
+    {
 
 
         $cwd = getcwd();
@@ -142,12 +145,12 @@ class TestDataInstaller {
         }
 
 
-
     }
 
 
     // Install test data
-    public static function runFromComposer($event) {
+    public static function runFromComposer($event)
+    {
 
 
         $sourceDirectory = $event && isset($event->getComposer()->getPackage()->getConfig()["source-directory"]) ?
@@ -166,7 +169,8 @@ class TestDataInstaller {
 
 
     // Process test data directory looking for objects.
-    private function processTestDataDirectory($baseDir, $suffix = "", &$processed = []) {
+    private function processTestDataDirectory($baseDir, $suffix = "", &$processed = [])
+    {
 
 
         $iterator = new DirectoryIterator($baseDir . $suffix);
@@ -230,13 +234,16 @@ class TestDataInstaller {
      * @param string $string
      * @return void
      */
-    private function processTestScriptsDirectory($baseDir, $suffix = "") {
+    private function processTestScriptsDirectory($baseDir, $suffix = "")
+    {
 
-        $iterator = new DirectoryIterator($baseDir . $suffix);
-        foreach ($iterator as $item) {
+        $files = scandir($baseDir . $suffix, SCANDIR_SORT_ASCENDING);
 
-            if ($item->isDot())
-                continue;
+        foreach ($files as $item) {
+
+            if ($item == "." || $item == "..") continue;
+
+            $item = new \SplFileInfo($item);
 
             if ($item->isDir()) {
                 $this->processTestScriptsDirectory($baseDir, $suffix . "/" . $item->getFilename());

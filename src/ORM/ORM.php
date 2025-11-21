@@ -266,5 +266,9 @@ class ORM {
 
     }
 
+    public function returnDatabaseConnection() {
+        return $this->databaseConnection;
+    }
+
 
 }
