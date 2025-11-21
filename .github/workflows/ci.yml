@@ -1,0 +1,59 @@
+name: Kinikit Persistence CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+
+        env:
+          MYSQL_ROOT_PASSWORD: k1n1k1tt3st
+          MYSQL_DATABASE: kinikittest
+          MYSQL_USER: kinikittest
+          MYSQL_PASSWORD: kinikittest
+
+        ports:
+          - 3310:3306
+
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      postgres:
+        image: postgres:15
+
+        env:
+          POSTGRES_USER: kinikittest
+          POSTGRES_PASSWORD: kinikittest
+          POSTGRES_DB: kinikittest
+
+        ports:
+          - 5432:5432
+
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+
+      - name: Install dependencies
+        working-directory: "test"
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run PHPUnit
+        working-directory: "test"
+        run: "../vendor/bin/phpunit"

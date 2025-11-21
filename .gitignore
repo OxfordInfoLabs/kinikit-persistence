@@ -3,5 +3,6 @@ vendor
 *.db
 test/DB/db-log.txt
 .phpunit.result.cache
+.phpunit.cache
 application.log
 mysql-log.txt
