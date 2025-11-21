@@ -20,7 +20,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $configuration = Configuration::instance()->getAllParameters();
 
         // Try MySQL one
-        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"] . ";port=" . $configuration["mysql.db.port"],
             "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
 
@@ -39,7 +39,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $configuration = Configuration::instance()->getAllParameters();
 
         // Try MySQL one
-        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"] . ";port=" . $configuration["mysql.db.port"],
             "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
 
@@ -80,7 +80,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $configuration = Configuration::instance()->getAllParameters();
 
         // Try MySQL one
-        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"] . ";port=" . $configuration["mysql.db.port"],
             "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo_with_blob");
@@ -139,9 +139,8 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(["id" => 2, "name" => "Jane", "is_happy" => 0], $results->fetchAll()[1]);
 
 
-
         // Try MySQL one
-        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"] . ";port=" . $configuration["mysql.db.port"],
             "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo_with_boolean");
@@ -166,7 +165,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $configuration = Configuration::instance()->getAllParameters();
 
         // Try MySQL one
-        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"] . ";port=" . $configuration["mysql.db.port"],
             "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
 
@@ -186,7 +185,7 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $configuration = Configuration::instance()->getAllParameters();
 
         // Try MySQL one
-        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"],
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "mysql:dbname=" . $configuration["mysql.db.database"] . ";host=" . $configuration["mysql.db.host"] . ";port=" . $configuration["mysql.db.port"],
             "username" => $configuration["mysql.db.username"], "password" => $configuration["mysql.db.password"]], MySQLResultSet::class);
 
         $pdoConnection->execute("DROP TABLE IF EXISTS example_pdo");

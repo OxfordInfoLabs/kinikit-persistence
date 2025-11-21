@@ -9,6 +9,7 @@ db.logFile = DB/db-log.txt
 
 mysql.db.provider = mysql
 mysql.db.host = 127.0.0.1
+mysql.db.port = 3310
 mysql.db.database = kinikittest
 mysql.db.username = kinikittest
 mysql.db.password = kinikittest
@@ -17,6 +18,7 @@ mysql.db.exceptionRetries = 2
 
 postgresql.db.provider = postgresql
 postgresql.db.host = localhost
+postgresql.db.port = 5432
 postgresql.db.database = kinikittest
 postgresql.db.username = kinikittest
 postgresql.db.password = kinikittest
