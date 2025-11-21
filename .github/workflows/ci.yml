@@ -51,7 +51,6 @@ jobs:
           php-version: "8.2"
 
       - name: Install dependencies
-        working-directory: "test"
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Run PHPUnit
