@@ -16,8 +16,8 @@ class DatabaseConnectionProviderTest extends \PHPUnit\Framework\TestCase {
         $provider = Container::instance()->get(DatabaseConnectionProvider::class);
 
         $this->assertEquals(new SQLite3DatabaseConnection(["provider" => "sqlite3", "filename" => "DB/application.db", "logFile" => "DB/db-log.txt"]), $provider->getDatabaseConnectionByConfigKey());
-        $this->assertEquals(new MySQLDatabaseConnection(["provider" => "mysql", "host" => "127.0.0.1", "database" => "kinikittest", "username" => "kinikittest", "password" => "kinikittest",'logFile' => 'DB/mysql-log.txt',
-        'exceptionRetries' => '2']), $provider->getDatabaseConnectionByConfigKey("mysql"));
+        $this->assertEquals(new MySQLDatabaseConnection(["provider" => "mysql", "host" => "127.0.0.1", "port" => 3310, "database" => "kinikittest", "username" => "kinikittest", "password" => "kinikittest", 'logFile' => 'DB/mysql-log.txt',
+            'exceptionRetries' => '2']), $provider->getDatabaseConnectionByConfigKey("mysql"));
 
         try {
             $provider->getDatabaseConnectionByConfigKey("non-existent");
