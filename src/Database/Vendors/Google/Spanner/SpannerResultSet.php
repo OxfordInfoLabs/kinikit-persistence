@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
 
 use Google\Cloud\Spanner\Result;
+use Google\Cloud\Spanner\V1\TypeCode;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
@@ -12,15 +13,22 @@ use Kinikit\Persistence\Database\ResultSet\BaseResultSet;
 class SpannerResultSet extends BaseResultSet {
 
     const SPANNER_MAPPINGS = [
-        "STRING"    => TableColumn::SQL_VARCHAR,
-        "INT64"     => TableColumn::SQL_INT,
-        "FLOAT64"   => TableColumn::SQL_FLOAT,
-        "NUMERIC"   => TableColumn::SQL_DECIMAL,
-        "DATE"      => TableColumn::SQL_DATE,
-        "TIMESTAMP" => TableColumn::SQL_TIMESTAMP,
-        "BYTES"     => TableColumn::SQL_BLOB,
-        "JSON"      => TableColumn::SQL_JSON,
-        "BOOL"      => TableColumn::SQL_TINYINT
+        TypeCode::BOOL => TableColumn::SQL_TINYINT,
+        TypeCode::INT64 => TableColumn::SQL_INTEGER,
+        TypeCode::FLOAT64 => TableColumn::SQL_FLOAT,
+        TypeCode::FLOAT32 => TableColumn::SQL_FLOAT,
+        TypeCode::TIMESTAMP => TableColumn::SQL_TIMESTAMP,
+        TypeCode::DATE => TableColumn::SQL_DATE,
+        TypeCode::STRING => TableColumn::SQL_VARCHAR,
+        TypeCode::BYTES => TableColumn::SQL_BLOB,
+        TypeCode::PBARRAY => TableColumn::SQL_VECTOR,
+        TypeCode::STRUCT => TableColumn::SQL_VARCHAR,
+        TypeCode::NUMERIC => TableColumn::SQL_DECIMAL,
+        TypeCode::JSON => TableColumn::SQL_JSON,
+        TypeCode::PROTO => TableColumn::SQL_VARCHAR,
+        TypeCode::ENUM => TableColumn::SQL_VARCHAR,
+        TypeCode::INTERVAL => TableColumn::SQL_VARCHAR,
+        TypeCode::UUID => TableColumn::SQL_VARCHAR,
     ];
     /**
      * @var \Generator
@@ -97,12 +105,11 @@ class SpannerResultSet extends BaseResultSet {
         $fields = $metadata['rowType']['fields'];
         Logger::log($fields);
 
-        foreach ($fields as $name => $typeData) {
-            // Spanner type data can be a string name or a structured type array for complex types
-            $rawType = is_array($typeData) ? ($typeData['type'] ?? 'STRING') : $typeData;
+        foreach ($fields as $field) {
+            $name = $field["name"];
 
-            // Map the uppercase Cloud Spanner Type name to your Kinikit internal format
-            $type = self::SPANNER_MAPPINGS[strtoupper($rawType)] ?? TableColumn::SQL_VARCHAR;
+            $typeCode = $field["type"]["code"];
+            $type = self::SPANNER_MAPPINGS[$typeCode];
 
             $columns[] = new ResultSetColumn($name, $type);
         }
