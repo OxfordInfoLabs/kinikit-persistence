@@ -54,17 +54,22 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
     public function doQuery($sql, $placeholderValues, $returnResults = true, $timeoutMs = 10000) {
 
         try {
+            $index = 1;
+            $spannerSql = preg_replace_callback('/\?/', function () use (&$index) {
+                return '@p' . $index++;
+            }, $sql);
+
             $options = [];
             if (!empty($placeholderValues)) {
                 $options['parameters'] = $placeholderValues;
             }
 
             if ($returnResults) {
-                $results = $this->spannerConnection->execute($sql, $options);
+                $results = $this->spannerConnection->execute($spannerSql, $options);
                 return new SpannerResultSet($results);
             } else {
-                $this->spannerConnection->runTransaction(function ($transaction) use ($sql, $options) {
-                    $transaction->executeUpdate($sql, $options);
+                $this->spannerConnection->runTransaction(function ($transaction) use ($spannerSql, $options) {
+                    $transaction->executeUpdate($spannerSql, $options);
                     $transaction->commit();
                 });
                 return true;
