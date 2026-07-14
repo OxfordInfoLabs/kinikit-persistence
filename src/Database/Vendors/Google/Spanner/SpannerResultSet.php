@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
 
 use Google\Cloud\Spanner\Result;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\ResultSet\BaseResultSet;
@@ -94,6 +95,7 @@ class SpannerResultSet extends BaseResultSet {
 
         $metadata = $queryResults->metadata();
         $fields = $metadata['rowType']['fields'];
+        Logger::log($fields);
 
         foreach ($fields as $name => $typeData) {
             // Spanner type data can be a string name or a structured type array for complex types
