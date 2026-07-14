@@ -61,7 +61,19 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
 
             $options = [];
             if (!empty($placeholderValues)) {
-                $options['parameters'] = $placeholderValues;
+                $spannerParams = [];
+                $index = 1;
+                foreach ($placeholderValues as $value) {
+                    if (is_numeric($value)) {
+                        if (floor($value) == $value) {
+                            $value = (int)$value;
+                        } else {
+                            $value = (float)$value;
+                        }
+                    }
+                    $spannerParams['p' . $index++] = $value;
+                }
+                $options['parameters'] = $spannerParams;
             }
 
             if ($returnResults) {
