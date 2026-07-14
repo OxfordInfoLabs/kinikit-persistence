@@ -133,6 +133,14 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
         $resultSet = $this->query($sql, ['tableName' => $tableName]);
         $results = $resultSet->fetchAll();
 
+        $pkSQL = "SELECT COLUMN_NAME 
+                  FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                  WHERE TABLE_NAME = @tableName 
+                    AND CONSTRAINT_NAME LIKE 'PK_%'";
+
+        $pkResults = $this->query($pkSQL, ['tableName' => $tableName]);
+        $pks = array_map(fn ($pk) => $pk['COLUMN_NAME'], $pkResults->fetchAll());
+
         $columns = [];
         foreach ($results as $row) {
             $columns[$row['COLUMN_NAME']] = new TableColumn(
@@ -141,7 +149,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                 null,
                 null,
                 $row['COLUMN_DEFAULT'] ?? null,
-                false,
+                in_array($row['COLUMN_NAME'], $pks),
                 false,
                 $row['IS_NULLABLE'] === 'NO'
             );
