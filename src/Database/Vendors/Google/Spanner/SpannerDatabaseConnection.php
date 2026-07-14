@@ -62,8 +62,20 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
             $options = [];
             if (!empty($placeholderValues)) {
                 $spannerParams = [];
+
+                // Check if the array is associative (named parameters) or indexed (positional)
+                // If it's indexed, we need to convert '?' in SQL to '@p1, @p2...'
+                $isNamed = count(array_filter(array_keys($placeholderValues), 'is_string')) > 0;
+
+                if (!$isNamed) {
+                    $index = 1;
+                    $spannerSql = preg_replace_callback('/\?/', function () use (&$index) {
+                        return '@p' . $index++;
+                    }, $sql);
+                }
+
                 $index = 1;
-                foreach ($placeholderValues as $value) {
+                foreach ($placeholderValues as $key => $value) {
                     if (is_numeric($value)) {
                         if (floor($value) == $value) {
                             $value = (int)$value;
@@ -71,8 +83,11 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                             $value = (float)$value;
                         }
                     }
-                    $spannerParams['p' . $index++] = $value;
+
+                    $paramName = $isNamed ? $key : 'p' . $index++;
+                    $spannerParams[$paramName] = $value;
                 }
+
                 $options['parameters'] = $spannerParams;
             }
 
