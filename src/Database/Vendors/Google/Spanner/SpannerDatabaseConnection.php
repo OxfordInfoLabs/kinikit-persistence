@@ -76,6 +76,9 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                 $options['parameters'] = $spannerParams;
             }
 
+            Logger::log($options);
+            Logger::log($spannerSql);
+
             if ($returnResults) {
                 $results = $this->spannerConnection->execute($spannerSql, $options);
                 return new SpannerResultSet($results);

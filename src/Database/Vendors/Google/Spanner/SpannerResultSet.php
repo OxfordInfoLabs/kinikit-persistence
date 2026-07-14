@@ -103,7 +103,6 @@ class SpannerResultSet extends BaseResultSet {
 
         $metadata = $queryResults->metadata();
         $fields = $metadata['rowType']['fields'];
-        Logger::log($fields);
 
         foreach ($fields as $field) {
             $name = $field["name"];
