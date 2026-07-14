@@ -87,6 +87,11 @@ class SpannerResultSet extends BaseResultSet {
     private function initColumns(Result $queryResults) {
         $columns = [];
 
+        // Required to initialise metadate
+        foreach ($queryResults as $result) {
+            break;
+        }
+
         $metadata = $queryResults->metadata();
         $fields = $metadata['rowType']['fields'];
 
