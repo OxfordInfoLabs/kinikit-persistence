@@ -141,6 +141,9 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
         $pkResults = $this->query($pkSQL, ['tableName' => $tableName]);
         $pks = array_map(fn ($pk) => $pk['COLUMN_NAME'], $pkResults->fetchAll());
 
+        Logger::log($results);
+        Logger::log($pks);
+
         $columns = [];
         foreach ($results as $row) {
             $columns[$row['COLUMN_NAME']] = new TableColumn(
