@@ -131,6 +131,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                 WHERE TABLE_NAME = @tableName";
 
         $resultSet = $this->query($sql, ['tableName' => $tableName]);
+        Logger::log($resultSet);
         $results = $resultSet->fetchAll();
 
         $pkSQL = "SELECT COLUMN_NAME 
@@ -139,10 +140,9 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                     AND CONSTRAINT_NAME LIKE 'PK_%'";
 
         $pkResults = $this->query($pkSQL, ['tableName' => $tableName]);
+        Logger::log($pkResults);
         $pks = array_map(fn ($pk) => $pk['COLUMN_NAME'], $pkResults->fetchAll());
 
-        Logger::log($results);
-        Logger::log($pks);
 
         $columns = [];
         foreach ($results as $row) {
