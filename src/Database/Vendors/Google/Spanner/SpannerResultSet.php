@@ -44,8 +44,11 @@ class SpannerResultSet extends BaseResultSet {
      * @param Result $queryResults
      */
     public function __construct(Result $queryResults) {
+        Logger::log($queryResults);
         $this->rows = $queryResults->rows();
         $this->columns = $this->initColumns($queryResults);
+        Logger::log($this->rows);
+        Logger::log($queryResults);
     }
 
     /**
@@ -72,6 +75,7 @@ class SpannerResultSet extends BaseResultSet {
     public function nextRow() {
         if ($this->rows->valid()) {
             $value = $this->rows->current();
+            Logger::log($value);
             $this->rows->next();
             return $this->normaliseRow($value);
         }
@@ -96,7 +100,7 @@ class SpannerResultSet extends BaseResultSet {
     private function initColumns(Result $queryResults) {
         $columns = [];
 
-        // Required to initialise metadate
+        // Required to initialise metadata
         foreach ($queryResults as $result) {
             break;
         }
