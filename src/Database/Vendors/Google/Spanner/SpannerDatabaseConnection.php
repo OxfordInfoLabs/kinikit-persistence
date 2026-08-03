@@ -84,6 +84,9 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                         }
                     }
 
+                    if ($value === "TRUE") $value = true;
+                    if ($value === "FALSE") $value = false;
+
                     $paramName = $isNamed ? $key : 'p' . $index++;
                     $spannerParams[$paramName] = $value;
                 }
