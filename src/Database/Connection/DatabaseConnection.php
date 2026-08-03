@@ -16,6 +16,8 @@ use Kinikit\Persistence\Database\ResultSet\ResultSet;
  * @implementation sqlite3 \Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection
  * @implementation mysql \Kinikit\Persistence\Database\Vendors\MySQL\MySQLDatabaseConnection
  * @implementation postgresql \Kinikit\Persistence\Database\Vendors\PostgreSQL\PostgreSQLDatabaseConnection
+ * @implementation spanner \Kinikit\Persistence\Database\Vendors\Google\Spanner\SpannerDatabaseConnection
+ * @implementation bigquery \Kinikit\Persistence\Database\Vendors\Google\BigQuery\BigQueryDatabaseConnection
  *
  * Interface DatabaseConnection
  */
