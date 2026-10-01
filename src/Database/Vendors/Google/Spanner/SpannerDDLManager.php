@@ -31,6 +31,7 @@ class SpannerDDLManager implements DDLManager {
         ResultSetColumn::SQL_TIMESTAMP => "TIMESTAMP",
         ResultSetColumn::SQL_BLOB => "BYTES(MAX)",
         ResultSetColumn::SQL_LONGBLOB => "BYTES(MAX)",
+        ResultSetColumn::SQL_JSON => "JSON",
         ResultSetColumn::SQL_UNKNOWN => "STRING(MAX)",
         ResultSetColumn::SQL_VECTOR => "ARRAY<FLOAT64>"
     ];
