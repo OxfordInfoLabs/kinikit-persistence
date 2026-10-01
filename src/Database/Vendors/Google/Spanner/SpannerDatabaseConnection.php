@@ -142,9 +142,10 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                   WHERE TABLE_NAME = @tableName 
                     AND CONSTRAINT_NAME LIKE 'PK_%'";
 
-        $pkResults = $this->query($pkSQL, ['tableName' => $tableName]);
+        $pkResults = $this->query($pkSQL, ['tableName' => $tableName])->fetchAll();
+
         Logger::log($pkResults);
-        $pks = array_map(fn ($pk) => $pk['COLUMN_NAME'], $pkResults->fetchAll());
+        $pks = array_map(fn ($pk) => $pk['COLUMN_NAME'], $pkResults);
 
 
         $columns = [];
@@ -160,6 +161,8 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                 $row['IS_NULLABLE'] === 'NO'
             );
         }
+
+        Logger::log($columns);
 
         return $columns;
     }
