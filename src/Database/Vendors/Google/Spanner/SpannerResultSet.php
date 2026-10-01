@@ -2,10 +2,8 @@
 
 namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
-
 use Google\Cloud\Spanner\Result;
 use Google\Cloud\Spanner\V1\TypeCode;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\ResultSet\BaseResultSet;
@@ -30,25 +28,28 @@ class SpannerResultSet extends BaseResultSet {
         TypeCode::INTERVAL => TableColumn::SQL_VARCHAR,
         TypeCode::UUID => TableColumn::SQL_VARCHAR,
     ];
+
+    /**
+     * @var Result
+     */
+    private $queryResults;
+
     /**
      * @var \Generator
      */
     private $rows;
 
     /**
-     * @var ResultSetColumn[]
+     * @var ResultSetColumn[]|null
      */
-    private $columns;
+    private $columns = null;
 
     /**
      * @param Result $queryResults
      */
     public function __construct(Result $queryResults) {
-        Logger::log($queryResults);
+        $this->queryResults = $queryResults;
         $this->rows = $queryResults->rows();
-        $this->columns = $this->initColumns($queryResults);
-        Logger::log($this->rows);
-        Logger::log($queryResults);
     }
 
     /**
@@ -57,14 +58,17 @@ class SpannerResultSet extends BaseResultSet {
      * @return string[]
      */
     public function getColumnNames() {
-        return array_map(fn($col) => $col->getName(), $this->columns);
+        return array_map(fn($col) => $col->getName(), $this->getColumns());
     }
 
     /**
      * @return ResultSetColumn[]
      */
     public function getColumns() {
-        return $this->columns;
+        if ($this->columns === null) {
+            $this->ensureMetadataLoaded();
+        }
+        return $this->columns ?? [];
     }
 
     /**
@@ -75,7 +79,12 @@ class SpannerResultSet extends BaseResultSet {
     public function nextRow() {
         if ($this->rows->valid()) {
             $value = $this->rows->current();
-            Logger::log($value);
+
+            // Lazy load metadata/columns on first row fetch if not already done
+            if ($this->columns === null) {
+                $this->extractColumnsFromMetadata();
+            }
+
             $this->rows->next();
             return $this->normaliseRow($value);
         }
@@ -84,7 +93,7 @@ class SpannerResultSet extends BaseResultSet {
     }
 
     /**
-     * No need to close anything here
+     * Close result set
      *
      * @return void
      */
@@ -94,30 +103,39 @@ class SpannerResultSet extends BaseResultSet {
     }
 
     /**
-     * @param Result $queryResults
-     * @return ResultSetColumn[]
+     * Ensure metadata is available if getColumns() is called before nextRow()
      */
-    private function initColumns(Result $queryResults) {
-        $columns = [];
+    private function ensureMetadataLoaded() {
+        if ($this->rows->valid()) {
+            // Accessing current() triggers row evaluation, populating metadata on Result
+            $this->rows->current();
+            $this->extractColumnsFromMetadata();
+        }
+    }
 
-        // Required to initialise metadata
-        foreach ($queryResults as $result) {
-            break;
+    /**
+     * Extract metadata fields populated on the Google Result object
+     */
+    private function extractColumnsFromMetadata() {
+        $metadata = $this->queryResults->metadata();
+
+        if (!$metadata || !isset($metadata['rowType']['fields'])) {
+            $this->columns = [];
+            return;
         }
 
-        $metadata = $queryResults->metadata();
         $fields = $metadata['rowType']['fields'];
+        $columns = [];
 
         foreach ($fields as $field) {
-            $name = $field["name"];
-
-            $typeCode = $field["type"]["code"];
-            $type = self::SPANNER_MAPPINGS[$typeCode];
+            $name = $field["name"] ?? '';
+            $typeCode = $field["type"]["code"] ?? null;
+            $type = self::SPANNER_MAPPINGS[$typeCode] ?? TableColumn::SQL_VARCHAR;
 
             $columns[] = new ResultSetColumn($name, $type);
         }
 
-        return $columns;
+        $this->columns = $columns;
     }
 
     private function normaliseRow(array $row) {
@@ -136,5 +154,4 @@ class SpannerResultSet extends BaseResultSet {
             return $val;
         }, $row);
     }
-
 }
