@@ -8,6 +8,8 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SpannerSQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 
 class SpannerDatabaseConnection extends BaseDatabaseConnection {
 
@@ -134,8 +136,8 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                 WHERE TABLE_NAME = @tableName";
 
         $resultSet = $this->query($sql, ['tableName' => $tableName]);
-        Logger::log($resultSet);
         $results = $resultSet->fetchAll();
+        Logger::log($results);
 
         $pkSQL = "SELECT COLUMN_NAME 
                   FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
@@ -145,7 +147,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
         $pkResults = $this->query($pkSQL, ['tableName' => $tableName])->fetchAll();
 
         Logger::log($pkResults);
-        $pks = array_map(fn ($pk) => $pk['COLUMN_NAME'], $pkResults);
+        $pks = array_map(fn($pk) => $pk['COLUMN_NAME'], $pkResults);
 
 
         $columns = [];
@@ -169,16 +171,41 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
 
     /**
      * @param string $tableName
-     * @return array
+     * @return TableIndex[]
      */
     public function getTableIndexMetaData($tableName) {
-        $sql = "SELECT INDEX_NAME 
-                FROM INFORMATION_SCHEMA.INDEXES 
+        $sql = "SELECT INDEX_NAME, COLUMN_NAME
+                FROM INFORMATION_SCHEMA.INDEX_COLUMNS
                 WHERE TABLE_NAME = @tableName AND INDEX_TYPE = 'INDEX'";
 
+        $indexes = [];
+        $columns = [];
+        $currentIndex = null;
+
         try {
-            $resultSet = $this->query($sql, ['tableName' => $tableName]);
-            return $resultSet->fetchAll();
+            $resultSet = $this->query($sql, ["tableName" => $tableName]);
+
+            while ($row = $resultSet->nextRow()) {
+                $indexName = $row["INDEX_NAME"];
+
+                if ($indexName != $currentIndex) {
+                    if ($currentIndex) {
+                        $indexes[] = new TableIndex($currentIndex, $columns);
+                    }
+                    $currentIndex = $indexName;
+                    $columns = [];
+                }
+
+                $columns[$indexName] = new TableIndexColumn($row["COLUMN_NAME"]);
+            }
+
+            // Last one
+            if ($currentIndex) {
+                $indexes[] = new TableIndex($currentIndex, $columns);
+            }
+
+            return $indexes;
+
         } catch (\Exception $e) {
             return [];
         }
