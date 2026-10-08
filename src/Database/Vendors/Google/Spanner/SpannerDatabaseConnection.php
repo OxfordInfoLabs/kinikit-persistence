@@ -137,7 +137,6 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
 
         $resultSet = $this->query($sql, ['tableName' => $tableName]);
         $results = $resultSet->fetchAll();
-        Logger::log($results);
 
         $pkSQL = "SELECT COLUMN_NAME 
                   FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
@@ -146,7 +145,6 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
 
         $pkResults = $this->query($pkSQL, ['tableName' => $tableName])->fetchAll();
 
-        Logger::log($pkResults);
         $pks = array_map(fn($pk) => $pk['COLUMN_NAME'], $pkResults);
 
 
@@ -163,8 +161,6 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                 $row['IS_NULLABLE'] === 'NO'
             );
         }
-
-        Logger::log($columns);
 
         return $columns;
     }

@@ -3,6 +3,7 @@
 namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
 use Google\Cloud\Spanner\KeySet;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\BulkData\DefaultBulkDataManager;
 
 class SpannerBulkDataManager extends DefaultBulkDataManager {
@@ -16,6 +17,10 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
      */
     public function doInsert($tableName, $rows, $insertColumns, $ignoreDuplicates = false) {
 
+        Logger::log($tableName);
+        Logger::log($rows);
+        Logger::log($insertColumns);
+
         while ($slice = array_splice($rows, 0, $this->batchSize)) {
             $mutations = [];
 
@@ -28,6 +33,8 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
             }
 
             $method = $ignoreDuplicates ? 'insertOrUpdate' : 'insert';
+
+            Logger::log($mutations);
 
             $spannerConnection = $this->databaseConnection->getSpannerConnection();
             $spannerConnection->runTransaction(function ($transaction) use ($tableName, $mutations, $method) {
