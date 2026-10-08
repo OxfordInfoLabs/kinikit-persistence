@@ -32,7 +32,7 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
                 $mutations[] = $rowData;
             }
 
-            $method = $ignoreDuplicates ? 'insertOrUpdate' : 'insert';
+            $method = $ignoreDuplicates ? 'insertOrUpdateBatch' : 'insertBatch';
 
             Logger::log($mutations);
 
@@ -68,7 +68,7 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
 
             $spannerConnection = $this->databaseConnection->getSpannerConnection();
             $spannerConnection->runTransaction(function ($transaction) use ($tableName, $mutations) {
-                $transaction->update($tableName, $mutations);
+                $transaction->updateBatch($tableName, $mutations);
                 $transaction->commit();
             });
         }
@@ -95,7 +95,7 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
 
             $spannerConnection = $this->databaseConnection->getSpannerConnection();
             $spannerConnection->runTransaction(function ($transaction) use ($tableName, $mutations) {
-                $transaction->insertOrUpdate($tableName, $mutations);
+                $transaction->insertOrUpdateBatch($tableName, $mutations);
                 $transaction->commit();
             });
         }
