@@ -4,9 +4,9 @@ namespace Kinikit\Persistence\Database\Vendors\Google\BigQuery;
 
 use Google\Cloud\BigQuery\BigQueryClient;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Persistence\Database\Exception\BigQuerySQLException;
 use Kinikit\Persistence\Database\PreparedStatement\BasePreparedStatement;
 use Kinikit\Persistence\Database\PreparedStatement\WrongNumberOfPreparedStatementParametersException;
-use GSE\Exception\BigQuerySQLException;
 
 class BigQueryPreparedStatement extends BasePreparedStatement {
 

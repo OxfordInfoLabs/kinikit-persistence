@@ -2,12 +2,10 @@
 
 namespace Kinikit\Persistence\Database\Vendors\Google\BigQuery;
 
-use Google\Auth\Cache\MemoryCacheItemPool;
 use Google\Cloud\BigQuery\BigQueryClient;
-use GSE\Exception\BigQuerySQLException;
-use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
+use Kinikit\Persistence\Database\Exception\BigQuerySQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 
 class BigQueryDatabaseConnection extends BaseDatabaseConnection {
@@ -24,27 +22,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
      * @return bool
      */
     public function connect($configParams = []) {
-
-        $bqHost = Configuration::readParameter("bq.host");
-
-        if (!$bqHost || $bqHost == "prod") {
-            $clientConfig = [
-                "suppressKeyFileNotice" => true
-            ];
-            $this->bigQueryClient = new BigQueryClient($clientConfig);
-            return true;
-        }
-
-        $projectId = Configuration::readParameter("dev.project.id");
-        $clientConfig = [
-            "projectId" => "$projectId",
-            "apiEndpoint" => "http://{$bqHost}:9050/",
-            "allowPreemptiveTokens" => true,
-            "authCache" => new MemoryCacheItemPool(),
-            "restOptions" => ["debug" => false]
-        ];
-
-        $this->bigQueryClient = new BigQueryClient($clientConfig);
+        $this->bigQueryClient = new BigQueryClient();
         return true;
     }
 
@@ -95,7 +73,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
         Logger::log($queryJob->info()["statistics"]);
 
         if ($returnResults) {
-            return new SpannerResultSet($queryJob->queryResults());
+            return new BigQueryResultSet($queryJob->queryResults());
         } else {
             return true;
         }
@@ -104,10 +82,10 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
 
     /**
      * @param string $sql
-     * @return SpannerPreparedStatement
+     * @return BigQueryPreparedStatement
      */
     public function doCreatePreparedStatement($sql) {
-        return new SpannerPreparedStatement($sql, $this->bigQueryClient);
+        return new BigQueryPreparedStatement($sql, $this->bigQueryClient);
     }
 
     /**
@@ -180,17 +158,17 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
     }
 
     /**
-     * @return SpannerBulkDataManager
+     * @return BigQueryBulkDataManager
      */
     public function getBulkDataManager() {
-        return new SpannerBulkDataManager($this);
+        return new BigQueryBulkDataManager($this);
     }
 
     /**
-     * @return SpannerDDLManager
+     * @return BigQueryDDLManager
      */
     public function getDDLManager() {
-        return new SpannerDDLManager();
+        return new BigQueryDDLManager();
     }
 
     /**
