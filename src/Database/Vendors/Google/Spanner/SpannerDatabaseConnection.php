@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
 use Google\Cloud\Spanner\Database;
 use Google\Cloud\Spanner\SpannerClient;
+use Google\Cloud\Spanner\Timestamp;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SpannerSQLException;
@@ -89,7 +90,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                     if ($value === "TRUE") $value = true;
                     if ($value === "FALSE") $value = false;
 
-                    if ($date = date_create_from_format("Y-m-d\TH:i:s\Z", $value)) $value = $date;
+                    if ($date = date_create_from_format("Y-m-d\TH:i:s\Z", $value)) $value = new Timestamp($date);
 
                     $paramName = $isNamed ? $key : 'p' . $index++;
                     $spannerParams[$paramName] = $value;
