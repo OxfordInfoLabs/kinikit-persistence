@@ -89,6 +89,8 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                     if ($value === "TRUE") $value = true;
                     if ($value === "FALSE") $value = false;
 
+                    if ($date = date_create_from_format("Y-m-d\TH:i:s\Z", $value)) $value = $date;
+
                     $paramName = $isNamed ? $key : 'p' . $index++;
                     $spannerParams[$paramName] = $value;
                 }
