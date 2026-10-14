@@ -96,7 +96,7 @@ class PDOPreparedStatement extends BasePreparedStatement {
         } else if (is_bool($value)) {
             $statement->bindValue($position, $value, \PDO::PARAM_BOOL);
         } else {
-            $statement->bindValue($position, $value, self::getPDOParamType($parameter->getSqlType()));
+            $statement->bindValue($position, $value, self::getPDOParamType($parameter->getType()));
         }
     }
 
@@ -104,14 +104,13 @@ class PDOPreparedStatement extends BasePreparedStatement {
     /**
      * Map a SQL type to the equivalent PDO parameter type.
      *
-     * @param string $sqlType
+     * @param BindParameterType $type
      * @return int
      */
-    private static function getPDOParamType($sqlType): int {
-        return match (strtoupper($sqlType ?? "")) {
-            ResultSetColumn::SQL_TINYINT, ResultSetColumn::SQL_SMALLINT, ResultSetColumn::SQL_INT,
-            ResultSetColumn::SQL_INTEGER, ResultSetColumn::SQL_BIGINT => \PDO::PARAM_INT,
-            ResultSetColumn::SQL_BLOB, ResultSetColumn::SQL_LONGBLOB => \PDO::PARAM_LOB,
+    private static function getPDOParamType(BindParameterType $type): int {
+        return match ($type) {
+            BindParameterType::TYPE_INT => \PDO::PARAM_INT,
+            BindParameterType::TYPE_BLOB => \PDO::PARAM_LOB,
             default => \PDO::PARAM_STR
         };
     }
