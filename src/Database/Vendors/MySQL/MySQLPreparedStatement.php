@@ -30,11 +30,12 @@ class MySQLPreparedStatement extends PDOPreparedStatement {
      * @throws \Kinikit\Persistence\Database\Exception\SQLException
      * @throws \Kinikit\Persistence\Database\PreparedStatement\WrongNumberOfPreparedStatementParametersException
      */
-    public function execute($parameterValues) {
+    public function execute($parameterValues): void {
         $retries = 1;
         while ($retries > 0) {
             try {
-                return parent::execute($parameterValues);
+                parent::execute($parameterValues);
+                return;
             } catch (SQLException $e) {
                 if (!MySQLDatabaseConnection::isRetryException($e) || $retries > $this->exceptionRetries) {
                     throw $e;

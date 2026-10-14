@@ -2,9 +2,11 @@
 
 namespace Kinikit\Persistence\Database\Vendors\SQLite3;
 
+use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\DatabaseConnectionException;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
+use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
@@ -35,7 +37,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
     private static $customFunctions = [];
 
 
-    public function connect($configParams = []) {
+    public function connect($configParams = []): bool {
         if (!isset($configParams["filename"]))
             throw new DatabaseConnectionException("No filename passed for SQL Lite database");
 
@@ -69,9 +71,9 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
      * Get table column meta data for a given table as an associative array keyed in by column name.
      *
      * @param $tableName
-     * @return \Kinikit\Persistence\Database\MetaData\TableColumn[]
+     * @return TableColumn[]
      */
-    public function getTableColumnMetaData($tableName) {
+    public function getTableColumnMetaData($tableName): array {
 
         $results = $this->query("PRAGMA table_info('" . $tableName . "')")->fetchAll();
         if (sizeof($results) == 0) {
@@ -125,7 +127,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
      * @param $tableName
      * @return TableIndex[]
      */
-    public function getTableIndexMetaData($tableName) {
+    public function getTableIndexMetaData($tableName): array {
 
         // Grab all indexes for table
         $indexResults = $this->query("PRAGMA index_list($tableName)");
@@ -153,7 +155,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
     }
 
 
-    public function escapeColumn($columnName) {
+    public function escapeColumn($columnName): string {
         return '"' . $columnName . '"';
     }
 
@@ -161,9 +163,9 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
     /**
      * Return the standard bulk data manager for SQLite
      *
-     * @return \Kinikit\Persistence\Database\BulkData\BulkDataManager|StandardBulkDataManager
+     * @return BulkDataManager
      */
-    public function getBulkDataManager() {
+    public function getBulkDataManager(): BulkDataManager {
         return new StandardBulkDataManager($this);
     }
 
@@ -174,7 +176,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
      * @param array &$parameterValues
      * @return mixed|void
      */
-    public function parseSQL($sql, &$parameterValues = []) {
+    public function parseSQL($sql, &$parameterValues = []): string {
 
         // Detect an alter table
         preg_match("/^ALTER TABLE (\w+) .*(DROP PRIMARY KEY|ADD PRIMARY KEY|ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);
@@ -305,7 +307,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
     /**
      * @return SQLite3DDLManager
      */
-    public function getDDLManager() {
+    public function getDDLManager(): DDLManager {
         return new SQLite3DDLManager();
     }
 

@@ -6,8 +6,11 @@ namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
 use Kinikit\Persistence\Database\PreparedStatement\PDOPreparedStatement;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 abstract class PDODatabaseConnection extends BaseDatabaseConnection {
 
@@ -42,7 +45,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
      *
      * @return boolean
      */
-    public function connect($configParams = []) {
+    public function connect(array $configParams = []): bool {
 
         try {
             $this->connection = new \PDO($configParams["dsn"], $configParams["username"] ?? null, $configParams["password"] ?? null);
@@ -58,10 +61,10 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
     /**
      * Escape a string value ready for use in a query.
      *
-     * @param $string
+     * @param string $string
      * @return string
      */
-    public function escapeString($string) {
+    public function escapeString(string $string): string {
         return $this->connection->quote($string);
     }
 
@@ -69,10 +72,10 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
     /**
      * Can't escape columns by default.  Sub classes can implement if required.
      *
-     * @param $columnName
+     * @param string $columnName
      * @return mixed
      */
-    public function escapeColumn($columnName) {
+    public function escapeColumn(string $columnName): string {
         return $columnName;
     }
 
@@ -80,12 +83,11 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
     /**
      * Actual do Query method, should be implemented by child implementations
      *
-     * @param $sql
-     * @param $placeholderValues
-     * @return mixed
+     * @param string $sql
+     * @param BindParameter[] $parameters
+     * @return ResultSet
      */
-    public function doQuery($sql, $placeholderValues) {
-
+    public function doQuery(string $sql, array $parameters): ResultSet {
 
         if (!$this->connection) {
             throw new ConnectionClosedException();
@@ -101,17 +103,22 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
 
         if ($statement) {
 
-            $success = $this->executeCallableWithLogging(function () use ($statement, $placeholderValues) {
-                // Bind values - as numbers if numeric
+            $success = $this->executeCallableWithLogging(function () use ($statement, $parameters) {
                 try {
-                    foreach ($placeholderValues as $index => $value) {
-                        $statement->bindValue($index + 1, $value, is_numeric($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+                    foreach ($parameters as $index => $parameter) {
+
+                        // Bind numeric values of unknown type as numbers
+                        if ($parameter->getSqlType() == ResultSetColumn::SQL_UNKNOWN && is_numeric($parameter->getValue())) {
+                            $parameter = new BindParameter(ResultSetColumn::SQL_INTEGER, $parameter->getValue());
+                        }
+
+                        PDOPreparedStatement::bindParameter($statement, $index + 1, $parameter);
                     }
                     return $statement->execute();
                 } catch (\Exception $e) {
                     Logger::log($e);
                     Logger::log("Placeholder Values: ");
-                    Logger::log($placeholderValues);
+                    Logger::log(array_map(fn($parameter) => $parameter->getValue(), $parameters));
                     throw new SQLException($e->getMessage());
                 }
             }, $sql);
@@ -141,7 +148,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
      * @return PreparedStatement
      * @throws SQLException
      */
-    public function doCreatePreparedStatement($sql) {
+    public function doCreatePreparedStatement(string $sql): PreparedStatement {
         return new PDOPreparedStatement($sql, $this->connection);
     }
 
@@ -151,7 +158,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
      * @return int
      * @throws SQLException
      */
-    public function getLastAutoIncrementId() {
+    public function getLastAutoIncrementId(): int {
         return $this->connection->lastInsertId();
     }
 
@@ -160,7 +167,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
      *
      * @throws SQLException
      */
-    public function close() {
+    public function close(): void {
         $this->connection = null;
     }
 

@@ -29,7 +29,6 @@ class TableColumn extends ResultSetColumn {
     protected $notNull;
 
 
-
     /**
      * TableColumn constructor.
      *
@@ -89,8 +88,6 @@ class TableColumn extends ResultSetColumn {
     public function isNotNull() {
         return $this->notNull;
     }
-
-
 
 
     /**

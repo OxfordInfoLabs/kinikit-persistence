@@ -2,10 +2,12 @@
 
 namespace Kinikit\Persistence\Database\Connection;
 
+use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
@@ -23,7 +25,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      *
      * @return boolean
      */
-    public function connect($configParams = []) {
+    public function connect($configParams = []): bool {
         $this->configParams = $configParams;
         return true;
     }
@@ -34,7 +36,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * @param $string
      * @return string
      */
-    public function escapeString($string) {
+    public function escapeString($string): string {
         // TODO: Implement escapeString() method.
     }
 
@@ -44,7 +46,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * @param $columnName
      * @return mixed
      */
-    public function escapeColumn($columnName) {
+    public function escapeColumn($columnName): string {
         // TODO: Implement escapeColumn() method.
     }
 
@@ -52,11 +54,12 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * Actually do the query execution
      *
      * @param $sql
-     * @param $placeholderValues
-     * @return void
+     * @param BindParameter[] $parameters
+     * @return ResultSet
      */
-    public function doQuery($sql, $placeholderValues) {
+    public function doQuery(string $sql, array $parameters): ResultSet {
         $this->lastSQL = $sql;
+        return MockObjectProvider::mock(ResultSet::class);
     }
 
 
@@ -65,9 +68,9 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * whether or not it was successful
      *
      * @param $sql
-     * @return void
+     * @return PreparedStatement
      */
-    public function doCreatePreparedStatement($sql) {
+    public function doCreatePreparedStatement($sql): PreparedStatement {
         $this->executedStatements[] = $sql;
         return new TestPreparedStatement();
     }
@@ -76,7 +79,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * Get the last auto increment id if an insert into auto increment occurred
      *
      */
-    public function getLastAutoIncrementId() {
+    public function getLastAutoIncrementId(): int {
         // TODO: Implement getLastAutoIncrementId() method.
     }
 
@@ -84,7 +87,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * Get the last error message if a query fails.
      *
      */
-    public function getLastErrorMessage() {
+    public function getLastErrorMessage(): string {
         // TODO: Implement getLastErrorMessage() method.
     }
 
@@ -92,7 +95,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * Close function if required to close the database connection.
      *
      */
-    public function close() {
+    public function close(): void {
         // TODO: Implement close() method.
     }
 
@@ -103,7 +106,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * @param $tableName
      * @return TableColumn[]
      */
-    public function getTableColumnMetaData($tableName) {
+    public function getTableColumnMetaData($tableName): array {
         return [new TableColumn("bingo", "int")];
     }
 
@@ -113,11 +116,11 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      * @param $tableName
      * @return TableIndex[]
      */
-    public function getTableIndexMetaData($tableName) {
+    public function getTableIndexMetaData($tableName): array {
         return [new TableIndex("testindex", [new TableIndexColumn("bingo")])];
     }
 
-    public function getDDLManager() {
+    public function getDDLManager(): \Kinikit\Persistence\Database\DDL\DDLManager {
         // TODO: Implement getDDLManager() method.
     }
 }

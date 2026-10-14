@@ -4,9 +4,14 @@ namespace Kinikit\Persistence\Database\Vendors\Google\BigQuery;
 
 use Google\Cloud\BigQuery\BigQueryClient;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
+use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\Exception\BigQuerySQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 class BigQueryDatabaseConnection extends BaseDatabaseConnection {
 
@@ -21,7 +26,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
      * @param array $configParams
      * @return bool
      */
-    public function connect($configParams = []) {
+    public function connect(array $configParams = []): bool {
         $this->bigQueryClient = new BigQueryClient();
         return true;
     }
@@ -33,18 +38,19 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
      * @throws BigQuerySQLException
      */
     public function execute($sql, ...$placeholders) {
-        return $this->doQuery($sql, $placeholders, false);
+        $parameters = BindParameter::createAll($placeholders);
+        return $this->doQuery($sql, $parameters, false);
     }
 
 
     /**
      * Execute a query and return a result set
      *
-     * @param $sql
-     * @param $placeholderValues
-     * @return mixed
+     * @param string $sql
+     * @param BindParameter[] $parameters
+     * @return ResultSet
      */
-    public function doQuery($sql, $placeholderValues, $returnResults = true, $timeoutMs = 10000) {
+    public function doQuery(string $sql, array $parameters, $returnResults = true, $timeoutMs = 10000): ResultSet {
 
         // Do query with placeholder params
         $queryJobConfig = $this->bigQueryClient->query($sql, [
@@ -56,7 +62,8 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
             ]
         ]);
 
-        $queryJobConfig->parameters($placeholderValues);
+        $parameterValues = array_map(fn ($parameter) => $parameter->getValue(), $parameters);
+        $queryJobConfig->parameters($parameterValues);
 
         try {
             $queryJob = $this->bigQueryClient->startQuery($queryJobConfig);
@@ -84,7 +91,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
      * @param string $sql
      * @return BigQueryPreparedStatement
      */
-    public function doCreatePreparedStatement($sql) {
+    public function doCreatePreparedStatement(string $sql): PreparedStatement {
         return new BigQueryPreparedStatement($sql, $this->bigQueryClient);
     }
 
@@ -92,7 +99,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
      * @param string $tableName
      * @return TableColumn[]
      */
-    public function getTableColumnMetaData($tableName) {
+    public function getTableColumnMetaData(string $tableName): array {
         $parts = explode(".", $tableName);
         $dataset = $parts[0];
         $table = $parts[1];
@@ -127,7 +134,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
      * @param string $tableName
      * @return array
      */
-    public function getTableIndexMetaData($tableName) {
+    public function getTableIndexMetaData(string $tableName): array {
         return [];
     }
 
@@ -135,7 +142,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
      * @param string $string
      * @return string
      */
-    public function escapeString($string) {
+    public function escapeString(string $string): string {
         return str_replace("'", "\\'", $string);
     }
 
@@ -143,7 +150,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
      * @param string $columnName
      * @return string
      */
-    public function escapeColumn($columnName) {
+    public function escapeColumn(string $columnName): string {
         // Handle multipart names like project.dataset.table
         return implode(".", array_map(function ($part) {
             return "`" . str_replace("`", "``", $part) . "`";
@@ -153,28 +160,27 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
     /**
      * @return null
      */
-    public function getLastAutoIncrementId() {
-        return null;
+    public function getLastAutoIncrementId(): int {
     }
 
     /**
      * @return BigQueryBulkDataManager
      */
-    public function getBulkDataManager() {
+    public function getBulkDataManager(): BulkDataManager {
         return new BigQueryBulkDataManager($this);
     }
 
     /**
      * @return BigQueryDDLManager
      */
-    public function getDDLManager() {
+    public function getDDLManager(): DDLManager {
         return new BigQueryDDLManager();
     }
 
     /**
      * @return void
      */
-    public function close() {
+    public function close(): void {
         $this->bigQueryClient = null;
     }
 }

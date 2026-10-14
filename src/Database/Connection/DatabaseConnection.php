@@ -6,6 +6,7 @@ namespace Kinikit\Persistence\Database\Connection;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
@@ -30,64 +31,66 @@ interface DatabaseConnection {
      *
      * @return boolean
      */
-    public function connect($configParams = []);
+    public function connect(array $configParams = []): bool;
 
 
     /**
      * Escape a string value ready for use in a query.
      *
-     * @param $string
+     * @param string $string
      * @return string
      */
-    public function escapeString($string);
+    public function escapeString(string $string): string;
 
 
     /**
      * Escape a column name ready for use in queries.
      *
-     * @param $columnName
-     * @return mixed
+     * @param string $columnName
+     * @return string
      */
-    public function escapeColumn($columnName);
+    public function escapeColumn(string $columnName): string;
 
 
     /**
      * Parse SQL prior to execution - used to make vendor specific alterations from the default
      * SQL dialect (SQLite)
      *
-     * @param $sql
-     * @param &$parameterValues
-     * @return mixed
+     * @param string $sql
+     * @param BindParameter[] &$parameterValues
+     * @return string
      */
-    public function parseSQL($sql, &$parameterValues = []);
+    public function parseSQL(string $sql, &$parameterValues = []): string;
 
 
     /**
      * Issue a SQL query with results.  Returns a ResultSet if successful or
      * may throw SQLException if issues
      *
-     * Placeholders may be applied which will be evaluated.
+     * Placeholders may be applied which will be evaluated.  These may be supplied
+     * either as raw values (SQL type inferred) or as BindParameter objects with an explicit SQL type.
      *
-     * @param $sql
-     * @param array $placeholders
+     * @param string $sql
+     * @param mixed|BindParameter ...$placeholders
      * @return ResultSet
      * @throws SQLException
      */
-    public function query($sql, ...$placeholders);
+    public function query(string $sql, ...$placeholders): ResultSet;
 
 
     /**
      * Execute a statement which doesn't return any results.
      * This will usually be implemented via a call to createPreparedStatement
      * as a convenience macro for a single statement.  Returns a boolean
-     * indicating success of statement.
+     * indicating success of statement.  Placeholders may be supplied either as raw
+     * values or as BindParameter objects.
      *
-     * @param $sql
-     * @param mixed ...$placeholders
+     * @param string $sql
+     * @param mixed|BindParameter ...$placeholders
      * @return boolean
      * @throws SQLException
      */
-    public function execute($sql, ...$placeholders);
+    public function execute(string $sql, ...$placeholders);
 
 
     /**
@@ -98,16 +101,16 @@ interface DatabaseConnection {
      * @return PreparedStatement
      * @throws SQLException
      */
-    public function createPreparedStatement($sql);
+    public function createPreparedStatement(string $sql): PreparedStatement;
 
 
     /**
      * Execute a script containing multiple statements terminated by ;
      * Split each statement and execute in turn.
      *
-     * @param $scriptContents
+     * @param string $scriptContents
      */
-    public function executeScript($scriptContents);
+    public function executeScript(string $scriptContents);
 
 
     /**
@@ -116,14 +119,15 @@ interface DatabaseConnection {
      * @return int
      * @throws SQLException
      */
-    public function getLastAutoIncrementId();
+    public function getLastAutoIncrementId(): int;
 
 
     /**
      * Get the last error message if a query fails.
      *
+     * @return string
      */
-    public function getLastErrorMessage();
+    public function getLastErrorMessage(): string;
 
 
     /**
@@ -132,7 +136,7 @@ interface DatabaseConnection {
      *
      * @throws SQLException
      */
-    public function beginTransaction();
+    public function beginTransaction(): void;
 
 
     /**
@@ -140,7 +144,7 @@ interface DatabaseConnection {
      *
      * @throws SQLException
      */
-    public function commit();
+    public function commit(): void;
 
 
     /**
@@ -149,7 +153,7 @@ interface DatabaseConnection {
      * @param boolean $wholeTransaction
      * @throws SQLException
      */
-    public function rollback($wholeTransaction = true);
+    public function rollback(bool $wholeTransaction = true): void;
 
 
     /**
@@ -157,7 +161,7 @@ interface DatabaseConnection {
      *
      * @throws SQLException
      */
-    public function close();
+    public function close(): void;
 
 
     /**
@@ -177,14 +181,14 @@ interface DatabaseConnection {
      *
      * @return BulkDataManager
      */
-    public function getBulkDataManager();
+    public function getBulkDataManager(): BulkDataManager;
 
     /**
      * Get the DDL mnage for this database connection
      *
      * @return DDLManager
      */
-    public function getDDLManager();
+    public function getDDLManager(): DDLManager;
 
 
 }

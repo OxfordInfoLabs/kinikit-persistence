@@ -28,7 +28,7 @@ class ResultSetColumn {
      * @var integer
      */
     protected $precision;
-    
+
     const SQL_VARCHAR = "VARCHAR";
     const SQL_TINYINT = "TINYINT";
     const SQL_SMALLINT = "SMALLINT";

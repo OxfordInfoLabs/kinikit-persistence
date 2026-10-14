@@ -6,15 +6,15 @@ use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 
 class TestPreparedStatement implements PreparedStatement {
 
-    public function getStatementSQL() {
+    public function getStatementSQL(): string {
         // TODO: Implement getStatementSQL() method.
     }
 
-    public function execute($parameterValues) {
+    public function execute($parameterValues): void {
         // TODO: Implement execute() method.
     }
 
-    public function close() {
+    public function close(): void {
         // TODO: Implement close() method.
     }
 }

@@ -67,7 +67,7 @@ class InFilter implements Filter {
         return $sql;
     }
 
-    public function getParameterValues() : array {
+    public function getParameterValues(): array {
         // Ignore nulls because they're special cased in the SQL Clause
         return [...array_filter($this->values, fn($x) => $x !== null)];
     }
