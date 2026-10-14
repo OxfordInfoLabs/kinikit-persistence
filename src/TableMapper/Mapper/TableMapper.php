@@ -22,7 +22,7 @@ class TableMapper {
      * @param TablePersistenceEngine $persistenceEngine
      */
     public function __construct(
-        private TableQueryEngine $queryEngine,
+        private TableQueryEngine       $queryEngine,
         private TablePersistenceEngine $persistenceEngine
     ) {
     }

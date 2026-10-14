@@ -10,7 +10,6 @@ use Kinikit\Core\Bootstrapper;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Configuration\SearchNamespaces;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\ORMInterceptorProcessor;
@@ -22,8 +21,7 @@ use Kinikit\Persistence\ORM\ORM;
  * Class TestDataInstaller
  * @package Kinikit\Persistence\Tools
  */
-class TestDataInstaller
-{
+class TestDataInstaller {
 
     /**
      * @var ObjectBinder
@@ -74,8 +72,7 @@ class TestDataInstaller
      * @param ORMInterceptorProcessor $ormInterceptorProcessor
      * @param DatabaseConnection $databaseConnection
      */
-    public function __construct($objectBinder, $orm, $dbInstaller, $fileResolver, $searchNamespaces, $ormInterceptorProcessor, $databaseConnection)
-    {
+    public function __construct($objectBinder, $orm, $dbInstaller, $fileResolver, $searchNamespaces, $ormInterceptorProcessor, $databaseConnection) {
         $this->objectBinder = $objectBinder;
         $this->orm = $orm;
         $this->dbInstaller = $dbInstaller;
@@ -93,8 +90,7 @@ class TestDataInstaller
      *
      * If Install DB is passed this will also install the db first.
      */
-    public function run($installDB = true, $excludeTestDataPaths = [])
-    {
+    public function run($installDB = true, $excludeTestDataPaths = []) {
 
 
         $cwd = getcwd();
@@ -149,8 +145,7 @@ class TestDataInstaller
 
 
     // Install test data
-    public static function runFromComposer($event)
-    {
+    public static function runFromComposer($event) {
 
 
         $sourceDirectory = $event && isset($event->getComposer()->getPackage()->getConfig()["source-directory"]) ?
@@ -169,8 +164,7 @@ class TestDataInstaller
 
 
     // Process test data directory looking for objects.
-    private function processTestDataDirectory($baseDir, $suffix = "", &$processed = [])
-    {
+    private function processTestDataDirectory($baseDir, $suffix = "", &$processed = []) {
 
 
         $iterator = new DirectoryIterator($baseDir . $suffix);
@@ -234,8 +228,7 @@ class TestDataInstaller
      * @param string $string
      * @return void
      */
-    private function processTestScriptsDirectory($baseDir, $suffix = "")
-    {
+    private function processTestScriptsDirectory($baseDir, $suffix = "") {
 
         $files = scandir($baseDir . $suffix, SCANDIR_SORT_ASCENDING);
 

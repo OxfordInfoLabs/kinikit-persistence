@@ -4,7 +4,6 @@
 namespace Kinikit\Persistence\Database\BulkData;
 
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
 
 /**
@@ -33,7 +32,7 @@ class DefaultBulkDataManager extends BaseBulkDataManager {
     public function doInsert($tableName, $rows, $insertColumns, $ignoreDuplicates) {
 
         // Escape all insert columns
-        foreach ($insertColumns as  $insertColumn) {
+        foreach ($insertColumns as $insertColumn) {
             $escapedColumns[] = $this->databaseConnection->escapeColumn($insertColumn);
         }
 

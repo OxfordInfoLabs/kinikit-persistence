@@ -4,7 +4,6 @@ namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
-use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\ConnectionClosedException;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
 use Kinikit\Persistence\Database\DDL\DDLManager;

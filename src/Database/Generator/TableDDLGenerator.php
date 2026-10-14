@@ -66,8 +66,8 @@ class TableDDLGenerator {
         // Loop through the modified columns to identify changes
         foreach ($modifiedColumns as $name => $modifiedColumn) {
 
-            if ($modifiedColumn instanceof UpdatableTableColumn){
-                $originalColumn =  $originalColumns[$modifiedColumn->getPreviousName()] ?? $originalColumns[$name] ?? null;
+            if ($modifiedColumn instanceof UpdatableTableColumn) {
+                $originalColumn = $originalColumns[$modifiedColumn->getPreviousName()] ?? $originalColumns[$name] ?? null;
             } else {
                 $originalColumn = $originalColumns[$name] ?? null;
             }
