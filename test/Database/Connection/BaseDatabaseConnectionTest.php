@@ -58,7 +58,7 @@ class BaseDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
 
     public function testNoLoggingOccursAndResultStillReturnedWhereNoLoggingSet() {
 
-        $dbConnection = new TestDatabaseConnection("mysql");
+        $dbConnection = new TestDatabaseConnection([]);
         $dbConnection->log("My name is paul");
 
         $result = $dbConnection->executeCallableWithLogging(function () {

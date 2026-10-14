@@ -4,6 +4,8 @@
 namespace Kinikit\Persistence\Database\Connection;
 
 
+use Kinikit\Persistence\Database\DDL\DDLManager;
+use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 
 class TestPDODatabaseConnection extends PDODatabaseConnection {
@@ -15,7 +17,7 @@ class TestPDODatabaseConnection extends PDODatabaseConnection {
     private $resultSetClass;
 
 
-    public function __construct($configParams = null, $resultSetClass = null) {
+    public function __construct(array $configParams = [], $resultSetClass = null) {
         parent::__construct($configParams);
         $this->resultSetClass = $resultSetClass;
     }
@@ -23,10 +25,10 @@ class TestPDODatabaseConnection extends PDODatabaseConnection {
     /**
      * Get table column meta data for a given table as an associative array keyed in by column name.
      *
-     * @param $tableName
-     * @return \Kinikit\Persistence\Database\MetaData\TableColumn[string]
+     * @param string $tableName
+     * @return TableColumn[]
      */
-    public function getTableColumnMetaData($tableName) {
+    public function getTableColumnMetaData(string $tableName): array {
 
     }
 
@@ -36,17 +38,17 @@ class TestPDODatabaseConnection extends PDODatabaseConnection {
      * @param $tableName
      * @return TableIndex[]
      */
-    public function getTableIndexMetaData($tableName) {
+    public function getTableIndexMetaData($tableName): array {
         // TODO: Implement getTableIndexMetaData() method.
     }
 
 
 
-    public function getResultSetClass() {
+    public function getResultSetClass(): string {
         return $this->resultSetClass;
     }
 
-    public function getDDLManager() {
+    public function getDDLManager(): DDLManager {
         // TODO: Implement getDDLManager() method.
     }
 }

@@ -14,22 +14,22 @@ interface PreparedStatement {
      *
      * @return string
      */
-    public function getStatementSQL();
+    public function getStatementSQL(): string;
 
 
     /**
      * Execute this statement for an array of parameter values matching ? in SQL.
      *
-     * @param mixed[] $parameterValues
-     * @return mixed
+     * @param BindParameter[] $parameterValues
+     * @return void
      */
-    public function execute($parameterValues);
+    public function execute(array $parameterValues): void;
 
 
     /**
      * Close this statement and free resources.
      */
-    public function close();
+    public function close(): void;
 
 }
 

@@ -3,6 +3,7 @@
 namespace Kinikit\Persistence\Database\Vendors\PostgreSQL;
 
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
+use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
@@ -21,7 +22,7 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
      * @return boolean
      *
      */
-    public function connect($configParams = []) {
+    public function connect($configParams = []): bool {
 
         if (isset($configParams["host"]))
             $dsn = "pgsql:host=" . $configParams["host"];
@@ -46,18 +47,19 @@ class PostgreSQLDatabaseConnection extends PDODatabaseConnection {
     /**
      * @return string
      */
-    public function getResultSetClass() {
+    public function getResultSetClass(): string {
         return PostgreSQLResultSet::class;
     }
 
     /**
      * Add MySQL specific parsing rules to SQL.
      *
-     * @param $sql
+     * @param string $sql
      * @param array &$parameterValues
-     * @return mixed|void
+     * @return string
+     * @throws SQLException
      */
-    public function parseSQL($sql, &$parameterValues = []) {
+    public function parseSQL(string $sql, &$parameterValues = []): string {
 
         // Map alter table statements
         preg_match("/^ALTER TABLE (\w+) .*(DROP PRIMARY KEY|ADD PRIMARY KEY|ADD|DROP|MODIFY|CHANGE)/", $sql, $alterMatches);
@@ -140,12 +142,20 @@ WHERE contype = 'p'
         return $sql;
     }
 
-    public function escapeColumn($columnName) {
+    /**
+     * @param string $columnName
+     * @return string
+     */
+    public function escapeColumn(string $columnName): string {
         return "\"" . $columnName . "\"";
     }
 
-
-    public function getTableColumnMetaData($tableName) {
+    /**
+     * @param string $tableName
+     * @return TableColumn[]
+     * @throws SQLException
+     */
+    public function getTableColumnMetaData(string $tableName): array {
 
         $results = $this->query("SELECT *
             FROM information_schema.columns
@@ -192,10 +202,10 @@ WHERE contype = 'p'
     /**
      * Return the index data for a table
      *
-     * @param $tableName
+     * @param string $tableName
      * @return TableIndex[]
      */
-    public function getTableIndexMetaData($tableName) {
+    public function getTableIndexMetaData(string $tableName): array {
         $indexData = $this->query(
             "select t.relname as table_name,
     i.relname as index_name,
@@ -253,7 +263,7 @@ order by
     /**
      * @return PostgreSQLDDLManager
      */
-    public function getDDLManager() {
+    public function getDDLManager(): DDLManager {
         return new PostgreSQLDDLManager();
     }
 

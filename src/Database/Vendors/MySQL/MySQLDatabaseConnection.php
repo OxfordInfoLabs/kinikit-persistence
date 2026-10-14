@@ -2,15 +2,19 @@
 
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
-use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
+use Kinikit\Persistence\Database\Connection\ConnectionClosedException;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
+use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
-use Kinikit\Persistence\Database\PreparedStatement\ColumnType;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 /**
  * Standard MYSQL implementation of the database connection class
@@ -50,7 +54,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * @return boolean
      *
      */
-    public function connect($configParams = []) {
+    public function connect(array $configParams = []): bool {
 
         if (isset($configParams["host"]))
             $dsn = "mysql:host=" . $configParams["host"];
@@ -84,7 +88,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
     /**
      * @return string
      */
-    public function getResultSetClass() {
+    public function getResultSetClass(): string {
         return MySQLResultSet::class;
     }
 
@@ -94,18 +98,18 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * @param $columnName
      * @return mixed
      */
-    public function escapeColumn($columnName) {
+    public function escapeColumn(string $columnName): string {
         return "`" . $columnName . "`";
     }
 
     /**
      * Add MySQL specific parsing rules to SQL.
      *
-     * @param $sql
+     * @param string $sql
      * @param array &$parameterValues
-     * @return mixed|void
+     * @return string
      */
-    public function parseSQL($sql, &$parameterValues = []) {
+    public function parseSQL(string $sql, &$parameterValues = []): string {
 
         // Substitute plain VARCHAR keyword
         $sql = preg_replace("/VARCHAR([^\(]|$)/i", "VARCHAR(255)$1", $sql);
@@ -116,11 +120,11 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
     /**
      * Override Execute method to retry if necessary.
      *
-     * @param $sql
-     * @param ...$placeholders
-     * @return bool|void
+     * @param string $sql
+     * @param mixed|BindParameter ...$placeholders
+     * @return bool
      */
-    public function execute($sql, ...$placeholders) {
+    public function execute(string $sql, ...$placeholders) {
 
         if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
             $placeholders = $placeholders[0];
@@ -140,12 +144,19 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
         }
     }
 
-    public function doQuery($sql, $placeholderValues) {
+    /**
+     * @param string $sql
+     * @param BindParameter[] $parameters
+     * @return ResultSet
+     * @throws SQLException
+     * @throws ConnectionClosedException
+     */
+    public function doQuery(string $sql, array $parameters): ResultSet {
 
         $retries = 1;
         while ($retries > 0) {
             try {
-                return parent::doQuery($sql, $placeholderValues);
+                return parent::doQuery($sql, $parameters);
             } catch (SQLException $e) {
                 if (!self::isRetryException($e) || $retries > $this->exceptionRetries) {
                     throw $e;
@@ -160,11 +171,11 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
     /**
      * Do create prepared statement.
      *
-     * @param $sql
+     * @param string $sql
      * @return MySQLPreparedStatement
      * @throws SQLException
      */
-    public function doCreatePreparedStatement($sql) {
+    public function doCreatePreparedStatement(string $sql): PreparedStatement {
         return new MySQLPreparedStatement($sql, $this->connection, $this->exceptionRetries);
     }
 
@@ -175,7 +186,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      *
      * @throws SQLException
      */
-    public function beginTransaction() {
+    public function beginTransaction(): void {
         if ($this->transactionDepth == 0) {
             $this->connection->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
         }
@@ -187,7 +198,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * Also switch back on auto commit once the outer transaction is complete.
      * @throws SQLException
      */
-    public function commit() {
+    public function commit(): void {
         parent::commit();
         if ($this->transactionDepth == 0) $this->connection->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
     }
@@ -199,7 +210,7 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * @param $wholeTransaction bool
      * @throws SQLException
      */
-    public function rollback($wholeTransaction = true) {
+    public function rollback(bool $wholeTransaction = true): void {
         parent::rollback($wholeTransaction);
 
         if ($this->transactionDepth == 0) $this->connection->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
@@ -210,9 +221,9 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * Get table column meta data for a given table as an associative array keyed in by column name.
      *
      * @param $tableName
-     * @return \Kinikit\Persistence\Database\MetaData\TableColumn[]
+     * @return TableColumn[]
      */
-    public function getTableColumnMetaData($tableName) {
+    public function getTableColumnMetaData(string $tableName): array {
         $results = $this->query("SHOW COLUMNS FROM " . $tableName)->fetchAll();
 
         // Loop through each result and map to table column objects
@@ -246,10 +257,10 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
     /**
      * Return the index data for a table
      *
-     * @param $tableName
+     * @param string $tableName
      * @return TableIndex[]
      */
-    public function getTableIndexMetaData($tableName) {
+    public function getTableIndexMetaData(string $tableName): array {
 
         $results = $this->query("SHOW INDEXES FROM $tableName");
 
@@ -287,16 +298,16 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
     /**
      * Return the standard bulk data manager for MySQL
      *
-     * @return \Kinikit\Persistence\Database\BulkData\BulkDataManager|StandardBulkDataManager
+     * @return MySQLBulkDataManager
      */
-    public function getBulkDataManager() {
+    public function getBulkDataManager(): BulkDataManager {
         return new MySQLBulkDataManager($this);
     }
 
     /**
      * @return MySQLDDLManager
      */
-    public function getDDLManager() {
+    public function getDDLManager(): DDLManager {
         return new MySQLDDLManager();
     }
 

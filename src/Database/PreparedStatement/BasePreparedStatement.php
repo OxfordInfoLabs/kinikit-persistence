@@ -27,7 +27,7 @@ abstract class BasePreparedStatement implements PreparedStatement {
      *
      * @return string
      */
-    public function getStatementSQL() {
+    public function getStatementSQL(): string {
         return $this->sql;
     }
 

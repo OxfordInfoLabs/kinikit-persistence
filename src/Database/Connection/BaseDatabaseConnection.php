@@ -8,8 +8,10 @@ use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\BulkData\DefaultBulkDataManager;
 use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
@@ -59,15 +61,15 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      *
      * BaseDatabaseConnection constructor.
      *
-     * @param string $configParams
+     * @param string[] $configParams
      *
      * @throws DatabaseConnectionException
      */
-    public function __construct($configParams = null) {
+    public function __construct(?array $configParams = null) {
 
 
-        // If no config params, assume default database
-        if (!$configParams) {
+        // If no config params supplied, assume default database
+        if ($configParams === null) {
             $configParams = Configuration::instance()->getParametersMatchingPrefix("db.", true);
             if (sizeof($configParams) == 0) {
                 throw new MissingDatabaseConfigurationException();
@@ -92,7 +94,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
     /**
      * @return string[]
      */
-    public function getConfigParams() {
+    public function getConfigParams(): array {
         return $this->configParams;
     }
 
@@ -100,11 +102,11 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
     /**
      * Default implementation of the parseSQL method - simply returns SQL intact
      *
-     * @param $sql
+     * @param string $sql
      * @param array &$parameterValues
      * @return mixed|void
      */
-    public function parseSQL($sql, &$parameterValues = []) {
+    public function parseSQL(string $sql, &$parameterValues = []): string {
         return $sql;
     }
 
@@ -114,20 +116,18 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * processed and then call the abstract doQuery method
      *
      * @param string $sql
-     * @param mixed ...$placeholders
+     * @param mixed|BindParameter ...$placeholders
      * @return ResultSet
      */
-    public function query($sql, ...$placeholders) {
+    public function query(string $sql, ...$placeholders): ResultSet {
 
-        if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
-            $placeholders = $placeholders[0];
-        }
+        $parameters = $this->createBindParameters($placeholders);
 
         // Parse the SQL to ensure we catch any vendor specific dialect
-        $sql = $this->parseSQL($sql, $placeholders);
+        $sql = $this->parseSQL($sql, $parameters);
 
 
-        return $this->doQuery($sql, $placeholders);
+        return $this->doQuery($sql, $parameters);
     }
 
 
@@ -135,21 +135,20 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * Implement execute method by creating a prepared statement and
      * executing it once.
      *
-     * @param $sql
-     * @param mixed ...$placeholders
-     * @return bool|void
+     * @param string $sql
+     * @param mixed|BindParameter ...$placeholders
+     * @return bool
      * @throws SQLException
      */
-    public function execute($sql, ...$placeholders) {
-        if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
-            $placeholders = $placeholders[0];
-        }
+    public function execute(string $sql, ...$placeholders) {
+
+        $parameters = $this->createBindParameters($placeholders);
 
         // Create prepared statement for passed SQL.
         $statement = $this->createPreparedStatement($sql);
 
-        // Execute with placeholdere
-        $statement->execute($placeholders);
+        // Execute with bind parameters
+        $statement->execute($parameters);
 
         // Close the statement
         $statement->close();
@@ -162,9 +161,9 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * to allow for SQL rewriting if required.
      *
      * @param string $sql
-     * @return PreparedStatement|void
+     * @return PreparedStatement
      */
-    public function createPreparedStatement($sql) {
+    public function createPreparedStatement(string $sql): PreparedStatement {
 
         // Parse the SQL to ensure we catch any vendor specific dialect
         $sql = $this->parseSQL($sql);
@@ -177,29 +176,45 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
     /**
      * Actual do Query method, should be implemented by child implementations
      *
-     * @param $sql
-     * @param $placeholderValues
-     * @return mixed
+     * @param string $sql
+     * @param BindParameter[] $parameters
+     * @return ResultSet
      */
-    public abstract function doQuery($sql, $placeholderValues);
+    public abstract function doQuery(string $sql, array $parameters): ResultSet;
+
+
+    /**
+     * Convert variadic placeholders (either passed individually or as a single array)
+     * into an array of bind parameters.  Values which are already bind parameters are kept intact.
+     *
+     * @param mixed[] $placeholders
+     * @return BindParameter[]
+     */
+    protected function createBindParameters(array $placeholders): array {
+        if (sizeof($placeholders) > 0 && is_array($placeholders[0])) {
+            $placeholders = $placeholders[0];
+        }
+
+        return BindParameter::createAll($placeholders);
+    }
 
 
     /**
      * Actual do method for creating a prepared statement.
      *
-     * @param $sql
+     * @param string $sql
      * @return PreparedStatement
      */
-    public abstract function doCreatePreparedStatement($sql);
+    public abstract function doCreatePreparedStatement(string $sql): PreparedStatement;
 
 
     /**
      * Execute a script containing multiple statements terminated by ;
      * Split each statement and execute in turn.
      *
-     * @param $scriptContents
+     * @param string $scriptContents
      */
-    public function executeScript($scriptContents) {
+    public function executeScript(string $scriptContents): void {
 
 
         $numberProcessed = 1;
@@ -240,7 +255,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      *
      * @param string $string
      */
-    public function log($string) {
+    public function log(string $string) {
         if ($this->logFile) {
             file_put_contents($this->logFile, $string . "\n", FILE_APPEND);
         }
@@ -252,7 +267,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * @param callable $callable
      * @param string $logString
      */
-    public function executeCallableWithLogging($callable, $logString) {
+    public function executeCallableWithLogging(callable $callable, string $logString) {
 
         // if a log file, execute with timings and logging, otherwise run callable intact.
         if ($this->logFile) {
@@ -273,7 +288,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      *
      * @throws SQLException
      */
-    public function beginTransaction() {
+    public function beginTransaction(): void {
 
         // Increase the transaction depth
         $this->transactionDepth++;
@@ -292,7 +307,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      *
      * @throws SQLException
      */
-    public function commit() {
+    public function commit(): void {
 
         $this->query("COMMIT");
 
@@ -305,10 +320,8 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * Standard implementation of rollback for a transaction
      *
      * @param bool $wholeTransaction
-     *
-     * @throws SQLException
      */
-    public function rollback($wholeTransaction = true) {
+    public function rollback(bool $wholeTransaction = true): void {
 
 
         if ($this->transactionDepth <= 1 || $wholeTransaction) {
@@ -328,7 +341,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      *
      * @param string $lastErrorMessage
      */
-    protected function setLastErrorMessage($lastErrorMessage) {
+    protected function setLastErrorMessage(string $lastErrorMessage): void {
         $this->lastErrorMessage = $lastErrorMessage;
         $this->log("Error: $lastErrorMessage");
     }
@@ -338,15 +351,15 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      *
      * @return string
      */
-    public function getLastErrorMessage() {
+    public function getLastErrorMessage(): string {
         return $this->lastErrorMessage;
     }
 
     /**
      * @param $tableName
-     * @return TableMetaData|null
+     * @return TableMetaData
      */
-    public function getTableMetaData($tableName) {
+    public function getTableMetaData($tableName): TableMetaData {
         if (!isset($this->cachedMetaData[$tableName])) {
             $this->cachedMetaData[$tableName] = new TableMetaData($tableName, $this->getTableColumnMetaData($tableName), $this->getTableIndexMetaData($tableName));
         }
@@ -357,7 +370,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
     /**
      * Clear meta data cache.  Useful when installing test data
      */
-    public function clearMetaDataCache() {
+    public function clearMetaDataCache(): void {
         $this->cachedMetaData = [];
     }
 
@@ -365,19 +378,19 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
     /**
      * Get table column meta data for a given table as an associative array keyed in by column name.
      *
-     * @param $tableName
-     * @return \Kinikit\Persistence\Database\MetaData\TableColumn[]
+     * @param string $tableName
+     * @return TableColumn[]
      */
-    public abstract function getTableColumnMetaData($tableName);
+    public abstract function getTableColumnMetaData(string $tableName): array;
 
 
     /**
      * Get table index meta data for a given table as an associative array keyed in by index name.
      *
-     * @param $tableName
+     * @param string $tableName
      * @return TableIndex[]
      */
-    public abstract function getTableIndexMetaData($tableName);
+    public abstract function getTableIndexMetaData(string $tableName): array;
 
     /**
      * Get the bulk data manager for this database connection.
@@ -387,7 +400,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      *
      * @return BulkDataManager
      */
-    public function getBulkDataManager() {
+    public function getBulkDataManager(): BulkDataManager {
         return new DefaultBulkDataManager($this);
     }
 
