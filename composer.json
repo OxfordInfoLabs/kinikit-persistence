@@ -14,7 +14,8 @@
   "homepage": "https://kinikit.com",
   "type": "library",
   "require": {
-    "oxil/kinikit-core": "dev-master"
+    "oxil/kinikit-core": "dev-master",
+    "google/cloud-bigquery": "^1.38.0"
   },
   "minimum-stability": "dev",
   "require-dev": {
