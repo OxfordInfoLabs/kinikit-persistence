@@ -108,7 +108,7 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
                     foreach ($parameters as $index => $parameter) {
 
                         // Bind numeric values of unknown type as numbers
-                        if ($parameter->getSqlType() == ResultSetColumn::SQL_UNKNOWN && is_numeric($parameter->getValue())) {
+                        if ($parameter->getType() == ResultSetColumn::SQL_UNKNOWN && is_numeric($parameter->getValue())) {
                             $parameter = new BindParameter(ResultSetColumn::SQL_INTEGER, $parameter->getValue());
                         }
 

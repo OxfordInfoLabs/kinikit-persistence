@@ -1,10 +1,6 @@
 <?php
 
-
 namespace Kinikit\Persistence\Database\PreparedStatement;
-
-
-use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 
 /**
  * Bind parameter class
@@ -12,16 +8,16 @@ use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
  */
 class BindParameter {
 
-    private $sqlType;
-    private $value;
+    private BindParameterType $type;
+    private mixed $value;
 
-    public function __construct($sqlType, $value) {
-        $this->sqlType = $sqlType;
+    public function __construct($value, $type = BindParameterType::TYPE_OTHER) {
+        $this->type = $type;
         $this->value = $value;
     }
 
-    public function getSqlType() {
-        return $this->sqlType;
+    public function getType(): BindParameterType {
+        return $this->type;
     }
 
     public function getValue() {
@@ -43,14 +39,15 @@ class BindParameter {
             return $value;
         }
 
-        $sqlType = match (true) {
-            $value instanceof BlobWrapper => ResultSetColumn::SQL_BLOB,
-            is_array($value) => ResultSetColumn::SQL_JSON,
-            is_int($value) => ResultSetColumn::SQL_INTEGER,
-            default => ResultSetColumn::SQL_UNKNOWN
+        $type = match (true) {
+            $value instanceof BlobWrapper => BindParameterType::TYPE_BLOB,
+            is_array($value) => BindParameterType::TYPE_ARRAY,
+            is_int($value) => BindParameterType::TYPE_INT,
+            is_numeric($value) => BindParameterType::TYPE_FLOAT,
+            default => BindParameterType::TYPE_OTHER
         };
 
-        return new BindParameter($sqlType, $value);
+        return new BindParameter($value, $type);
     }
 
 
