@@ -33,7 +33,7 @@ class BindParameter {
      * @param mixed $value
      * @return BindParameter
      */
-    public static function create($value): BindParameter {
+    public static function create(mixed $value): BindParameter {
 
         if ($value instanceof BindParameter) {
             return $value;
@@ -44,6 +44,7 @@ class BindParameter {
             is_array($value) => BindParameterType::TYPE_ARRAY,
             is_int($value) => BindParameterType::TYPE_INT,
             is_numeric($value) => BindParameterType::TYPE_FLOAT,
+            is_string($value) => BindParameterType::TYPE_STRING,
             default => BindParameterType::TYPE_OTHER
         };
 
@@ -58,7 +59,7 @@ class BindParameter {
      * @return BindParameter[]
      */
     public static function createAll(array $values): array {
-        return array_values(array_map(fn($value) => self::create($value), $values));
+        return array_map(fn($value) => self::create($value), $values);
     }
 
 }
