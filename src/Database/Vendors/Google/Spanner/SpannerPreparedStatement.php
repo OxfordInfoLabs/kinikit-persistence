@@ -3,9 +3,13 @@
 namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
 use Google\Cloud\Spanner\Database;
+use Google\Cloud\Spanner\Date;
+use Google\Cloud\Spanner\Timestamp;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SpannerSQLException;
 use Kinikit\Persistence\Database\PreparedStatement\BasePreparedStatement;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinikit\Persistence\Database\PreparedStatement\WrongNumberOfPreparedStatementParametersException;
 
 class SpannerPreparedStatement extends BasePreparedStatement {
@@ -35,12 +39,12 @@ class SpannerPreparedStatement extends BasePreparedStatement {
     }
 
     /**
-     * @param array $parameterValues
-     * @return SpannerResultSet|bool
+     * @param BindParameter[]|mixed[] $parameterValues
+     * @return void
      * @throws SpannerSQLException
      * @throws WrongNumberOfPreparedStatementParametersException
      */
-    public function execute($parameterValues) {
+    public function execute(array $parameterValues): void {
 
         if (count($parameterValues) !== $this->boundValues) {
             throw new WrongNumberOfPreparedStatementParametersException($this->boundValues, count($parameterValues));
@@ -56,7 +60,7 @@ class SpannerPreparedStatement extends BasePreparedStatement {
                     $value = (float)$value;
                 }
             }
-            $spannerParams['p' . $index++] = $value;
+            $spannerParams['p' . $index++] = self::bindParameter($value);
         }
 
         Logger::log($parameterValues);
@@ -64,25 +68,28 @@ class SpannerPreparedStatement extends BasePreparedStatement {
 
         try {
             $options = ['parameters' => $spannerParams];
-
-            // Determine if the SQL statement is a standard SELECT or a mutation (DML)
-            // to execute it with the correct transactional paradigm if needed.
-            if (stripos(trim($this->getStatementSQL()), 'SELECT') === 0) {
-                $results = $this->connection->execute($this->getStatementSQL(), $options);
-                return new SpannerResultSet($results);
-            } else {
-                $this->connection->runTransaction(function ($transaction) use ($options) {
-                    $transaction->executeUpdate($this->getStatementSQL(), $options);
-                    $transaction->commit();
-                });
-                return true;
-            }
+            $this->connection->runTransaction(function ($transaction) use ($options) {
+                $transaction->executeUpdate($this->getStatementSQL(), $options);
+                $transaction->commit();
+            });
         } catch (\Exception $e) {
             throw new SpannerSQLException($e->getMessage(), $e->getCode());
         }
     }
 
-    public function close() {
+    public static function bindParameter(BindParameter $parameter): mixed {
+        return match ($parameter->getType()) {
+            BindParameterType::TYPE_INT => (int)$parameter->getValue(),
+            BindParameterType::TYPE_FLOAT => (float)$parameter->getValue(),
+            BindParameterType::TYPE_BOOL => (bool)$parameter->getValue(),
+            BindParameterType::TYPE_STRING => (string)$parameter->getValue(),
+            BindParameterType::TYPE_DATE => new Date($parameter->getValue()),
+            BindParameterType::TYPE_DATETIME => new Timestamp( $parameter->getValue()),
+            default => $parameter->getValue()
+        };
+    }
+
+    public function close(): void {
         $this->statement = null;
     }
 }

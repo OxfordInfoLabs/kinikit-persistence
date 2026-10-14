@@ -6,11 +6,16 @@ use Google\Cloud\Spanner\Database;
 use Google\Cloud\Spanner\SpannerClient;
 use Google\Cloud\Spanner\Timestamp;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
+use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\Exception\SpannerSQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
+use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 class SpannerDatabaseConnection extends BaseDatabaseConnection {
 
@@ -25,7 +30,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
      * @param array $configParams
      * @return bool
      */
-    public function connect($configParams = []) {
+    public function connect(array $configParams = []): bool {
 
         $instanceId = $configParams["instanceId"];
         $databaseId = $configParams["databaseId"];
@@ -42,19 +47,22 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
      * @return mixed
      * @throws SpannerSQLException
      */
-    public function execute($sql, ...$placeholders) {
-        return $this->doQuery($sql, $placeholders, false);
+    public function execute(string $sql, ...$placeholders) {
+        $parameters = BindParameter::createAll($placeholders);
+        return $this->doQuery($sql, $parameters, false);
     }
 
 
     /**
      * Execute a query and return a result set
      *
-     * @param $sql
-     * @param $placeholderValues
+     * @param string $sql
+     * @param BindParameter[] $parameters
+     * @param bool $returnResults
+     * @param int $timeoutMs
      * @return mixed
      */
-    public function doQuery($sql, $placeholderValues, $returnResults = true, $timeoutMs = 10000) {
+    public function doQuery(string $sql, array $parameters, bool $returnResults = true, int $timeoutMs = 10000): ResultSet {
 
         try {
             $index = 1;
@@ -63,12 +71,12 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
             }, $sql);
 
             $options = [];
-            if (!empty($placeholderValues)) {
+            if (!empty($parameters)) {
                 $spannerParams = [];
 
                 // Check if the array is associative (named parameters) or indexed (positional)
                 // If it's indexed, we need to convert '?' in SQL to '@p1, @p2...'
-                $isNamed = count(array_filter(array_keys($placeholderValues), 'is_string')) > 0;
+                $isNamed = count(array_filter(array_keys($parameters), 'is_string')) > 0;
 
                 if (!$isNamed) {
                     $index = 1;
@@ -78,19 +86,11 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                 }
 
                 $index = 1;
-                foreach ($placeholderValues as $key => $value) {
-                    if (is_numeric($value)) {
-                        if (floor($value) == $value) {
-                            $value = (int)$value;
-                        } else {
-                            $value = (float)$value;
-                        }
-                    }
+                foreach ($parameters as $key => $value) {
+                    $value = SpannerPreparedStatement::bindParameter($value);
 
                     if ($value === "TRUE") $value = true;
                     if ($value === "FALSE") $value = false;
-
-                    if ($date = date_create_from_format("Y-m-d\TH:i:s\Z", $value)) $value = new Timestamp($date);
 
                     $paramName = $isNamed ? $key : 'p' . $index++;
                     $spannerParams[$paramName] = $value;
@@ -124,7 +124,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
      * @param string $sql
      * @return SpannerPreparedStatement
      */
-    public function doCreatePreparedStatement($sql) {
+    public function doCreatePreparedStatement(string $sql): PreparedStatement {
         return new SpannerPreparedStatement($sql, $this->spannerConnection);
     }
 
@@ -132,7 +132,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
      * @param string $tableName
      * @return TableColumn[]
      */
-    public function getTableColumnMetaData($tableName) {
+    public function getTableColumnMetaData(string $tableName): array {
 
         $sql = "SELECT COLUMN_NAME, SPANNER_TYPE, IS_NULLABLE, COLUMN_DEFAULT 
                 FROM INFORMATION_SCHEMA.COLUMNS 
@@ -172,7 +172,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
      * @param string $tableName
      * @return TableIndex[]
      */
-    public function getTableIndexMetaData($tableName) {
+    public function getTableIndexMetaData(string $tableName): array {
         $sql = "SELECT INDEX_NAME, COLUMN_NAME
                 FROM INFORMATION_SCHEMA.INDEX_COLUMNS
                 WHERE TABLE_NAME = @tableName AND INDEX_TYPE = 'INDEX'";
@@ -214,7 +214,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
      * @param string $string
      * @return string
      */
-    public function escapeString($string) {
+    public function escapeString(string $string): string {
         return str_replace("'", "\\'", $string);
     }
 
@@ -222,37 +222,36 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
      * @param string $columnName
      * @return string
      */
-    public function escapeColumn($columnName) {
+    public function escapeColumn(string $columnName): string {
         return implode(".", array_map(function ($part) {
             return "`" . str_replace("`", "``", $part) . "`";
         }, explode(".", $columnName)));
     }
 
     /**
-     * @return null
+     * @return int
      */
-    public function getLastAutoIncrementId() {
-        return null;
+    public function getLastAutoIncrementId(): int {
     }
 
     /**
      * @return SpannerBulkDataManager
      */
-    public function getBulkDataManager() {
+    public function getBulkDataManager(): BulkDataManager {
         return new SpannerBulkDataManager($this);
     }
 
     /**
      * @return SpannerDDLManager
      */
-    public function getDDLManager() {
+    public function getDDLManager(): DDLManager {
         return new SpannerDDLManager();
     }
 
     /**
      * @return void
      */
-    public function close() {
+    public function close(): void {
         $this->spannerConnection = null;
     }
 
