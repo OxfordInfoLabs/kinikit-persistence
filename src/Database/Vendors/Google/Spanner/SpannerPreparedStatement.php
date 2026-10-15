@@ -83,8 +83,8 @@ class SpannerPreparedStatement extends BasePreparedStatement {
             BindParameterType::TYPE_FLOAT => (float)$parameter->getValue(),
             BindParameterType::TYPE_BOOL => (bool)$parameter->getValue(),
             BindParameterType::TYPE_STRING => (string)$parameter->getValue(),
-            BindParameterType::TYPE_DATE => new Date($parameter->getValue()),
-            BindParameterType::TYPE_DATETIME => new Timestamp( $parameter->getValue()),
+            BindParameterType::TYPE_DATE => new Date(date_create($parameter->getValue())),
+            BindParameterType::TYPE_DATETIME => new Timestamp(date_create($parameter->getValue())),
             default => $parameter->getValue()
         };
     }
