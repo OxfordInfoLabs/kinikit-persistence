@@ -2,6 +2,8 @@
 
 namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Google\Cloud\Spanner\Database;
 use Google\Cloud\Spanner\Date;
 use Google\Cloud\Spanner\Timestamp;
@@ -78,15 +80,24 @@ class SpannerPreparedStatement extends BasePreparedStatement {
     }
 
     public static function bindParameter(BindParameter $parameter): mixed {
+        $value = $parameter->getValue();
+        if ($value === null) {
+            return null;
+        }
+
         return match ($parameter->getType()) {
-            BindParameterType::TYPE_INT => (int)$parameter->getValue(),
-            BindParameterType::TYPE_FLOAT => (float)$parameter->getValue(),
-            BindParameterType::TYPE_BOOL => (bool)$parameter->getValue(),
-            BindParameterType::TYPE_STRING => (string)$parameter->getValue(),
-            BindParameterType::TYPE_DATE => new Date(date_create($parameter->getValue())),
-            BindParameterType::TYPE_DATETIME => new Timestamp(date_create($parameter->getValue())),
-            default => $parameter->getValue()
+            BindParameterType::TYPE_INT => (int)$value,
+            BindParameterType::TYPE_FLOAT => (float)$value,
+            BindParameterType::TYPE_BOOL => (bool)$value,
+            BindParameterType::TYPE_STRING => (string)$value,
+            BindParameterType::TYPE_DATE => new Date(self::asDateTime($value)),
+            BindParameterType::TYPE_DATETIME => new Timestamp(self::asDateTime($value)),
+            default => $value
         };
+    }
+
+    private static function asDateTime(mixed $value): DateTimeInterface {
+        return $value instanceof DateTimeInterface ? $value : new DateTimeImmutable((string)$value);
     }
 
     public function close(): void {
