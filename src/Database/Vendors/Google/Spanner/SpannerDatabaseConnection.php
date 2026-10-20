@@ -165,6 +165,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
             );
         }
 
+        Logger::log($columns);
         return $columns;
     }
 
