@@ -4,12 +4,12 @@ namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
 use Google\Cloud\Spanner\Database;
 use Google\Cloud\Spanner\SpannerClient;
-use Google\Cloud\Spanner\Timestamp;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\Exception\SpannerSQLException;
+use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
@@ -153,10 +153,21 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
 
         $columns = [];
         foreach ($results as $row) {
+            $explodedType = explode("(", rtrim($row['SPANNER_TYPE'], ")"));
+            $spannerType = strtoupper($explodedType[0]);
+            $tableColumnType = SpannerResultSet::SPANNER_MAPPINGS[$spannerType] ?? ResultSetColumn::SQL_VARCHAR;
+
+            if (sizeof($explodedType) > 1) {
+                $explodedArgs = explode(",", $explodedType[1]);
+                $length = intval(trim($explodedArgs[0]));
+            } else {
+                $length = null;
+            }
+
             $columns[$row['COLUMN_NAME']] = new TableColumn(
                 $row['COLUMN_NAME'],
-                $row['SPANNER_TYPE'],
-                null,
+                $tableColumnType,
+                $length,
                 null,
                 $row['COLUMN_DEFAULT'] ?? null,
                 in_array($row['COLUMN_NAME'], $pks),
