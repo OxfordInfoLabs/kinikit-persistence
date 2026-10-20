@@ -2,9 +2,14 @@
 
 namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
+use Google\Cloud\Spanner\Date;
 use Google\Cloud\Spanner\KeySet;
+use Google\Cloud\Spanner\Timestamp;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\BulkData\DefaultBulkDataManager;
+use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 
 class SpannerBulkDataManager extends DefaultBulkDataManager {
 
@@ -21,13 +26,15 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
         Logger::log($rows);
         Logger::log($insertColumns);
 
+        $bindTypes = $this->getColumnBindTypes($tableName);
+
         while ($slice = array_splice($rows, 0, $this->batchSize)) {
             $mutations = [];
 
             foreach ($slice as $sliceItem) {
                 $rowData = [];
                 foreach ($insertColumns as $column) {
-                    $rowData[$column] = $sliceItem[$column] ?? null;
+                    $rowData[$column] = $this->bindMutationValue($sliceItem[$column] ?? null, $bindTypes[$column] ?? null);
                 }
                 $mutations[] = $rowData;
             }
@@ -54,6 +61,7 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
     public function doUpdate($tableName, $rows, $updateColumns, $matchColumns) {
 
         $allColumns = array_unique(array_merge($matchColumns, $updateColumns));
+        $bindTypes = $this->getColumnBindTypes($tableName);
 
         while ($slice = array_splice($rows, 0, $this->batchSize)) {
             $mutations = [];
@@ -61,7 +69,7 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
             foreach ($slice as $row) {
                 $rowData = [];
                 foreach ($allColumns as $column) {
-                    $rowData[$column] = $row[$column] ?? null;
+                    $rowData[$column] = $this->bindMutationValue($row[$column] ?? null, $bindTypes[$column] ?? null);
                 }
                 $mutations[] = $rowData;
             }
@@ -82,13 +90,15 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
      * @return void
      */
     public function doReplace($tableName, $rows, $replaceColumns) {
+        $bindTypes = $this->getColumnBindTypes($tableName);
+
         while ($slice = array_splice($rows, 0, $this->batchSize)) {
             $mutations = [];
 
             foreach ($slice as $row) {
                 $rowData = [];
                 foreach ($replaceColumns as $column) {
-                    $rowData[$column] = $row[$column] ?? null;
+                    $rowData[$column] = $this->bindMutationValue($row[$column] ?? null, $bindTypes[$column] ?? null);
                 }
                 $mutations[] = $rowData;
             }
@@ -108,6 +118,8 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
      * @return void
      */
     public function doDelete($tableName, $pkValues, $matchColumns) {
+        $bindTypes = $this->getColumnBindTypes($tableName);
+
         while ($slice = array_splice($pkValues, 0, $this->batchSize)) {
             $keys = [];
 
@@ -115,11 +127,11 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
                 if (is_array($pkRow)) {
                     $keyGroup = [];
                     foreach ($matchColumns as $column) {
-                        $keyGroup[] = $pkRow[$column] ?? null;
+                        $keyGroup[] = $this->bindMutationValue($pkRow[$column] ?? null, $bindTypes[$column] ?? null);
                     }
                     $keys[] = $keyGroup;
                 } else {
-                    $keys[] = $pkRow;
+                    $keys[] = $this->bindMutationValue($pkRow, $bindTypes[$matchColumns[0]] ?? null);
                 }
             }
 
@@ -131,6 +143,47 @@ class SpannerBulkDataManager extends DefaultBulkDataManager {
                 $transaction->commit();
             });
         }
+    }
+
+
+    /**
+     * Resolve column types once per bulk operation so date strings can be converted
+     * to the values expected by the Spanner mutation API.
+     *
+     * @param string $tableName
+     * @return BindParameterType[]
+     */
+    private function getColumnBindTypes(string $tableName): array {
+        $bindTypes = [];
+        foreach ($this->databaseConnection->getTableMetaData($tableName)->getColumns() as $column) {
+            $bindType = match ($column->getType()) {
+                TableColumn::SQL_DATE => BindParameterType::TYPE_DATE,
+                TableColumn::SQL_DATE_TIME, TableColumn::SQL_TIMESTAMP => BindParameterType::TYPE_DATETIME,
+                default => null
+            };
+
+            if ($bindType) {
+                $bindTypes[$column->getName()] = $bindType;
+            }
+        }
+        return $bindTypes;
+    }
+
+
+    private function bindMutationValue(mixed $value, ?BindParameterType $columnType): mixed {
+        if ($value instanceof Date || $value instanceof Timestamp) {
+            return $value;
+        }
+
+        if ($value instanceof BindParameter) {
+            return SpannerPreparedStatement::bindParameter($value);
+        }
+
+        if ($columnType) {
+            return SpannerPreparedStatement::bindParameter(new BindParameter($value, $columnType));
+        }
+
+        return $value;
     }
 
 }
