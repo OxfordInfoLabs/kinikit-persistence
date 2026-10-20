@@ -4,6 +4,7 @@ namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
 use Google\Cloud\Spanner\Database;
 use Google\Cloud\Spanner\SpannerClient;
+use Google\Cloud\Spanner\V1\TypeCode;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
@@ -154,7 +155,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
         $columns = [];
         foreach ($results as $row) {
             $explodedType = explode("(", rtrim($row['SPANNER_TYPE'], ")"));
-            $spannerType = strtoupper($explodedType[0]);
+            $spannerType = TypeCode::value(strtoupper($explodedType[0]));
             $tableColumnType = SpannerResultSet::SPANNER_MAPPINGS[$spannerType] ?? ResultSetColumn::SQL_VARCHAR;
 
             if (sizeof($explodedType) > 1) {
