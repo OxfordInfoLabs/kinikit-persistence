@@ -15,7 +15,7 @@ class SpannerResultSet extends BaseResultSet {
         TypeCode::INT64 => TableColumn::SQL_INTEGER,
         TypeCode::FLOAT64 => TableColumn::SQL_FLOAT,
         TypeCode::FLOAT32 => TableColumn::SQL_FLOAT,
-        TypeCode::TIMESTAMP => TableColumn::SQL_TIMESTAMP,
+        TypeCode::TIMESTAMP => TableColumn::SQL_DATE_TIME,
         TypeCode::DATE => TableColumn::SQL_DATE,
         TypeCode::STRING => TableColumn::SQL_VARCHAR,
         TypeCode::BYTES => TableColumn::SQL_BLOB,

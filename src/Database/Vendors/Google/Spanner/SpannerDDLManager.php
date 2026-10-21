@@ -2,6 +2,7 @@
 
 namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
+use Google\Cloud\Spanner\V1\TypeCode;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\DDL\DDLManager;
@@ -15,25 +16,25 @@ use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 class SpannerDDLManager implements DDLManager {
 
     const SQL_TYPE_MAPPINGS = [
-        ResultSetColumn::SQL_VARCHAR => "STRING(MAX)",
-        ResultSetColumn::SQL_TINYINT => "INT64",
-        ResultSetColumn::SQL_SMALLINT => "INT64",
-        ResultSetColumn::SQL_INT => "INT64",
-        ResultSetColumn::SQL_INTEGER => "INT64",
-        ResultSetColumn::SQL_BIGINT => "INT64",
-        ResultSetColumn::SQL_FLOAT => "FLOAT64",
-        ResultSetColumn::SQL_DOUBLE => "FLOAT64",
-        ResultSetColumn::SQL_REAL => "FLOAT64",
-        ResultSetColumn::SQL_DECIMAL => "NUMERIC",
-        ResultSetColumn::SQL_DATE => "DATE",
-        ResultSetColumn::SQL_TIME => "STRING(MAX)",
-        ResultSetColumn::SQL_DATE_TIME => "TIMESTAMP",
-        ResultSetColumn::SQL_TIMESTAMP => "TIMESTAMP",
-        ResultSetColumn::SQL_BLOB => "STRING(MAX)",
-        ResultSetColumn::SQL_LONGBLOB => "STRING(MAX)",
-        ResultSetColumn::SQL_JSON => "JSON",
-        ResultSetColumn::SQL_UNKNOWN => "STRING(MAX)",
-        ResultSetColumn::SQL_VECTOR => "ARRAY<FLOAT64>"
+        ResultSetColumn::SQL_VARCHAR => TypeCode::STRING,
+        ResultSetColumn::SQL_TINYINT => TypeCode::INT64,
+        ResultSetColumn::SQL_SMALLINT => TypeCode::INT64,
+        ResultSetColumn::SQL_INT => TypeCode::INT64,
+        ResultSetColumn::SQL_INTEGER => TypeCode::INT64,
+        ResultSetColumn::SQL_BIGINT => TypeCode::INT64,
+        ResultSetColumn::SQL_FLOAT => TypeCode::FLOAT64,
+        ResultSetColumn::SQL_DOUBLE => TypeCode::FLOAT64,
+        ResultSetColumn::SQL_REAL => TypeCode::FLOAT64,
+        ResultSetColumn::SQL_DECIMAL => TypeCode::NUMERIC,
+        ResultSetColumn::SQL_DATE => TypeCode::DATE,
+        ResultSetColumn::SQL_TIME => TypeCode::STRING,
+        ResultSetColumn::SQL_DATE_TIME => TypeCode::TIMESTAMP,
+        ResultSetColumn::SQL_TIMESTAMP => TypeCode::TIMESTAMP,
+        ResultSetColumn::SQL_BLOB => TypeCode::STRING,
+        ResultSetColumn::SQL_LONGBLOB => TypeCode::STRING,
+        ResultSetColumn::SQL_JSON => TypeCode::JSON,
+        ResultSetColumn::SQL_UNKNOWN => TypeCode::STRING,
+        ResultSetColumn::SQL_VECTOR => TypeCode::PBARRAY
     ];
 
     /**
@@ -139,7 +140,14 @@ class SpannerDDLManager implements DDLManager {
      * @return string
      */
     private function createColumnDefinitionString(TableColumn $column): string {
-        $line = "`" . $column->getName() . "` " . self::SQL_TYPE_MAPPINGS[$column->getType()];
+        $type = self::SQL_TYPE_MAPPINGS[$column->getType()];
+        $line = "`" . $column->getName() . "` " . TypeCode::name($type);
+
+        if ($column->getLength()) {
+            $line .= "(" . $column->getLength() . ")";
+        } else if ($type === TypeCode::STRING) {
+            $line .= "(MAX)";
+        }
 
         if ($column->isNotNull()) {
             $line .= " NOT NULL";
