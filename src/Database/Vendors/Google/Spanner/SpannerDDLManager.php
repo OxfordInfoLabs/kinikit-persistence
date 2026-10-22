@@ -143,7 +143,7 @@ class SpannerDDLManager implements DDLManager {
         $type = self::SQL_TYPE_MAPPINGS[$column->getType()];
         $line = "`" . $column->getName() . "` " . TypeCode::name($type);
 
-        if ($column->getLength()) {
+        if ($column->getLength() && !($type === TypeCode::STRING && $column->getLength() === SpannerDatabaseConnection::DEFAULT_STRING_LENGTH)) {
             $line .= "(" . $column->getLength() . ")";
         } else if ($type === TypeCode::STRING) {
             $line .= "(MAX)";

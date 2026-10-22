@@ -20,6 +20,9 @@ use Kinikit\Persistence\Database\ResultSet\ResultSet;
 
 class SpannerDatabaseConnection extends BaseDatabaseConnection {
 
+    // Match the generic VARCHAR default so STRING(MAX) compares as unchanged in schema updates.
+    public const DEFAULT_STRING_LENGTH = 255;
+
     /**
      * @var Database
      */
@@ -160,7 +163,9 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
 
             if (sizeof($explodedType) > 1) {
                 $explodedArgs = explode(",", $explodedType[1]);
-                $length = intval(trim($explodedArgs[0]));
+                $length = strtoupper(trim($explodedArgs[0])) === "MAX"
+                    ? self::DEFAULT_STRING_LENGTH
+                    : intval(trim($explodedArgs[0]));
             } else {
                 $length = null;
             }
