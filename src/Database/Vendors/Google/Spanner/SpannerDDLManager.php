@@ -61,7 +61,7 @@ class SpannerDDLManager implements DDLManager {
         if (empty($primaryKeys)) {
             $indexes = $tableMetaData->getIndexes();
             if (!empty($indexes)) {
-                $primaryKeys = array_map(fn($c) => "`$c`", $indexes[0]->getColumns());
+                $primaryKeys = array_map(fn($column) => "`{$column->getName()}`", reset($indexes)->getColumns());
             } else {
                 $firstColumn = current($tableMetaData->getColumns());
                 $primaryKeys = ["`" . $firstColumn->getName() . "`"];

@@ -180,7 +180,7 @@ abstract class BaseDatabaseConnection implements DatabaseConnection {
      * @param BindParameter[] $parameters
      * @return ResultSet
      */
-    public abstract function doQuery(string $sql, array $parameters): ResultSet;
+    public abstract function doQuery(string $sql, array $parameters): ResultSet|bool;
 
 
     /**

@@ -48,7 +48,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
     /**
      * @param string $sql
      * @param array ...$placeholders
-     * @return mixed
+     * @return ResultSet|bool
      * @throws SpannerSQLException
      */
     public function execute(string $sql, ...$placeholders) {
@@ -66,7 +66,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
      * @param int $timeoutMs
      * @return mixed
      */
-    public function doQuery(string $sql, array $parameters, bool $returnResults = true, int $timeoutMs = 10000): ResultSet {
+    public function doQuery(string $sql, array $parameters, bool $returnResults = true, int $timeoutMs = 10000): ResultSet|bool {
 
         try {
             $index = 1;
@@ -213,7 +213,7 @@ class SpannerDatabaseConnection extends BaseDatabaseConnection {
                     $columns = [];
                 }
 
-                $columns[$indexName] = new TableIndexColumn($row["COLUMN_NAME"]);
+                $columns[] = new TableIndexColumn($row["COLUMN_NAME"]);
             }
 
             // Last one
