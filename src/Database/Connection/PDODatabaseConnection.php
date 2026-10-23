@@ -6,8 +6,8 @@ namespace Kinikit\Persistence\Database\Connection;
 
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
-use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinikit\Persistence\Database\PreparedStatement\PDOPreparedStatement;
 use Kinikit\Persistence\Database\PreparedStatement\PreparedStatement;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
@@ -108,8 +108,8 @@ abstract class PDODatabaseConnection extends BaseDatabaseConnection {
                     foreach ($parameters as $index => $parameter) {
 
                         // Bind numeric values of unknown type as numbers
-                        if ($parameter->getType() == ResultSetColumn::SQL_UNKNOWN && is_numeric($parameter->getValue())) {
-                            $parameter = new BindParameter(ResultSetColumn::SQL_INTEGER, $parameter->getValue());
+                        if ($parameter->getType() == BindParameterType::TYPE_OTHER && is_numeric($parameter->getValue())) {
+                            $parameter = new BindParameter($parameter->getValue(), BindParameterType::TYPE_INT);
                         }
 
                         PDOPreparedStatement::bindParameter($statement, $index + 1, $parameter);

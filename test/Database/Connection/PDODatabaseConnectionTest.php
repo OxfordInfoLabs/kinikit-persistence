@@ -7,6 +7,8 @@ namespace Kinikit\Persistence\Database\Connection;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\PreparedStatement\BlobWrapper;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinikit\Persistence\Database\Vendors\MySQL\MySQLResultSet;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3ResultSet;
 
@@ -177,6 +179,16 @@ class PDODatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(2, sizeof($results->fetchAll()));
 
 
+    }
+
+    public function testNumericUnknownBindParameterIsBoundAsAnInteger(): void {
+        $pdoConnection = new TestPDODatabaseConnection(["dsn" => "sqlite::memory:"], SQLite3ResultSet::class);
+        $result = $pdoConnection->query(
+            "SELECT typeof(?) AS bound_type",
+            new BindParameter("123", BindParameterType::TYPE_OTHER)
+        );
+
+        $this->assertSame("integer", $result->fetchAll()[0]["bound_type"]);
     }
 
 

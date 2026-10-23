@@ -6,6 +6,7 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\BigQuerySQLException;
 use Kinikit\Persistence\Database\PreparedStatement\BasePreparedStatement;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
 use Kinikit\Persistence\Database\PreparedStatement\WrongNumberOfPreparedStatementParametersException;
 
 class BigQueryPreparedStatement extends BasePreparedStatement {
@@ -29,15 +30,19 @@ class BigQueryPreparedStatement extends BasePreparedStatement {
     }
 
     /**
-     * @param array $parameterValues
+     * @param BindParameter[]|mixed[] $parameterValues
      * @return void
      * @throws BigQuerySQLException
      * @throws WrongNumberOfPreparedStatementParametersException
      */
-    public function execute($parameterValues) {
+    public function execute(array $parameterValues): void {
 
         // Map parameters - BQ is very fussy about types
-        $parameterValues = array_map(function($value) {
+        $parameterValues = array_map(function ($value) {
+            if ($value instanceof BindParameter) {
+                $value = $value->getValue();
+            }
+
             if (is_numeric($value)) {
                 if (floor($value) == $value) {
                     $value = (int)$value;
@@ -65,7 +70,7 @@ class BigQueryPreparedStatement extends BasePreparedStatement {
         }
     }
 
-    public function close() {
+    public function close(): void {
         $this->statement = null;
     }
 }

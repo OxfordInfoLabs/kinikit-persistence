@@ -38,7 +38,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
      * @throws BigQuerySQLException
      */
     public function execute($sql, ...$placeholders) {
-        $parameters = BindParameter::createAll($placeholders);
+        $parameters = $this->createBindParameters($placeholders);
         return $this->doQuery($sql, $parameters, false);
     }
 
@@ -62,7 +62,7 @@ class BigQueryDatabaseConnection extends BaseDatabaseConnection {
             ]
         ]);
 
-        $parameterValues = array_map(fn ($parameter) => $parameter->getValue(), $parameters);
+        $parameterValues = array_map(fn($parameter) => $parameter->getValue(), $parameters);
         $queryJobConfig->parameters($parameterValues);
 
         try {

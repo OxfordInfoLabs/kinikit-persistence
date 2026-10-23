@@ -27,8 +27,8 @@ class BindParameter {
 
     /**
      * Create a bind parameter from a raw value, inferring the SQL type where unambiguous.
-     * Existing bind parameters are returned intact.  Values whose type cannot be safely
-     * inferred are given the SQL_UNKNOWN type so drivers can apply their default binding.
+     * Existing bind parameters are returned intact. Values whose type cannot be safely
+     * inferred are given the TYPE_OTHER type so drivers can apply their default binding.
      *
      * @param mixed $value
      * @return BindParameter
@@ -42,6 +42,7 @@ class BindParameter {
         $type = match (true) {
             $value instanceof BlobWrapper => BindParameterType::TYPE_BLOB,
             is_array($value) => BindParameterType::TYPE_ARRAY,
+            is_bool($value) => BindParameterType::TYPE_BOOL,
             is_int($value) => BindParameterType::TYPE_INT,
             is_numeric($value) => BindParameterType::TYPE_FLOAT,
             is_string($value) => BindParameterType::TYPE_STRING,

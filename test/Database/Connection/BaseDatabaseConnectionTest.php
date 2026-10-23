@@ -7,6 +7,8 @@ use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 
 include_once 'autoloader.php';
 
@@ -114,6 +116,30 @@ class BaseDatabaseConnectionTest extends \PHPUnit\Framework\TestCase {
         $dbConnection->commit();
         $this->assertEquals("COMMIT", $dbConnection->lastSQL);
 
+    }
+
+    public function testQueryNormalisesVariadicAndArrayBindParameters(): void {
+        $dbConnection = new TestDatabaseConnection([]);
+        $explicitParameter = new BindParameter("explicit", BindParameterType::TYPE_STRING);
+
+        $dbConnection->query("SELECT ?, ?", 123, $explicitParameter);
+        $this->assertSame(BindParameterType::TYPE_INT, $dbConnection->lastParameters[0]->getType());
+        $this->assertSame(123, $dbConnection->lastParameters[0]->getValue());
+        $this->assertSame($explicitParameter, $dbConnection->lastParameters[1]);
+
+        $dbConnection->query("SELECT ?, ?", [true, "value"]);
+        $this->assertSame(BindParameterType::TYPE_BOOL, $dbConnection->lastParameters[0]->getType());
+        $this->assertSame(BindParameterType::TYPE_STRING, $dbConnection->lastParameters[1]->getType());
+    }
+
+    public function testExecutePassesNormalisedBindParametersToPreparedStatement(): void {
+        $dbConnection = new TestDatabaseConnection([]);
+        $dbConnection->execute("INSERT INTO test VALUES (?, ?)", [123, "value"]);
+
+        $this->assertSame(BindParameterType::TYPE_INT, $dbConnection->lastPreparedStatement->executedParameters[0]->getType());
+        $this->assertSame(123, $dbConnection->lastPreparedStatement->executedParameters[0]->getValue());
+        $this->assertSame(BindParameterType::TYPE_STRING, $dbConnection->lastPreparedStatement->executedParameters[1]->getType());
+        $this->assertTrue($dbConnection->lastPreparedStatement->closed);
     }
 
 

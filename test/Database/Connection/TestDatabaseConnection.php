@@ -15,6 +15,8 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
 
     public $configParams;
     public $lastSQL;
+    public $lastParameters;
+    public $lastPreparedStatement;
 
     public $executedStatements = [];
 
@@ -59,6 +61,7 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      */
     public function doQuery(string $sql, array $parameters): ResultSet {
         $this->lastSQL = $sql;
+        $this->lastParameters = $parameters;
         return MockObjectProvider::mock(ResultSet::class);
     }
 
@@ -72,7 +75,8 @@ class TestDatabaseConnection extends BaseDatabaseConnection {
      */
     public function doCreatePreparedStatement($sql): PreparedStatement {
         $this->executedStatements[] = $sql;
-        return new TestPreparedStatement();
+        $this->lastPreparedStatement = new TestPreparedStatement();
+        return $this->lastPreparedStatement;
     }
 
     /**
