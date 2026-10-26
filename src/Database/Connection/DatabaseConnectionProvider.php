@@ -37,7 +37,7 @@ class DatabaseConnectionProvider {
      * @return DatabaseConnection
      * @throws MissingDatabaseConfigurationException
      */
-    public function getDatabaseConnectionByConfigKey($configKey = null) {
+    public function getDatabaseConnectionByConfigKey($configKey = "") {
 
         // Shortcut if we already have one.
         if (isset($this->databaseConnections[$configKey])) {
