@@ -39,12 +39,17 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         if (!isset($configParams["filename"]))
             throw new DatabaseConnectionException("No filename passed for SQL Lite database");
 
-        $connected = parent::connect(["dsn" => "sqlite:" . $configParams["filename"]]);
+        try {
+            $this->connection = new \PDO\SQlite("sqlite:" . $configParams["filename"]);
+            $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+        } catch (\PDOException $e) {
+            throw ($e);
+        }
 
-        if ($connected)
-            $this->applyCustomFunctionsToConnection();
+        $this->applyCustomFunctionsToConnection();
 
-        return $connected;
+        return true;
     }
 
 
