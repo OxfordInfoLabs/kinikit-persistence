@@ -301,7 +301,7 @@ class SQLite3DatabaseConnection extends PDODatabaseConnection {
         $builtIns = [new Concat(), new Year(), new Month(), new Day(), new Now()];
 
         foreach (array_merge($builtIns, self::$customFunctions) as $customFunction) {
-            $this->connection->sqliteCreateFunction($customFunction->getName(), array($customFunction, "execute"));
+            $this->connection->createFunction($customFunction->getName(), array($customFunction, "execute"));
         }
 
 
