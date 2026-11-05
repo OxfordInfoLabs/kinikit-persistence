@@ -2,10 +2,10 @@
 
 namespace Kinikit\Persistence\Database\Vendors\MySQL;
 
-use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\BulkData\StandardBulkDataManager;
 use Kinikit\Persistence\Database\Connection\PDODatabaseConnection;
+use Kinikit\Persistence\Database\Connection\QueryContext;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
@@ -106,6 +106,12 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
      * @return mixed|void
      */
     public function parseSQL($sql, &$parameterValues = []) {
+
+        // Inject timeout
+        $timeoutMs = QueryContext::getTimeout();
+        if ($timeoutMs) {
+            $sql = $this->setTimeout($sql, $timeoutMs);
+        }
 
         // Substitute plain VARCHAR keyword
         $sql = preg_replace("/VARCHAR([^\(]|$)/i", "VARCHAR(255)$1", $sql);
@@ -315,6 +321,22 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
             }
         }
         return false;
+    }
+
+    private function setTimeout($sql, $timeoutMs) {
+
+        // Set the query timeout, if applicable. Only works for SELECT statements
+        // Required to set it for the first SELECT statement only
+        if ($timeoutMs !== null && preg_match('/^\s*SELECT\b/i', $sql)) {
+            $sql = preg_replace(
+                '/^\s*SELECT\s+/i',
+                "SELECT /*+ MAX_EXECUTION_TIME($timeoutMs) */ ",
+                $sql,
+                1
+            );
+        }
+
+        return $sql;
     }
 
 }
