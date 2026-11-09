@@ -148,6 +148,8 @@ class MySQLDatabaseConnection extends PDODatabaseConnection {
 
     public function doQuery($sql, $placeholderValues) {
 
+        Logger::log($sql);
+
         $retries = 1;
         while ($retries > 0) {
             try {
