@@ -71,10 +71,9 @@ class SpannerDDLManager implements DDLManager {
         $sql .= " PRIMARY KEY (" . implode(", ", $primaryKeys) . ");";
 
         foreach ($tableMetaData->getIndexes() as $index) {
-            $sql .= ";\n" . $this->generateCreateIndexSQL($index, $tableMetaData->getTableName());
+            $sql .= "\n" . $this->generateCreateIndexSQL($index, $tableMetaData->getTableName()) . ";";
         }
 
-        Logger::log($sql, 6);
         return $sql;
     }
 
@@ -140,7 +139,7 @@ class SpannerDDLManager implements DDLManager {
      * @return string
      */
     private function createColumnDefinitionString(TableColumn $column): string {
-        $type = self::SQL_TYPE_MAPPINGS[$column->getType()];
+        $type = self::SQL_TYPE_MAPPINGS[$column->getType()] ?? TypeCode::STRING;
         $line = "`" . $column->getName() . "` " . TypeCode::name($type);
 
         if ($column->getLength() && !($type === TypeCode::STRING && $column->getLength() === SpannerDatabaseConnection::DEFAULT_STRING_LENGTH)) {
