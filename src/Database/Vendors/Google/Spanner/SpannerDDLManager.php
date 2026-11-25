@@ -3,7 +3,6 @@
 namespace Kinikit\Persistence\Database\Vendors\Google\Spanner;
 
 use Google\Cloud\Spanner\V1\TypeCode;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\DDL\DDLManager;
 use Kinikit\Persistence\Database\DDL\TableAlteration;
@@ -169,10 +168,16 @@ class SpannerDDLManager implements DDLManager {
      */
     private function generateCreateIndexSQL(TableIndex $index, string $tableName): string {
         $columnDescriptors = [];
+
+        $indexName = $index->getName();
+        if (!str_starts_with($indexName, $tableName)) {
+            $indexName = $tableName . "_". $indexName;
+        }
+
         foreach ($index->getColumns() as $column) {
             $columnDescriptors[] = "`{$column->getName()}`";
         }
-        return "CREATE INDEX `{$index->getName()}` ON `$tableName` (" . implode(",", $columnDescriptors) . ")";
+        return "CREATE INDEX `$indexName` ON `$tableName` (" . implode(",", $columnDescriptors) . ")";
     }
 
 }

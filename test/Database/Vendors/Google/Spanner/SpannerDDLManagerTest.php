@@ -74,7 +74,7 @@ class SpannerDDLManagerTest extends TestCase {
         $this->assertStringContainsString("`payload` JSON", $sql);
         $this->assertStringContainsString("`created_at` TIMESTAMP", $sql);
         $this->assertStringContainsString("PRIMARY KEY (`event_id`)", $sql);
-        $this->assertStringContainsString("CREATE INDEX `by_label` ON `events` (`label`)", $sql);
+        $this->assertStringContainsString("CREATE INDEX `events_by_label` ON `events` (`label`)", $sql);
 
         $indexFallbackSql = $ddlManager->generateTableCreateSQL(new TableMetaData("fallback_events", [
             new TableColumn("event_id", TableColumn::SQL_INTEGER),
@@ -123,9 +123,9 @@ class SpannerDDLManagerTest extends TestCase {
         $this->assertStringContainsString("ALTER TABLE `events` ADD COLUMN `description` STRING(120)", $sql);
         $this->assertStringContainsString("ALTER TABLE `events` ALTER COLUMN `status` STRING(20)", $sql);
         $this->assertStringContainsString("ALTER TABLE `events` DROP COLUMN `legacy`", $sql);
-        $this->assertStringContainsString("CREATE INDEX `by_description` ON `events` (`description`)", $sql);
+        $this->assertStringContainsString("CREATE INDEX `events_by_description` ON `events` (`description`)", $sql);
         $this->assertStringContainsString("DROP INDEX `by_status`", $sql);
-        $this->assertSame(1, substr_count($sql, "CREATE INDEX `by_status`"));
+        $this->assertSame(1, substr_count($sql, "CREATE INDEX `events_by_status`"));
         $this->assertStringContainsString("DROP INDEX `by_legacy`", $sql);
         $this->assertStringNotContainsString("renamed_status", $sql);
         $this->assertSame("DROP TABLE IF EXISTS events", $ddlManager->generateTableDropSQL("events"));
